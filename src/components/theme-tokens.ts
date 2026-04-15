@@ -201,3 +201,122 @@ export function clearTokens(
     target.style.removeProperty(`--${key}`)
   }
 }
+
+// ─── Dynamic Theme Generator ────────────────────────────────────
+
+/** Parsed oklch color channels */
+export interface OklchColor {
+  l: number // lightness 0..1
+  c: number // chroma 0..~0.4
+  h: number // hue 0..360
+}
+
+/** Parse an `oklch(L C H)` string. Returns null if not valid. */
+export function parseOklch(color: string): OklchColor | null {
+  const m = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)/)
+  if (!m) return null
+  return { l: parseFloat(m[1]), c: parseFloat(m[2]), h: parseFloat(m[3]) }
+}
+
+/** Format an OklchColor back to CSS string */
+export function formatOklch(color: OklchColor): string {
+  return `oklch(${color.l.toFixed(3)} ${color.c.toFixed(3)} ${color.h.toFixed(3)})`
+}
+
+/**
+ * Generate a complete ThemePreset from a single brand color (oklch string).
+ * Automatically derives all light/dark tokens using oklch color math.
+ *
+ * @param brandColor - An oklch CSS color string, e.g. "oklch(0.55 0.25 265)"
+ * @param name - Preset name (used as identifier)
+ * @param label - Human-readable label
+ * @returns A full ThemePreset with light and dark token sets
+ */
+export function generateThemeFromColor(
+  brandColor: string,
+  name = "custom",
+  label = "Custom",
+): ThemePreset {
+  const parsed = parseOklch(brandColor)
+  if (!parsed) {
+    throw new Error(`Invalid oklch color: "${brandColor}". Expected format: oklch(L C H)`)
+  }
+
+  const { c, h } = parsed
+
+  // ─── Light theme tokens ─────────────────────────
+  const light: ThemeTokens = {
+    background: "oklch(1 0 0)",
+    foreground: formatOklch({ l: 0.145, c: c * 0.05, h }),
+    card: "oklch(1 0 0)",
+    "card-foreground": formatOklch({ l: 0.145, c: c * 0.05, h }),
+    popover: "oklch(1 0 0)",
+    "popover-foreground": formatOklch({ l: 0.145, c: c * 0.05, h }),
+    primary: brandColor,
+    "primary-foreground": "oklch(0.985 0 0)",
+    secondary: formatOklch({ l: 0.97, c: c * 0.03, h }),
+    "secondary-foreground": formatOklch({ l: 0.205, c: c * 0.1, h }),
+    muted: formatOklch({ l: 0.97, c: c * 0.03, h }),
+    "muted-foreground": formatOklch({ l: 0.556, c: c * 0.08, h }),
+    accent: formatOklch({ l: 0.97, c: c * 0.03, h }),
+    "accent-foreground": formatOklch({ l: 0.205, c: c * 0.1, h }),
+    destructive: "oklch(0.577 0.245 27.325)",
+    border: formatOklch({ l: 0.922, c: c * 0.02, h }),
+    input: formatOklch({ l: 0.922, c: c * 0.02, h }),
+    ring: brandColor,
+    "chart-1": formatOklch({ l: 0.646, c: c * 0.9, h: (h + 140) % 360 }),
+    "chart-2": formatOklch({ l: 0.6, c: c * 0.5, h: (h + 80) % 360 }),
+    "chart-3": formatOklch({ l: 0.398, c: c * 0.3, h: (h + 200) % 360 }),
+    "chart-4": formatOklch({ l: 0.828, c: c * 0.8, h: (h + 50) % 360 }),
+    "chart-5": formatOklch({ l: 0.769, c: c * 0.75, h: (h + 30) % 360 }),
+    sidebar: formatOklch({ l: 0.985, c: c * 0.01, h }),
+    "sidebar-foreground": formatOklch({ l: 0.145, c: c * 0.05, h }),
+    "sidebar-primary": brandColor,
+    "sidebar-primary-foreground": "oklch(0.985 0 0)",
+    "sidebar-accent": formatOklch({ l: 0.97, c: c * 0.03, h }),
+    "sidebar-accent-foreground": formatOklch({ l: 0.205, c: c * 0.1, h }),
+    "sidebar-border": formatOklch({ l: 0.922, c: c * 0.02, h }),
+    "sidebar-ring": brandColor,
+  }
+
+  // ─── Dark theme tokens ──────────────────────────
+  // Bump lightness for dark-mode primary
+  const darkPrimaryL = Math.min(parsed.l + 0.1, 0.75)
+  const darkPrimary = formatOklch({ l: darkPrimaryL, c: c * 0.85, h })
+
+  const dark: ThemeTokens = {
+    background: formatOklch({ l: 0.145, c: c * 0.02, h }),
+    foreground: "oklch(0.985 0 0)",
+    card: formatOklch({ l: 0.205, c: c * 0.03, h }),
+    "card-foreground": "oklch(0.985 0 0)",
+    popover: formatOklch({ l: 0.205, c: c * 0.03, h }),
+    "popover-foreground": "oklch(0.985 0 0)",
+    primary: darkPrimary,
+    "primary-foreground": "oklch(0.985 0 0)",
+    secondary: formatOklch({ l: 0.269, c: c * 0.04, h }),
+    "secondary-foreground": "oklch(0.985 0 0)",
+    muted: formatOklch({ l: 0.269, c: c * 0.04, h }),
+    "muted-foreground": formatOklch({ l: 0.708, c: c * 0.05, h }),
+    accent: formatOklch({ l: 0.269, c: c * 0.04, h }),
+    "accent-foreground": "oklch(0.985 0 0)",
+    destructive: "oklch(0.704 0.191 22.216)",
+    border: formatOklch({ l: 0.3, c: c * 0.03, h }),
+    input: formatOklch({ l: 0.3, c: c * 0.03, h }),
+    ring: darkPrimary,
+    "chart-1": formatOklch({ l: 0.87, c: c * 0.5, h: (h + 140) % 360 }),
+    "chart-2": formatOklch({ l: 0.556, c: c * 0.4, h: (h + 80) % 360 }),
+    "chart-3": formatOklch({ l: 0.439, c: c * 0.3, h: (h + 200) % 360 }),
+    "chart-4": formatOklch({ l: 0.371, c: c * 0.2, h: (h + 50) % 360 }),
+    "chart-5": formatOklch({ l: 0.269, c: c * 0.15, h: (h + 30) % 360 }),
+    sidebar: formatOklch({ l: 0.205, c: c * 0.03, h }),
+    "sidebar-foreground": "oklch(0.985 0 0)",
+    "sidebar-primary": darkPrimary,
+    "sidebar-primary-foreground": "oklch(0.985 0 0)",
+    "sidebar-accent": formatOklch({ l: 0.269, c: c * 0.04, h }),
+    "sidebar-accent-foreground": "oklch(0.985 0 0)",
+    "sidebar-border": formatOklch({ l: 0.3, c: c * 0.03, h }),
+    "sidebar-ring": darkPrimary,
+  }
+
+  return { name, label, light, dark }
+}

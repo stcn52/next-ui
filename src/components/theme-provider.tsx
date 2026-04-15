@@ -67,6 +67,15 @@ function getResolvedTheme(theme: Theme): "dark" | "light" {
   return theme
 }
 
+/**
+ * Theme provider for dark/light mode, CSS variable tokens, and preset color themes.
+ * Supports runtime token customization via setTokens() and preset switching via applyPreset().
+ *
+ * @param defaultTheme - Initial theme: \"dark\" | \"light\" | \"system\" (default: \"system\")
+ * @param tokens - Initial CSS variable token overrides
+ * @param preset - Apply a built-in or custom ThemePreset on mount
+ * @param radius - Override the --radius CSS variable
+ */
 export function ThemeProvider({
   children,
   defaultTheme = "system",

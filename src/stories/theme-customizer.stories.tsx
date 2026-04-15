@@ -12,6 +12,7 @@ import {
   themePresets,
   type ThemePreset,
   type ThemeTokens,
+  generateThemeFromColor,
 } from "@/components/theme-tokens"
 
 const meta: Meta = {
@@ -319,5 +320,124 @@ export const TokenAPI: Story = {
     await expect(canvas.getByText("Programmatic Token API")).toBeInTheDocument()
     const warmBtn = canvas.getByText("Warm Palette")
     await userEvent.click(warmBtn)
+  },
+}
+
+/* ─── Dynamic Theme Generator ───────────────────────────────── */
+
+const SAMPLE_BRAND_COLORS = [
+  { label: "Indigo", value: "oklch(0.55 0.25 265)" },
+  { label: "Teal", value: "oklch(0.60 0.15 180)" },
+  { label: "Crimson", value: "oklch(0.55 0.24 15)" },
+  { label: "Amber", value: "oklch(0.75 0.18 75)" },
+  { label: "Emerald", value: "oklch(0.55 0.20 155)" },
+  { label: "Fuchsia", value: "oklch(0.58 0.27 320)" },
+]
+
+function ThemeGeneratorDemo() {
+  const { applyPreset, resetTokens, setTheme, theme } = useTheme()
+  const [brandInput, setBrandInput] = useState("oklch(0.55 0.25 265)")
+  const [error, setError] = useState<string | null>(null)
+  const [generated, setGenerated] = useState<ThemePreset | null>(null)
+
+  const handleGenerate = () => {
+    try {
+      const preset = generateThemeFromColor(brandInput, "generated", "Generated")
+      setGenerated(preset)
+      applyPreset(preset)
+      setError(null)
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6 max-w-xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Dynamic Theme Generator</CardTitle>
+          <CardDescription>
+            Enter a brand color in oklch format. The generator will compute a complete
+            light &amp; dark token palette using oklch color math.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {/* Mode Switch */}
+          <div className="flex gap-2">
+            {(["light", "dark"] as const).map((t) => (
+              <Button
+                key={t}
+                variant={theme === t ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTheme(t)}
+              >
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </Button>
+            ))}
+          </div>
+
+          {/* Quick picks */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Quick Pick</p>
+            <div className="flex flex-wrap gap-2">
+              {SAMPLE_BRAND_COLORS.map((c) => (
+                <button
+                  key={c.label}
+                  className="flex h-8 items-center gap-1.5 rounded-md border px-3 text-xs font-medium hover:bg-muted/50"
+                  onClick={() => {
+                    setBrandInput(c.value)
+                    const preset = generateThemeFromColor(c.value, c.label.toLowerCase(), c.label)
+                    setGenerated(preset)
+                    applyPreset(preset)
+                    setError(null)
+                  }}
+                >
+                  <span className="size-3 rounded-full" style={{ background: c.value }} />
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Manual input */}
+          <div className="flex items-center gap-2">
+            <Input
+              data-testid="brand-input"
+              value={brandInput}
+              onChange={(e) => setBrandInput(e.target.value)}
+              placeholder="oklch(L C H)"
+              className="text-sm font-mono"
+            />
+            <Button onClick={handleGenerate}>Generate</Button>
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {generated && !error && (
+            <p className="text-sm text-muted-foreground">
+              Generated &quot;{generated.label}&quot; preset ({Object.keys(generated.light).length} light + {Object.keys(generated.dark).length} dark tokens)
+            </p>
+          )}
+          <Button variant="outline" size="sm" onClick={() => { resetTokens(); setGenerated(null) }}>
+            Reset to Default
+          </Button>
+        </CardContent>
+      </Card>
+      <PreviewCard />
+    </div>
+  )
+}
+
+export const ThemeGenerator: Story = {
+  name: "Dynamic Generator",
+  render: () => <ThemeGeneratorDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Dynamic Theme Generator")).toBeInTheDocument()
+
+    // Click a quick pick color
+    const tealBtn = canvas.getByText("Teal")
+    await userEvent.click(tealBtn)
+
+    // Verify generation feedback
+    await expect(canvas.getByText(/Generated/)).toBeInTheDocument()
   },
 }

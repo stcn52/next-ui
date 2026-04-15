@@ -20,7 +20,7 @@ const preview: Preview = {
       },
     },
     a11y: {
-      config: {},
+      test: "error",
     },
   },
 }

@@ -3,9 +3,22 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { libInjectCss } from "vite-plugin-lib-inject-css"
+import { visualizer } from "rollup-plugin-visualizer"
+
+const analyze = process.env.ANALYZE === "true"
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), libInjectCss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    libInjectCss(),
+    analyze && visualizer({
+      filename: "dist/stats.html",
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

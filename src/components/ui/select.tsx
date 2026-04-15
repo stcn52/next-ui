@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useSize, type Size } from "@/components/config-provider"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
+/** Select dropdown component built on Base UI Select primitive. */
 const Select = SelectPrimitive.Root
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {

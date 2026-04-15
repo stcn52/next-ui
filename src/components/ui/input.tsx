@@ -10,6 +10,12 @@ const sizeClasses: Record<Size, string> = {
   lg: "h-9 px-3 text-base md:text-sm",
 }
 
+/**
+ * Text input component with size variants.
+ * Integrates with ConfigProvider for global size control.
+ *
+ * @param size - Size variant: "sm" | "md" | "lg" (defaults to ConfigProvider size)
+ */
 function Input({
   className,
   type,

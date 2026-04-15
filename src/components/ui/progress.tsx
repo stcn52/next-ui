@@ -2,6 +2,12 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Progress bar component showing completion state.
+ * Uses Base UI primitives with role="progressbar" and ARIA value attributes.
+ *
+ * @param value - Current progress value (0-100)
+ */
 function Progress({
   className,
   children,

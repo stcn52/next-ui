@@ -48,6 +48,13 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Button component with multiple visual variants and sizes.
+ * Integrates with ConfigProvider for global size control.
+ *
+ * @param variant - Visual style: "default" | "outline" | "secondary" | "ghost" | "destructive" | "link"
+ * @param size - Size variant: "default" | "xs" | "sm" | "lg" | "icon" | "icon-xs" | "icon-sm" | "icon-lg"
+ */
 function Button({
   className,
   variant = "default",

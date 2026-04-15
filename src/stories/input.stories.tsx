@@ -7,6 +7,19 @@ const meta: Meta<typeof Input> = {
   title: "UI/Input",
   component: Input,
   tags: ["autodocs"],
+  argTypes: {
+    size: {
+      control: "select",
+      options: ["sm", "md", "lg"],
+      description: "Input size variant (integrates with ConfigProvider)",
+    },
+    type: {
+      control: "select",
+      options: ["text", "email", "password", "number", "search", "tel", "url"],
+    },
+    disabled: { control: "boolean" },
+    placeholder: { control: "text" },
+  },
 }
 
 export default meta

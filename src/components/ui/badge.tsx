@@ -34,6 +34,13 @@ const badgeVariants = cva(
   }
 )
 
+/**
+ * Badge component with multiple visual variants and sizes.
+ * Integrates with ConfigProvider for global size control.
+ *
+ * @param variant - Visual style: "default" | "secondary" | "outline" | "destructive"
+ * @param size - Size variant: "sm" | "md" | "lg"
+ */
 function Badge({
   className,
   variant = "default",

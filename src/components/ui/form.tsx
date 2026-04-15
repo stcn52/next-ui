@@ -16,6 +16,11 @@ import { Label } from "@/components/ui/label"
 // Form (wraps react-hook-form FormProvider)
 // ---------------------------------------------------------------------------
 
+/**
+ * Form component wrapping react-hook-form's FormProvider.
+ * Use with FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage
+ * for complete form validation with Zod schemas.
+ */
 const Form = FormProvider
 
 // ---------------------------------------------------------------------------

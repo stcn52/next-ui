@@ -7,6 +7,15 @@ const meta: Meta<typeof Textarea> = {
   title: "UI/Textarea",
   component: Textarea,
   tags: ["autodocs"],
+  argTypes: {
+    size: {
+      control: "select",
+      options: ["sm", "md", "lg"],
+      description: "Size variant (integrates with ConfigProvider)",
+    },
+    disabled: { control: "boolean" },
+    placeholder: { control: "text" },
+  },
 }
 
 export default meta

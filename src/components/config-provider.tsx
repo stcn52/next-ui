@@ -201,6 +201,14 @@ interface ConfigProviderProps {
   classPrefix?: string
 }
 
+/**
+ * Global configuration provider for @chenyang/ui components.
+ * Controls locale, size, and class prefix for all child components.
+ *
+ * @param size - Global size: \"sm\" | \"md\" | \"lg\" (default: \"md\")
+ * @param locale - Locale key (\"en\", \"zh-CN\", \"ja-JP\") or partial LocaleStrings override
+ * @param classPrefix - CSS class prefix for all components
+ */
 function ConfigProvider({
   children,
   size = "md",

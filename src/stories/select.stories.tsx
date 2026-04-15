@@ -14,6 +14,13 @@ import {
 const meta: Meta = {
   title: "UI/Select",
   tags: ["autodocs"],
+  parameters: {
+    docs: {
+      description: {
+        component: "Select dropdown component with search, groups, and separator support. Integrates with ConfigProvider for global size.",
+      },
+    },
+  },
 }
 
 export default meta
