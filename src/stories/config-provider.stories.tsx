@@ -254,7 +254,7 @@ export const SizeIntegration: Story = {
 export const CustomLocale: Story = {
   name: "Custom Locale (registerLocale)",
   render: () => {
-    // Register a custom Korean locale on mount
+    // Flat style — same as before
     registerLocale("ko-KR", {
       noResults: "결과가 없습니다.",
       previous: "이전",
@@ -264,6 +264,25 @@ export const CustomLocale: Story = {
       filter: "필터...",
       pickADate: "날짜 선택",
       selectOption: "선택하세요...",
+    })
+
+    // Nested JSON style — same structure as locale JSON files
+    registerLocale("fr-FR", {
+      locale: "fr-FR",
+      common: {
+        noResults: "Aucun résultat.",
+        confirm: "Confirmer",
+        cancel: "Annuler",
+        search: "Rechercher…",
+      },
+      pagination: {
+        previous: "Précédent",
+        next: "Suivant",
+      },
+      dataTable: {
+        filter: "Filtrer…",
+        rowsSelected: "{count} sur {total} ligne(s) sélectionnée(s).",
+      },
     })
 
     const [locale, setLocale] = useState("en")

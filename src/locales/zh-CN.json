@@ -1,0 +1,43 @@
+{
+  "locale": "zh-CN",
+  "common": {
+    "noResults": "没有结果。",
+    "loading": "加载中…",
+    "close": "关闭",
+    "search": "搜索…",
+    "clear": "清除",
+    "confirm": "确认",
+    "cancel": "取消",
+    "required": "必填",
+    "optional": "可选",
+    "submit": "提交",
+    "reset": "重置"
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "goToPreviousPage": "前往上一页",
+    "goToNextPage": "前往下一页",
+    "page": "页",
+    "pageOf": "第 {page} / {total} 页",
+    "rowsPerPage": "每页行数"
+  },
+  "dataTable": {
+    "filter": "筛选…",
+    "rowsSelected": "已选择 {count} / {total} 行。",
+    "clickToEdit": "点击编辑"
+  },
+  "datePicker": {
+    "pickADate": "选择日期",
+    "selectedDate": "已选日期：{date}"
+  },
+  "combobox": {
+    "selectOption": "请选择…"
+  },
+  "command": {
+    "typeCommand": "输入命令或搜索…"
+  },
+  "kanban": {
+    "items": "项"
+  }
+}

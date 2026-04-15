@@ -1,0 +1,43 @@
+{
+  "locale": "en",
+  "common": {
+    "noResults": "No results.",
+    "loading": "Loading…",
+    "close": "Close",
+    "search": "Search…",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "required": "Required",
+    "optional": "Optional",
+    "submit": "Submit",
+    "reset": "Reset"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "goToPreviousPage": "Go to previous page",
+    "goToNextPage": "Go to next page",
+    "page": "Page",
+    "pageOf": "Page {page} of {total}",
+    "rowsPerPage": "Rows per page"
+  },
+  "dataTable": {
+    "filter": "Filter...",
+    "rowsSelected": "{count} of {total} row(s) selected.",
+    "clickToEdit": "Click to edit"
+  },
+  "datePicker": {
+    "pickADate": "Pick a date",
+    "selectedDate": "Selected date: {date}"
+  },
+  "combobox": {
+    "selectOption": "Select option..."
+  },
+  "command": {
+    "typeCommand": "Type a command or search..."
+  },
+  "kanban": {
+    "items": "items"
+  }
+}

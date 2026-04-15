@@ -1,0 +1,43 @@
+{
+  "locale": "ja-JP",
+  "common": {
+    "noResults": "結果がありません。",
+    "loading": "読み込み中…",
+    "close": "閉じる",
+    "search": "検索…",
+    "clear": "クリア",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "required": "必須",
+    "optional": "任意",
+    "submit": "送信",
+    "reset": "リセット"
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "goToPreviousPage": "前のページへ",
+    "goToNextPage": "次のページへ",
+    "page": "ページ",
+    "pageOf": "{page} / {total} ページ",
+    "rowsPerPage": "1ページの行数"
+  },
+  "dataTable": {
+    "filter": "フィルター…",
+    "rowsSelected": "{total}行中{count}行を選択中。",
+    "clickToEdit": "クリックして編集"
+  },
+  "datePicker": {
+    "pickADate": "日付を選択",
+    "selectedDate": "選択した日付：{date}"
+  },
+  "combobox": {
+    "selectOption": "選択してください…"
+  },
+  "command": {
+    "typeCommand": "コマンドまたは検索を入力…"
+  },
+  "kanban": {
+    "items": "件"
+  }
+}

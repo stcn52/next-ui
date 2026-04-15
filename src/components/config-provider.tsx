@@ -1,6 +1,13 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo } from "react"
+import {
+  en as _en,
+  zhCN as _zhCN,
+  jaJP as _jaJP,
+  flattenLocale,
+  type NestedLocale,
+} from "@/locales"
 
 // ---------------------------------------------------------------------------
 // Size
@@ -9,7 +16,7 @@ import { createContext, useCallback, useContext, useMemo } from "react"
 type Size = "sm" | "md" | "lg"
 
 // ---------------------------------------------------------------------------
-// Locale – minimal i18n dictionary
+// Locale – flat i18n dictionary (all keys come from JSON files)
 // ---------------------------------------------------------------------------
 
 interface LocaleStrings {
@@ -17,131 +24,47 @@ interface LocaleStrings {
   // Common
   noResults: string
   loading: string
-  previous: string
-  next: string
   close: string
   search: string
   clear: string
   confirm: string
   cancel: string
-  // DataTable / Pagination
-  filter: string
-  rowsSelected: string
+  required: string
+  optional: string
+  submit: string
+  reset: string
+  // Pagination
+  previous: string
+  next: string
   goToPreviousPage: string
   goToNextPage: string
   page: string
   pageOf: string
   rowsPerPage: string
+  // DataTable
+  filter: string
+  rowsSelected: string
+  clickToEdit: string
   // DatePicker
   pickADate: string
   selectedDate: string
   // Combobox / Select
   selectOption: string
-  // Editable
-  clickToEdit: string
   // Command
   typeCommand: string
   // Kanban
   items: string
-  // Form
-  required: string
-  optional: string
-  submit: string
-  reset: string
   // Allow custom keys
   [key: string]: string
 }
 
-const defaultLocale: LocaleStrings = {
-  locale: "en",
-  noResults: "No results.",
-  loading: "Loading…",
-  previous: "Previous",
-  next: "Next",
-  close: "Close",
-  search: "Search…",
-  clear: "Clear",
-  confirm: "Confirm",
-  cancel: "Cancel",
-  filter: "Filter...",
-  rowsSelected: "{count} of {total} row(s) selected.",
-  goToPreviousPage: "Go to previous page",
-  goToNextPage: "Go to next page",
-  page: "Page",
-  pageOf: "Page {page} of {total}",
-  rowsPerPage: "Rows per page",
-  pickADate: "Pick a date",
-  selectedDate: "Selected date: {date}",
-  selectOption: "Select option...",
-  clickToEdit: "Click to edit",
-  typeCommand: "Type a command or search...",
-  items: "items",
-  required: "Required",
-  optional: "Optional",
-  submit: "Submit",
-  reset: "Reset",
-}
+// ---------------------------------------------------------------------------
+// Built-in locales (sourced from JSON)
+// ---------------------------------------------------------------------------
 
-const zhCN: LocaleStrings = {
-  locale: "zh-CN",
-  noResults: "没有结果。",
-  loading: "加载中…",
-  previous: "上一页",
-  next: "下一页",
-  close: "关闭",
-  search: "搜索…",
-  clear: "清除",
-  confirm: "确认",
-  cancel: "取消",
-  filter: "筛选…",
-  rowsSelected: "已选择 {count} / {total} 行。",
-  goToPreviousPage: "前往上一页",
-  goToNextPage: "前往下一页",
-  page: "页",
-  pageOf: "第 {page} / {total} 页",
-  rowsPerPage: "每页行数",
-  pickADate: "选择日期",
-  selectedDate: "已选日期：{date}",
-  selectOption: "请选择…",
-  clickToEdit: "点击编辑",
-  typeCommand: "输入命令或搜索…",
-  items: "项",
-  required: "必填",
-  optional: "可选",
-  submit: "提交",
-  reset: "重置",
-}
-
-/** Japanese locale */
-const jaJP: LocaleStrings = {
-  locale: "ja-JP",
-  noResults: "結果がありません。",
-  loading: "読み込み中…",
-  previous: "前へ",
-  next: "次へ",
-  close: "閉じる",
-  search: "検索…",
-  clear: "クリア",
-  confirm: "確認",
-  cancel: "キャンセル",
-  filter: "フィルター…",
-  rowsSelected: "{total}行中{count}行を選択中。",
-  goToPreviousPage: "前のページへ",
-  goToNextPage: "次のページへ",
-  page: "ページ",
-  pageOf: "{page} / {total} ページ",
-  rowsPerPage: "1ページの行数",
-  pickADate: "日付を選択",
-  selectedDate: "選択した日付：{date}",
-  selectOption: "選択してください…",
-  clickToEdit: "クリックして編集",
-  typeCommand: "コマンドまたは検索を入力…",
-  items: "件",
-  required: "必須",
-  optional: "任意",
-  submit: "送信",
-  reset: "リセット",
-}
+const defaultLocale: LocaleStrings = _en
+const zhCN: LocaleStrings = _zhCN
+const jaJP: LocaleStrings = _jaJP
 
 const _builtinLocales: Record<string, LocaleStrings> = {
   en: defaultLocale,
@@ -150,40 +73,52 @@ const _builtinLocales: Record<string, LocaleStrings> = {
 }
 
 // ---------------------------------------------------------------------------
-// Locale registry – allows consumers to register/override locales at runtime
+// Locale registry – runtime registration / override
 // ---------------------------------------------------------------------------
 
 const _customLocales: Record<string, LocaleStrings> = {}
 
 /**
- * Register a custom locale or override a built-in one.
- * Partial objects are merged with `defaultLocale` to ensure completeness.
+ * Register a custom locale. Accepts either:
+ *   - A flat `Partial<LocaleStrings>` object
+ *   - A nested JSON-style `NestedLocale` object (same structure as locale files)
+ *
+ * Missing keys fall back to defaultLocale (English).
  */
-function registerLocale(key: string, locale: Partial<LocaleStrings>) {
-  const overrides: Record<string, string> = {}
-  for (const [k, v] of Object.entries(locale)) {
-    if (v !== undefined) overrides[k] = v
+function registerLocale(
+  key: string,
+  locale: Partial<LocaleStrings> | NestedLocale
+) {
+  // Detect nested structure: any value is an object
+  const hasNested = Object.values(locale).some(
+    (v) => typeof v === "object" && v !== null
+  )
+  const flat = hasNested
+    ? flattenLocale(locale as NestedLocale)
+    : filterUndefined(locale as Partial<LocaleStrings>)
+  _customLocales[key] = { ...defaultLocale, ...flat, locale: key }
+}
+
+function filterUndefined(obj: Partial<LocaleStrings>): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) result[k] = v
   }
-  _customLocales[key] = { ...defaultLocale, ...overrides, locale: key }
+  return result
 }
 
 /**
- * Resolve a locale key or object. Checks custom locales first, then built-in.
+ * Resolve a locale key or partial object into a full LocaleStrings.
  */
 function resolveLocale(locale: string | Partial<LocaleStrings>): LocaleStrings {
   if (typeof locale === "string") {
     return _customLocales[locale] ?? _builtinLocales[locale] ?? defaultLocale
   }
-  // Filter out undefined values before merging
-  const overrides: Record<string, string> = {}
-  for (const [k, v] of Object.entries(locale)) {
-    if (v !== undefined) overrides[k] = v
-  }
-  return { ...defaultLocale, ...overrides }
+  return { ...defaultLocale, ...filterUndefined(locale) }
 }
 
 /**
- * Get all registered locale keys (built-in + custom).
+ * Get all available locale keys (built-in + custom).
  */
 function getAvailableLocales(): string[] {
   return [
@@ -194,7 +129,7 @@ function getAvailableLocales(): string[] {
   ]
 }
 
-// Kept for backward compat — now includes custom locales
+// Backward-compat proxy: iterating returns all locales including custom ones
 const builtinLocales: Record<string, LocaleStrings> = new Proxy(
   _builtinLocales,
   {
@@ -206,7 +141,11 @@ const builtinLocales: Record<string, LocaleStrings> = new Proxy(
     },
     getOwnPropertyDescriptor(target, key: string) {
       if (_customLocales[key] || target[key]) {
-        return { configurable: true, enumerable: true, value: _customLocales[key] ?? target[key] }
+        return {
+          configurable: true,
+          enumerable: true,
+          value: _customLocales[key] ?? target[key],
+        }
       }
       return undefined
     },
@@ -218,7 +157,7 @@ const builtinLocales: Record<string, LocaleStrings> = new Proxy(
 // ---------------------------------------------------------------------------
 
 /**
- * Interpolate a template string by replacing `{key}` tokens with values.
+ * Replace `{key}` tokens in a template with provided values.
  *
  * @example
  *   formatMessage("{count} of {total} selected", { count: 2, total: 10 })
@@ -239,11 +178,8 @@ function formatMessage(
 // ---------------------------------------------------------------------------
 
 interface ConfigContextValue {
-  /** Component default size */
   size: Size
-  /** Active locale strings */
   locale: LocaleStrings
-  /** CSS class prefix – e.g. "cui" → "cui-button" */
   classPrefix: string
 }
 
@@ -259,11 +195,9 @@ const ConfigContext = createContext<ConfigContextValue>({
 
 interface ConfigProviderProps {
   children: React.ReactNode
-  /** Default component size */
   size?: Size
-  /** Locale key ("en", "zh-CN", "ja-JP") or full/partial locale object */
+  /** Locale key ("en", "zh-CN", "ja-JP") or partial locale object */
   locale?: string | Partial<LocaleStrings>
-  /** Optional CSS class prefix */
   classPrefix?: string
 }
 
@@ -305,12 +239,11 @@ function useSize() {
 }
 
 /**
- * Returns a `t()` function that interpolates locale templates.
+ * Returns a `t()` function bound to the current locale.
  *
  * @example
  *   const t = useTranslation()
  *   t("rowsSelected", { count: 2, total: 10 })
- *   // uses the current locale's "rowsSelected" template → "2 of 10 row(s) selected."
  */
 function useTranslation() {
   const locale = useLocale()
@@ -341,8 +274,10 @@ export {
   resolveLocale,
   getAvailableLocales,
   formatMessage,
+  flattenLocale,
   type ConfigProviderProps,
   type ConfigContextValue,
   type LocaleStrings,
+  type NestedLocale,
   type Size,
 }
