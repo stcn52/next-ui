@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.2.0 (2026-04-16)
+
+### New Components
+
+- **Timeline** — vertical/horizontal layout with dot variants (default/primary/success/warning/destructive) and connector lines
+- **Stepper** — step indicator with horizontal/vertical orientation, completed/active/upcoming states
+
+### New Page Templates
+
+- **Blog** — featured post, tag filtering, article cards with reading time estimates
+- **Landing** — hero section, feature grid, testimonials, CTA with install command
+- **Team** — member management table, role badges (owner/admin/member/viewer), invite section
+- **Inbox** — email-like thread list, preview pane, star/archive/delete actions
+- **Projects** — card grid with progress bars, status badges, team avatars
+- **Orders** — e-commerce table with KPI cards, status filters, order management
+
+### Improvements
+
+- **Theme CSS Import** — `parseThemeCSS()` to import themes from shadcnthemer.com
+- **Sidebar a11y** — `aria-label`, `<nav>` element, `aria-current="page"` on active item
+- **Global CSS** — `cursor: pointer` for interactive elements, `prefers-reduced-motion` support
+- **Bundle optimization** — ESM 179KB (was 1,380KB), heavy deps externalized via regex patterns
+
+### Tests
+
+- Unit tests: 49 passing
+- E2E tests: 16 passing (Playwright)
+- Storybook play tests for all stories
+
+---
+
 ## 0.1.0 (2026-04-16)
 
 ### Features
