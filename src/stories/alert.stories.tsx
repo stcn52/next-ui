@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Info, AlertTriangle } from "lucide-react"
 
@@ -27,6 +28,12 @@ export const Default: Story = {
       </AlertDescription>
     </Alert>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const alert = canvas.getByRole("alert")
+    await expect(alert).toBeInTheDocument()
+    await expect(canvas.getByText("Heads up!")).toBeVisible()
+  },
 }
 
 export const Destructive: Story = {

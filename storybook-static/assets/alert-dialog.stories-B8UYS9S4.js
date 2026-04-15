@@ -1,0 +1,46 @@
+import{n as e,o as t}from"./chunk-zsgVPwQN.js";import{t as n}from"./react-C184PLS3.js";import{a as r,n as i,t as a}from"./utils-cUModyxV.js";import{C as o,S as s,_ as c,a as l,b as ee,c as u,d,f,g as p,i as m,l as h,m as g,n as _,o as v,p as y,r as b,s as x,t as S,u as C,v as te,w as ne,x as re,y as w}from"./DialogTrigger-B89kOQhj.js";import{n as T,t as E}from"./button-Du_8gkil.js";function D(e){let{children:t,open:n,defaultOpen:r=!1,onOpenChange:i,onOpenChangeComplete:a,actionsRef:o,handle:c,triggerId:l,defaultTriggerId:u=null}=e,d=s(!0),f=!!d,m=te.useStore(c?.store,{open:r,openProp:n,activeTriggerId:u,triggerIdProp:l,modal:!0,disablePointerDismissal:!0,nested:f,role:`alertdialog`});m.useControlledProp(`openProp`,n),m.useControlledProp(`triggerIdProp`,l),m.useSyncedValue(`nested`,f),m.useContextCallback(`onOpenChange`,i),m.useContextCallback(`onOpenChangeComplete`,a);let h=m.useState(`payload`);ne({store:m,actionsRef:o,parentContext:d?.store.context,isDrawer:!1,onOpenChange:i,triggerIdProp:l});let g=O.useMemo(()=>({store:m}),[m]);return(0,k.jsx)(p.Provider,{value:!1,children:(0,k.jsx)(ee.Provider,{value:g,children:typeof t==`function`?t({payload:h}):t})})}var O,k,A=e((()=>{O=t(n()),c(),o(),re(),w(),k=r()})),j=e((()=>{A(),g(),f(),C(),u(),v(),m(),_()})),M=e((()=>{j()}));function N({...e}){return(0,G.jsx)(D,{"data-slot":`alert-dialog`,...e})}function P({...e}){return(0,G.jsx)(S,{"data-slot":`alert-dialog-trigger`,...e})}function F({...e}){return(0,G.jsx)(l,{"data-slot":`alert-dialog-portal`,...e})}function I({className:e,...t}){return(0,G.jsx)(y,{"data-slot":`alert-dialog-overlay`,className:a(`fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0`,e),...t})}function L({className:e,size:t=`default`,...n}){return(0,G.jsxs)(F,{children:[(0,G.jsx)(I,{}),(0,G.jsx)(x,{"data-slot":`alert-dialog-content`,"data-size":t,className:a(`group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95`,e),...n})]})}function R({className:e,...t}){return(0,G.jsx)(`div`,{"data-slot":`alert-dialog-header`,className:a(`grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-4 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]`,e),...t})}function z({className:e,...t}){return(0,G.jsx)(`div`,{"data-slot":`alert-dialog-footer`,className:a(`-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end`,e),...t})}function B({className:e,...t}){return(0,G.jsx)(`div`,{"data-slot":`alert-dialog-media`,className:a(`mb-2 inline-flex size-10 items-center justify-center rounded-md bg-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-6`,e),...t})}function V({className:e,...t}){return(0,G.jsx)(b,{"data-slot":`alert-dialog-title`,className:a(`font-heading text-base font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2`,e),...t})}function H({className:e,...t}){return(0,G.jsx)(h,{"data-slot":`alert-dialog-description`,className:a(`text-sm text-balance text-muted-foreground md:text-pretty *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground`,e),...t})}function U({className:e,...t}){return(0,G.jsx)(E,{"data-slot":`alert-dialog-action`,className:a(e),...t})}function W({className:e,variant:t=`outline`,size:n=`default`,...r}){return(0,G.jsx)(d,{"data-slot":`alert-dialog-cancel`,className:a(e),render:(0,G.jsx)(E,{variant:t,size:n}),...r})}var G,ie=e((()=>{n(),M(),i(),T(),G=r(),N.__docgenInfo={description:``,methods:[],displayName:`AlertDialog`},U.__docgenInfo={description:``,methods:[],displayName:`AlertDialogAction`},W.__docgenInfo={description:``,methods:[],displayName:`AlertDialogCancel`,props:{variant:{defaultValue:{value:`"outline"`,computed:!1},required:!1},size:{defaultValue:{value:`"default"`,computed:!1},required:!1}}},L.__docgenInfo={description:``,methods:[],displayName:`AlertDialogContent`,props:{size:{required:!1,tsType:{name:`union`,raw:`"default" | "sm"`,elements:[{name:`literal`,value:`"default"`},{name:`literal`,value:`"sm"`}]},description:``,defaultValue:{value:`"default"`,computed:!1}}}},H.__docgenInfo={description:``,methods:[],displayName:`AlertDialogDescription`},z.__docgenInfo={description:``,methods:[],displayName:`AlertDialogFooter`},R.__docgenInfo={description:``,methods:[],displayName:`AlertDialogHeader`},B.__docgenInfo={description:``,methods:[],displayName:`AlertDialogMedia`},I.__docgenInfo={description:``,methods:[],displayName:`AlertDialogOverlay`},F.__docgenInfo={description:``,methods:[],displayName:`AlertDialogPortal`},V.__docgenInfo={description:``,methods:[],displayName:`AlertDialogTitle`},P.__docgenInfo={description:``,methods:[],displayName:`AlertDialogTrigger`}})),K,q,J,Y,X,Z,Q,$;e((()=>{ie(),T(),K=r(),{expect:q,userEvent:J,within:Y}=__STORYBOOK_MODULE_TEST__,X={title:`UI/AlertDialog`,tags:[`autodocs`]},Z={render:()=>(0,K.jsxs)(N,{children:[(0,K.jsx)(P,{render:(0,K.jsx)(E,{variant:`outline`,children:`Open Alert`})}),(0,K.jsxs)(L,{children:[(0,K.jsxs)(R,{children:[(0,K.jsx)(V,{children:`Are you absolutely sure?`}),(0,K.jsx)(H,{children:`This action cannot be undone. This will permanently delete your account and remove your data from our servers.`})]}),(0,K.jsxs)(z,{children:[(0,K.jsx)(W,{render:(0,K.jsx)(E,{variant:`outline`,children:`Cancel`})}),(0,K.jsx)(U,{render:(0,K.jsx)(E,{variant:`destructive`,children:`Delete Account`})})]})]})]}),play:async({canvasElement:e})=>{let t=Y(e).getByRole(`button`,{name:/open alert/i});await q(t).toBeInTheDocument(),await J.click(t),await q(Y(document.body).getByText(/Are you absolutely sure/i)).toBeInTheDocument()}},Q={render:()=>(0,K.jsxs)(N,{children:[(0,K.jsx)(P,{render:(0,K.jsx)(E,{variant:`destructive`,children:`Delete File`})}),(0,K.jsxs)(L,{children:[(0,K.jsxs)(R,{children:[(0,K.jsx)(V,{children:`Delete file?`}),(0,K.jsx)(H,{children:`The file will be permanently deleted and cannot be recovered.`})]}),(0,K.jsxs)(z,{children:[(0,K.jsx)(W,{render:(0,K.jsx)(E,{variant:`outline`,children:`Keep file`})}),(0,K.jsx)(U,{render:(0,K.jsx)(E,{variant:`destructive`,children:`Delete`})})]})]})]})},Z.parameters={...Z.parameters,docs:{...Z.parameters?.docs,source:{originalSource:`{
+  render: () => <AlertDialog>
+      <AlertDialogTrigger render={<Button variant="outline">Open Alert</Button>} />
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel render={<Button variant="outline">Cancel</Button>} />
+          <AlertDialogAction render={<Button variant="destructive">Delete Account</Button>} />
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>,
+  play: async ({
+    canvasElement
+  }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", {
+      name: /open alert/i
+    });
+    await expect(trigger).toBeInTheDocument();
+    await userEvent.click(trigger);
+    const body = within(document.body);
+    await expect(body.getByText(/Are you absolutely sure/i)).toBeInTheDocument();
+  }
+}`,...Z.parameters?.docs?.source}}},Q.parameters={...Q.parameters,docs:{...Q.parameters?.docs,source:{originalSource:`{
+  render: () => <AlertDialog>
+      <AlertDialogTrigger render={<Button variant="destructive">Delete File</Button>} />
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete file?</AlertDialogTitle>
+          <AlertDialogDescription>
+            The file will be permanently deleted and cannot be recovered.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel render={<Button variant="outline">Keep file</Button>} />
+          <AlertDialogAction render={<Button variant="destructive">Delete</Button>} />
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+}`,...Q.parameters?.docs?.source}}},$=[`Default`,`Destructive`]}))();export{Z as Default,Q as Destructive,$ as __namedExportsOrder,X as default};

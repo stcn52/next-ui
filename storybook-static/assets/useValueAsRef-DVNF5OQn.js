@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-zsgVPwQN.js";import{C as t,S as n}from"./useRenderElement-BEIMEjYa.js";import{n as r,t as i}from"./useIsoLayoutEffect-B_HQaUpI.js";function a(e){let n=t(o,e).current;return n.next=e,r(n.effect),n}function o(e){let t={current:e,next:e,effect:()=>{t.current=t.next}};return t}var s=e((()=>{i(),n()}));export{a as n,s as t};

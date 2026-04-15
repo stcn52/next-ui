@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, userEvent, within } from "storybook/test"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
@@ -17,7 +18,15 @@ const meta: Meta<typeof Switch> = {
 export default meta
 type Story = StoryObj<typeof Switch>
 
-export const Default: Story = {}
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const switchEl = canvas.getByRole("switch")
+    await expect(switchEl).not.toBeChecked()
+    await userEvent.click(switchEl)
+    await expect(switchEl).toBeChecked()
+  },
+}
 
 export const Checked: Story = {
   args: { defaultChecked: true },

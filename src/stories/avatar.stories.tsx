@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 const meta: Meta<typeof Avatar> = {
@@ -23,6 +24,11 @@ export const Default: Story = {
       <AvatarFallback>CN</AvatarFallback>
     </Avatar>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const avatar = canvas.getByRole("img", { name: /shadcn/i })
+    await expect(avatar).toBeInTheDocument()
+  },
 }
 
 export const AllSizes: Story = {

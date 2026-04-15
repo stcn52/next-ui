@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Badge } from "@/components/ui/badge"
 
 const meta: Meta<typeof Badge> = {
@@ -18,6 +19,11 @@ type Story = StoryObj<typeof Badge>
 
 export const Default: Story = {
   args: { children: "Badge" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Badge")).toBeInTheDocument()
+    await expect(canvas.getByText("Badge")).toBeVisible()
+  },
 }
 
 export const AllVariants: Story = {
