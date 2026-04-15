@@ -1,73 +1,64 @@
 import { useCallback, useRef, useState, useEffect } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
-  Bot,
-  BrainCircuit,
-  Check,
-  ChevronDown,
-  Copy,
-  MessageSquarePlus,
-  Paperclip,
-  Pencil,
-  RefreshCcw,
-  Search,
-  Send,
-  Sparkles,
-  Square,
-  ThumbsDown,
-  ThumbsUp,
-  User,
-  X,
-} from "lucide-react"
+  Bubble,
+  type BubbleProps,
+  TypingIndicator,
+} from "@/components/ui/chat-bubble"
+import { ChatConversations, type ConversationItem } from "@/components/ui/chat-conversations"
+import { ChatSender } from "@/components/ui/chat-sender"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Bot, FileText, FileUp, Image, Sparkles } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-type MessageRole = "user" | "assistant" | "system"
-type MessageStatus = "sending" | "sent" | "error"
-
 interface ChatMessage {
   id: string
-  role: MessageRole
+  role: "user" | "assistant" | "system"
   content: string
   timestamp: string
-  status?: MessageStatus
-  /** ThoughtChain thinking steps shown before AI answer */
+  status?: "sending" | "sent" | "error"
   thinking?: string[]
-  /** Whether this message is currently streaming */
   streaming?: boolean
-}
-
-interface Conversation {
-  id: string
-  title: string
-  lastMessage: string
-  updatedAt: string
-  unread?: number
-  group: string
+  model?: string
 }
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 
-const CONVERSATIONS: Conversation[] = [
-  { id: "1", title: "AI 编码助手", lastMessage: "已为你生成代码片段…", updatedAt: "10:30", unread: 2, group: "今天" },
-  { id: "2", title: "翻译助手", lastMessage: "翻译已完成", updatedAt: "09:15", group: "今天" },
-  { id: "3", title: "PPT 大纲生成", lastMessage: "大纲内容如下…", updatedAt: "昨天", group: "昨天" },
-  { id: "4", title: "数据分析报告", lastMessage: "报告已生成，请查收。", updatedAt: "昨天", group: "昨天" },
-  { id: "5", title: "学习计划", lastMessage: "推荐以下学习路径…", updatedAt: "3天前", group: "更早" },
+const CONVERSATIONS: ConversationItem[] = [
+  { key: "1", label: "AI 编码助手", description: "已为你生成代码片段…", time: "10:30", unread: 2, group: "今天" },
+  { key: "2", label: "翻译助手", description: "翻译已完成", time: "09:15", group: "今天" },
+  { key: "3", label: "PPT 大纲生成", description: "大纲内容如下…", time: "昨天", group: "昨天" },
+  { key: "4", label: "数据分析报告", description: "报告已生成，请查收。", time: "昨天", group: "昨天" },
+  { key: "5", label: "学习计划", description: "推荐以下学习路径…", time: "3天前", group: "更早" },
+]
+
+const MODELS = [
+  { id: "gpt-4o", label: "GPT-4o" },
+  { id: "claude-4", label: "Claude Opus 4" },
+  { id: "deepseek-v3", label: "DeepSeek V3" },
 ]
 
 const INITIAL_MESSAGES: ChatMessage[] = [
@@ -77,6 +68,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     role: "assistant",
     content: "你好！我是 AI 编码助手 🤖\n\n我可以帮你完成以下任务：\n- 编写和优化代码\n- 解释错误信息\n- 代码审查与重构建议\n- 生成单元测试\n\n请问有什么可以帮你的？",
     timestamp: "10:00",
+    model: "gpt-4o",
   },
   { id: "m2", role: "user", content: "帮我写一个 React 自定义 Hook，用来做防抖搜索。", timestamp: "10:05", status: "sent" },
   {
@@ -85,6 +77,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     content: "好的，这是一个 `useDebounceSearch` Hook 的实现：\n\n```typescript\nfunction useDebounceSearch(delay = 300) {\n  const [query, setQuery] = useState('')\n  const [debouncedQuery, setDebouncedQuery] = useState('')\n\n  useEffect(() => {\n    const timer = setTimeout(() => {\n      setDebouncedQuery(query)\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay])\n\n  return { query, setQuery, debouncedQuery }\n}\n```\n\n**主要特点：**\n1. 输入变化后延迟 300ms 才触发实际搜索\n2. 每次输入都会重置计时器，避免频繁请求\n3. 组件卸载时自动清理 timer",
     timestamp: "10:05",
     thinking: ["分析用户需求：React 防抖搜索 Hook", "选择 useState + useEffect 实现方案", "添加清理函数防止内存泄漏"],
+    model: "gpt-4o",
   },
   { id: "m4", role: "user", content: "能加上 loading 状态和取消请求的功能吗？", timestamp: "10:28", status: "sent" },
   {
@@ -93,6 +86,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     content: "当然可以！这里是增强版本，加入了 `loading` 状态和 `AbortController` 取消请求：\n\n```typescript\nfunction useDebounceSearch<T>(fetcher: (q: string, signal: AbortSignal) => Promise<T>, delay = 300) {\n  const [query, setQuery] = useState('')\n  const [data, setData] = useState<T | null>(null)\n  const [loading, setLoading] = useState(false)\n  const abortRef = useRef<AbortController>()\n\n  useEffect(() => {\n    if (!query) { setData(null); return }\n    const timer = setTimeout(async () => {\n      abortRef.current?.abort()\n      const ctrl = new AbortController()\n      abortRef.current = ctrl\n      setLoading(true)\n      try {\n        const res = await fetcher(query, ctrl.signal)\n        if (!ctrl.signal.aborted) setData(res)\n      } finally {\n        if (!ctrl.signal.aborted) setLoading(false)\n      }\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay, fetcher])\n\n  return { query, setQuery, data, loading }\n}\n```\n\n**改进点：**\n- 🔄 `loading` 状态跟踪请求进度\n- ❌ 新请求发起前自动取消上一个未完成的请求\n- 🛡️ 使用 `AbortSignal` 防止竞态条件",
     timestamp: "10:30",
     thinking: ["评估需求：loading 状态 + 取消请求", "引入 AbortController 管理请求生命周期", "处理竞态条件：确保旧请求不覆盖新结果", "添加泛型支持以提升复用性"],
+    model: "gpt-4o",
   },
 ]
 
@@ -112,287 +106,6 @@ const QUICK_REPLIES = [
 /* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
-
-/** Renders a code block with language label and copy button */
-function CodeBlock({ code, language }: { code: string; language: string }) {
-  const [copied, setCopied] = useState(false)
-  const handleCopy = () => {
-    void navigator.clipboard?.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-  return (
-    <div className="my-2 overflow-hidden rounded-lg border bg-zinc-950 text-zinc-50 dark:border-zinc-700">
-      <div className="flex items-center justify-between bg-zinc-800 px-3 py-1.5">
-        <span className="text-[10px] font-medium text-zinc-400 uppercase">{language}</span>
-        <Button variant="ghost" size="icon" className="size-6 text-zinc-400 hover:text-zinc-200" onClick={handleCopy}>
-          {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
-        </Button>
-      </div>
-      <pre className="overflow-x-auto p-3 text-xs leading-relaxed"><code>{code}</code></pre>
-    </div>
-  )
-}
-
-/** Parse content into text segments and code blocks */
-function RichContent({ content }: { content: string }) {
-  const parts = content.split(/(```\w*\n[\s\S]*?```)/g)
-  return (
-    <>
-      {parts.map((part, i) => {
-        const codeMatch = part.match(/^```(\w*)\n([\s\S]*?)```$/)
-        if (codeMatch) {
-          return <CodeBlock key={i} language={codeMatch[1] || "text"} code={codeMatch[2].trimEnd()} />
-        }
-        if (!part) return null
-        return <span key={i} className="whitespace-pre-wrap">{part}</span>
-      })}
-    </>
-  )
-}
-
-/** Streaming text that renders char by char */
-function StreamingText({ content, onComplete }: { content: string; onComplete: () => void }) {
-  const [displayed, setDisplayed] = useState(content)
-
-  useEffect(() => {
-    let charIndex = 0
-    const interval = setInterval(() => {
-      charIndex += 2
-      if (charIndex >= content.length) {
-        setDisplayed(content)
-        clearInterval(interval)
-        onComplete()
-      } else {
-        setDisplayed(content.slice(0, charIndex))
-      }
-    }, 15)
-    return () => clearInterval(interval)
-  }, [content, onComplete])
-
-  return <RichContent content={displayed} />
-}
-
-/** ThoughtChain — collapsible thinking process */
-function ThoughtChain({ steps }: { steps: string[] }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <Collapsible open={open} onOpenChange={setOpen} className="mb-1">
-      <CollapsibleTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
-          <BrainCircuit className="size-3.5 text-violet-500" />
-          <span>思考过程 ({steps.length} 步)</span>
-          <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} />
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="ml-2 mt-1 border-l-2 border-violet-500/30 pl-3">
-          {steps.map((step, i) => (
-            <div key={i} className="flex items-start gap-1.5 py-0.5">
-              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-[9px] font-medium text-violet-600">
-                {i + 1}
-              </span>
-              <span className="text-xs text-muted-foreground">{step}</span>
-            </div>
-          ))}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  )
-}
-
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1.5 px-3 py-2">
-      <div className="flex gap-1">
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:0ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:150ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:300ms]" />
-      </div>
-      <span className="text-xs text-muted-foreground">AI 正在思考…</span>
-    </div>
-  )
-}
-
-function MessageBubble({
-  message,
-  onCopy,
-  onRegenerate,
-  onEdit,
-}: {
-  message: ChatMessage
-  onCopy: (text: string) => void
-  onRegenerate?: (id: string) => void
-  onEdit?: (id: string, newContent: string) => void
-}) {
-  const isUser = message.role === "user"
-  const isSystem = message.role === "system"
-  const [liked, setLiked] = useState<"up" | "down" | null>(null)
-  const [editing, setEditing] = useState(false)
-  const [editText, setEditText] = useState(message.content)
-
-  if (isSystem) {
-    return (
-      <div className="flex items-center gap-3 py-2">
-        <Separator className="flex-1" />
-        <span className="shrink-0 text-xs text-muted-foreground">{message.content}</span>
-        <Separator className="flex-1" />
-      </div>
-    )
-  }
-
-  const handleEditSubmit = () => {
-    const trimmed = editText.trim()
-    if (trimmed && trimmed !== message.content) {
-      onEdit?.(message.id, trimmed)
-    }
-    setEditing(false)
-  }
-
-  return (
-    <div className={`group flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar */}
-      <Avatar className="mt-0.5 size-8 shrink-0">
-        {isUser ? (
-          <>
-            <AvatarImage src="" alt="User" />
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              <User className="size-3.5" />
-            </AvatarFallback>
-          </>
-        ) : (
-          <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
-            <Bot className="size-3.5" />
-          </AvatarFallback>
-        )}
-      </Avatar>
-
-      {/* Content */}
-      <div className={`flex max-w-[75%] flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
-        {/* ThoughtChain */}
-        {!isUser && message.thinking && message.thinking.length > 0 && (
-          <ThoughtChain steps={message.thinking} />
-        )}
-
-        {/* Bubble */}
-        {editing ? (
-          <div className="flex w-full flex-col gap-2">
-            <Textarea
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              className="min-h-20 text-sm"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleEditSubmit}>保存并重发</Button>
-              <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditText(message.content) }}>
-                <X className="mr-1 size-3" /> 取消
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div
-            className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-              isUser
-                ? "rounded-br-md bg-primary text-primary-foreground"
-                : "rounded-bl-md bg-muted"
-            }`}
-          >
-            {message.streaming ? (
-              <StreamingText content={message.content} onComplete={() => {}} />
-            ) : (
-              <RichContent content={message.content} />
-            )}
-            {message.streaming && (
-              <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-current align-text-bottom" />
-            )}
-          </div>
-        )}
-
-        {/* Footer: timestamp + actions */}
-        {!editing && (
-          <div className={`flex items-center gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-            <span className="text-[10px] text-muted-foreground/60">{message.timestamp}</span>
-            {message.status === "sent" && isUser && (
-              <Check className="size-3 text-muted-foreground/60" />
-            )}
-
-            {/* Actions (visible on hover) */}
-            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(message.content)}>
-                      <Copy className="size-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>复制</p></TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {isUser && onEdit && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-6" onClick={() => setEditing(true)}>
-                        <Pencil className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-
-              {!isUser && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`size-6 ${liked === "up" ? "text-green-500" : ""}`}
-                        onClick={() => setLiked(liked === "up" ? null : "up")}
-                      >
-                        <ThumbsUp className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`size-6 ${liked === "down" ? "text-red-500" : ""}`}
-                        onClick={() => setLiked(liked === "down" ? null : "down")}
-                      >
-                        <ThumbsDown className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-
-              {!isUser && onRegenerate && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-6" onClick={() => onRegenerate(message.id)}>
-                        <RefreshCcw className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
   return (
@@ -420,6 +133,51 @@ function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
   )
 }
 
+function AttachmentDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label="添加附件">
+          <FileUp className="size-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>添加附件</DialogTitle>
+          <DialogDescription>选择文件类型并上传</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-3 py-4">
+          <button className="flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors hover:bg-accent">
+            <Image className="size-8 text-blue-500" />
+            <span className="text-sm">图片</span>
+            <span className="text-[10px] text-muted-foreground">PNG, JPG, GIF</span>
+          </button>
+          <button className="flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors hover:bg-accent">
+            <FileText className="size-8 text-green-500" />
+            <span className="text-sm">文档</span>
+            <span className="text-[10px] text-muted-foreground">PDF, TXT, MD</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ModelSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="h-7 w-36 text-xs" aria-label="选择模型">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {MODELS.map((m) => (
+          <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 /* ------------------------------------------------------------------ */
 /*  Meta                                                               */
 /* ------------------------------------------------------------------ */
@@ -427,9 +185,7 @@ function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
 const meta: Meta = {
   title: "Pages/Chat",
   tags: ["autodocs"],
-  parameters: {
-    layout: "fullscreen",
-  },
+  parameters: { layout: "fullscreen" },
 }
 
 export default meta
@@ -444,7 +200,7 @@ function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES)
   const [draft, setDraft] = useState("")
   const [isTyping, setIsTyping] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [model, setModel] = useState("gpt-4o")
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
 
@@ -459,57 +215,43 @@ function ChatPage() {
     scrollToBottom()
   }, [messages, isTyping, scrollToBottom])
 
-  const simulateAIReply = useCallback((userText: string) => {
+  const simulateAIReply = useCallback((userText: string, replyModel: string) => {
     setIsTyping(true)
     const thinkSteps = [
-      `分析用户输入："${userText.slice(0, 20)}…"`,
+      `分析用户输入："${userText.slice(0, 20)}${userText.length > 20 ? "…" : ""}"`,
       "检索相关上下文和知识库",
       "生成回复内容",
     ]
-    const replyContent = `收到你的消息："${userText}"\n\n这是一条模拟的 AI 回复。在实际应用中，这里会接入大语言模型 API 来返回智能回答。`
+    const replyContent = `收到你的消息："${userText}"\n\n这是一条模拟的 AI 回复（${replyModel}）。在实际应用中，这里会接入大语言模型 API 来返回智能回答。`
 
-    // Phase 1: thinking (800ms), Phase 2: streaming
     setTimeout(() => {
       setIsTyping(false)
       const id = `a-${Date.now()}`
       streamIdRef.current += 1
       const currentStream = streamIdRef.current
-      const aiMsg: ChatMessage = {
-        id,
-        role: "assistant",
-        content: "",
-        timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-        thinking: thinkSteps,
-        streaming: true,
-      }
-      setMessages((prev) => [...prev, aiMsg])
+      setMessages((prev) => [
+        ...prev,
+        { id, role: "assistant", content: "", timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), thinking: thinkSteps, streaming: true, model: replyModel },
+      ])
 
-      // Simulate streaming by gradually updating content
       let charIndex = 0
-      const streamInterval = setInterval(() => {
+      const interval = setInterval(() => {
         if (currentStream !== streamIdRef.current) {
-          clearInterval(streamInterval)
+          clearInterval(interval)
           return
         }
         charIndex += 3
         if (charIndex >= replyContent.length) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === id ? { ...m, content: replyContent, streaming: false } : m)),
-          )
-          clearInterval(streamInterval)
+          setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, content: replyContent, streaming: false } : m)))
+          clearInterval(interval)
         } else {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === id ? { ...m, content: replyContent.slice(0, charIndex) } : m)),
-          )
+          setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, content: replyContent.slice(0, charIndex) } : m)))
         }
       }, 20)
     }, 800)
   }, [])
 
-  const handleSend = useCallback(() => {
-    const text = draft.trim()
-    if (!text) return
-
+  const handleSend = useCallback((text: string) => {
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
@@ -519,39 +261,33 @@ function ChatPage() {
     }
     setMessages((prev) => [...prev, userMsg])
     setDraft("")
-    simulateAIReply(text)
-  }, [draft, simulateAIReply])
+    simulateAIReply(text, model)
+  }, [model, simulateAIReply])
 
   const handleRegenerate = useCallback((msgId: string) => {
     setMessages((prev) => {
-      // Find the AI message and remove it, find the preceding user message
       const idx = prev.findIndex((m) => m.id === msgId)
       if (idx < 0) return prev
       const userMsg = [...prev].slice(0, idx).reverse().find((m) => m.role === "user")
       const updated = prev.filter((m) => m.id !== msgId)
-      if (userMsg) {
-        setTimeout(() => simulateAIReply(userMsg.content), 0)
-      }
+      if (userMsg) setTimeout(() => simulateAIReply(userMsg.content, model), 0)
       return updated
     })
-  }, [simulateAIReply])
+  }, [simulateAIReply, model])
 
   const handleEdit = useCallback((msgId: string, newContent: string) => {
     setMessages((prev) => {
       const idx = prev.findIndex((m) => m.id === msgId)
       if (idx < 0) return prev
-      // Update user message, remove all messages after it
       const updated = prev.slice(0, idx + 1).map((m) => (m.id === msgId ? { ...m, content: newContent } : m))
-      setTimeout(() => simulateAIReply(newContent), 0)
+      setTimeout(() => simulateAIReply(newContent, model), 0)
       return updated
     })
-  }, [simulateAIReply])
+  }, [simulateAIReply, model])
 
   const handleStopStreaming = useCallback(() => {
     streamIdRef.current += 1
-    setMessages((prev) =>
-      prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)),
-    )
+    setMessages((prev) => prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)))
     setIsTyping(false)
   }, [])
 
@@ -559,88 +295,20 @@ function ChatPage() {
     void navigator.clipboard?.writeText(text)
   }, [])
 
-  const handleQuickReply = useCallback((text: string) => {
-    setDraft(text)
-  }, [])
-
-  const grouped = CONVERSATIONS.reduce<Record<string, Conversation[]>>((acc, c) => {
-    ;(acc[c.group] ??= []).push(c)
-    return acc
-  }, {})
-
-  const filteredGroups = Object.entries(grouped).reduce<Record<string, Conversation[]>>((acc, [group, items]) => {
-    const filtered = items.filter((c) => c.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    if (filtered.length) acc[group] = filtered
-    return acc
-  }, {})
+  const isStreaming = isTyping || messages.some((m) => m.streaming)
 
   return (
     <div className="mx-auto flex h-175 max-w-7xl overflow-hidden rounded-xl border bg-background shadow-sm">
-      {/* ---- Conversations sidebar ---- */}
-      <div className="flex w-72 shrink-0 flex-col border-r">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-sm font-semibold">会话列表</h2>
-          <Button variant="ghost" size="icon" className="size-8" aria-label="新建会话">
-            <MessageSquarePlus className="size-4" />
-          </Button>
-        </div>
+      {/* Conversations sidebar */}
+      <ChatConversations
+        items={CONVERSATIONS}
+        activeKey={activeConv}
+        onChange={(key) => setActiveConv(key)}
+        onNewChat={() => setActiveConv("new")}
+        className="w-72 shrink-0 border-r"
+      />
 
-        {/* Search */}
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-2.5 py-1.5">
-            <Search className="size-3.5 text-muted-foreground" />
-            <input
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              placeholder="搜索会话…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* List */}
-        <ScrollArea className="flex-1">
-          <div className="flex flex-col gap-1 px-2 py-1">
-            {Object.entries(filteredGroups).map(([group, items]) => (
-              <div key={group}>
-                <p className="px-2 pt-3 pb-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
-                  {group}
-                </p>
-                {items.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setActiveConv(c.id)}
-                    className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors ${
-                      activeConv === c.id ? "bg-accent" : "hover:bg-accent/50"
-                    }`}
-                  >
-                    <Avatar className="size-8 shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-violet-500/20 to-blue-500/20 text-xs">
-                        <Bot className="size-3.5 text-violet-600" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="truncate text-sm font-medium">{c.title}</span>
-                        <span className="shrink-0 text-[10px] text-muted-foreground">{c.updatedAt}</span>
-                      </div>
-                      <p className="truncate text-xs text-muted-foreground">{c.lastMessage}</p>
-                    </div>
-                    {c.unread && (
-                      <Badge className="size-5 shrink-0 justify-center rounded-full px-0 text-[10px]">
-                        {c.unread}
-                      </Badge>
-                    )}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* ---- Chat area ---- */}
+      {/* Chat area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Chat header */}
         <div className="flex items-center justify-between border-b px-5 py-3">
@@ -655,18 +323,32 @@ function ChatPage() {
               <p className="text-xs text-muted-foreground">基于大语言模型 · 随时为你解答</p>
             </div>
           </div>
-          <Badge variant="outline" className="gap-1">
-            <span className="size-1.5 rounded-full bg-green-500" />
-            在线
-          </Badge>
+          <div className="flex items-center gap-2">
+            <ModelSelector value={model} onChange={setModel} />
+            <Badge variant="outline" className="gap-1">
+              <span className="size-1.5 rounded-full bg-green-500" />
+              在线
+            </Badge>
+          </div>
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="flex flex-col gap-4 px-5 py-4">
-            {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} onCopy={handleCopy} onRegenerate={handleRegenerate} onEdit={handleEdit} />
-            ))}
+            {messages.map((m) => {
+              const props: BubbleProps = {
+                role: m.role,
+                content: m.content,
+                timestamp: m.timestamp,
+                status: m.status,
+                thinking: m.thinking,
+                streaming: m.streaming,
+                header: m.model && m.role === "assistant" ? (
+                  <span className="text-[10px] text-muted-foreground">模型: {m.model}</span>
+                ) : undefined,
+              }
+              return <Bubble key={m.id} {...props} onCopy={() => handleCopy(m.content)} onRegenerate={m.role === "assistant" ? () => handleRegenerate(m.id) : undefined} onEdit={m.role === "user" ? (c: string) => handleEdit(m.id, c) : undefined} />
+            })}
             {isTyping && (
               <div className="flex items-start gap-2.5">
                 <Avatar className="mt-0.5 size-8 shrink-0">
@@ -680,65 +362,22 @@ function ChatPage() {
               </div>
             )}
           </div>
-        </ScrollArea>
-
-        {/* Stop streaming button */}
-        {(isTyping || messages.some((m) => m.streaming)) && (
-          <div className="flex justify-center pb-1">
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleStopStreaming}>
-              <Square className="size-3" />
-              停止生成
-            </Button>
-          </div>
-        )}
-
-        {/* Quick replies */}
-        <div className="flex gap-2 border-t px-5 pt-3">
-          {QUICK_REPLIES.map((r) => (
-            <button
-              key={r}
-              onClick={() => handleQuickReply(r)}
-              className="rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {r}
-            </button>
-          ))}
         </div>
 
         {/* Sender */}
         <div className="px-5 pb-4 pt-2">
-          <Card className="overflow-hidden">
-            <CardContent className="flex items-end gap-2 p-2">
-              <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label="添加附件">
-                <Paperclip className="size-4" />
-              </Button>
-              <Textarea
-                placeholder="输入消息… (Enter 发送, Shift+Enter 换行)"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSend()
-                  }
-                }}
-                className="min-h-10 flex-1 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
-                rows={1}
-              />
-              <Button
-                size="icon"
-                className="size-8 shrink-0"
-                disabled={!draft.trim()}
-                onClick={handleSend}
-                aria-label="发送"
-              >
-                <Send className="size-4" />
-              </Button>
-            </CardContent>
-          </Card>
-          <p className="mt-1 text-center text-[10px] text-muted-foreground">
-            AI 回复仅供参考，请以实际为准
-          </p>
+          <ChatSender
+            value={draft}
+            onChange={setDraft}
+            placeholder="输入消息… (Enter 发送, Shift+Enter 换行)"
+            loading={isStreaming}
+            onSubmit={handleSend}
+            onCancel={handleStopStreaming}
+            suggestions={QUICK_REPLIES}
+            onSuggestionClick={(s) => setDraft(s)}
+            prefix={<AttachmentDialog />}
+            footerText="AI 回复仅供参考，请以实际为准"
+          />
         </div>
       </div>
     </div>
@@ -767,18 +406,14 @@ function ChatWelcomePage() {
   }, [messages, isTyping, scrollToBottom])
 
   const handleSend = useCallback(
-    (text?: string) => {
-      const content = (text ?? draft).trim()
+    (text: string) => {
+      const content = text.trim()
       if (!content) return
 
-      const userMsg: ChatMessage = {
-        id: `u-${Date.now()}`,
-        role: "user",
-        content,
-        timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-        status: "sent",
-      }
-      setMessages((prev) => [...prev, userMsg])
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-${Date.now()}`, role: "user", content, timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), status: "sent" },
+      ])
       setDraft("")
 
       setIsTyping(true)
@@ -786,16 +421,11 @@ function ChatWelcomePage() {
         setIsTyping(false)
         setMessages((prev) => [
           ...prev,
-          {
-            id: `a-${Date.now()}`,
-            role: "assistant",
-            content: `好的，关于「${content}」，我来帮你处理。\n\n这是一条模拟的 AI 回复，在实际应用中会对接大语言模型。`,
-            timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-          },
+          { id: `a-${Date.now()}`, role: "assistant", content: `好的，关于「${content}」，我来帮你处理。\n\n这是一条模拟的 AI 回复，在实际应用中会对接大语言模型。`, timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) },
         ])
       }, 1500)
     },
-    [draft],
+    [],
   )
 
   const handleCopy = useCallback((text: string) => {
@@ -821,12 +451,12 @@ function ChatWelcomePage() {
 
       {/* Body */}
       {showWelcome ? (
-        <WelcomeScreen onPrompt={(text) => handleSend(text)} />
+        <WelcomeScreen onPrompt={handleSend} />
       ) : (
-        <ScrollArea className="flex-1" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="flex flex-col gap-4 px-5 py-4">
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} onCopy={handleCopy} />
+              <Bubble key={m.id} role={m.role} content={m.content} timestamp={m.timestamp} status={m.status} onCopy={() => handleCopy(m.content)} />
             ))}
             {isTyping && (
               <div className="flex items-start gap-2.5">
@@ -841,40 +471,17 @@ function ChatWelcomePage() {
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       {/* Sender */}
       <div className="px-5 pb-4 pt-2">
-        <Card className="overflow-hidden">
-          <CardContent className="flex items-end gap-2 p-2">
-            <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label="添加附件">
-              <Paperclip className="size-4" />
-            </Button>
-            <Textarea
-              placeholder="输入消息… (Enter 发送)"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSend()
-                }
-              }}
-              className="min-h-10 flex-1 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
-              rows={1}
-            />
-            <Button
-              size="icon"
-              className="size-8 shrink-0"
-              disabled={!draft.trim()}
-              onClick={() => handleSend()}
-              aria-label="发送"
-            >
-              <Send className="size-4" />
-            </Button>
-          </CardContent>
-        </Card>
+        <ChatSender
+          value={draft}
+          onChange={setDraft}
+          placeholder="输入消息… (Enter 发送)"
+          onSubmit={handleSend}
+        />
       </div>
     </div>
   )
@@ -890,8 +497,11 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     // Verify conversations sidebar
     await expect(canvas.getByText("会话列表")).toBeInTheDocument()
-    await expect(canvas.getByText("AI 编码助手")).toBeInTheDocument()
+    await expect(canvas.getByRole("heading", { name: "AI 编码助手" })).toBeInTheDocument()
     await expect(canvas.getByText("翻译助手")).toBeInTheDocument()
+
+    // Verify model selector
+    await expect(canvas.getByLabelText("选择模型")).toBeInTheDocument()
 
     // Verify messages rendered
     await expect(canvas.getByText(/useDebounceSearch/)).toBeInTheDocument()
@@ -920,7 +530,6 @@ export const Welcome: Story = {
 
     // Click a prompt suggestion
     await userEvent.click(canvas.getByText("帮我写一个组件"))
-    // Welcome should disappear, message should appear
     await expect(canvas.getByText("帮我写一个组件")).toBeInTheDocument()
   },
 }
