@@ -35,8 +35,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      - name: Configure pnpm build approvals
+        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.onlyBuiltDependencies=esbuild,msw
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -65,8 +68,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      - name: Configure pnpm build approvals
+        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.onlyBuiltDependencies=esbuild,msw
+        run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
         run: pnpm build-storybook
@@ -89,8 +95,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      - name: Configure pnpm build approvals
+        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.onlyBuiltDependencies=esbuild,msw
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
