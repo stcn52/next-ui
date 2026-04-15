@@ -10,7 +10,7 @@ import {
   TypingIndicator,
 } from "@/components/ui/chat-bubble"
 import { ChatConversations, type ConversationItem } from "@/components/ui/chat-conversations"
-import { ChatSender } from "@/components/ui/chat-sender"
+import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat-sender"
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Bot, FileText, FileUp, Image, Sparkles } from "lucide-react"
+import { Bot, FileText, FileUp, Image, Search, Sparkles, X } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -101,6 +101,13 @@ const QUICK_REPLIES = [
   "能再详细解释一下吗？",
   "帮我加上 TypeScript 类型",
   "写个使用示例",
+]
+
+const MENTION_ITEMS: MentionItem[] = [
+  { key: "file", label: "文件", description: "引用项目文件" },
+  { key: "code", label: "代码块", description: "引用代码片段" },
+  { key: "doc", label: "文档", description: "引用技术文档" },
+  { key: "web", label: "网页", description: "引用网页内容" },
 ]
 
 /* ------------------------------------------------------------------ */
@@ -201,6 +208,9 @@ function ChatPage() {
   const [draft, setDraft] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [model, setModel] = useState("gpt-4o")
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
 
@@ -251,18 +261,32 @@ function ChatPage() {
     }, 800)
   }, [])
 
-  const handleSend = useCallback((text: string) => {
+  const handleSend = useCallback((text: string, atts?: Attachment[]) => {
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: text,
+      content: atts && atts.length > 0 ? `${text}\n\n📎 ${atts.map((a) => a.name).join(", ")}` : text,
       timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
       status: "sent",
     }
     setMessages((prev) => [...prev, userMsg])
     setDraft("")
+    setAttachments([])
     simulateAIReply(text, model)
   }, [model, simulateAIReply])
+
+  const handleAddAttachment = useCallback(() => {
+    const id = `att-${Date.now()}`
+    setAttachments((prev) => [...prev, { id, name: `示例文件-${prev.length + 1}.png`, type: "image" as const, size: "128KB" }])
+  }, [])
+
+  const handleRemoveAttachment = useCallback((id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id))
+  }, [])
+
+  const filteredMessages = searchQuery
+    ? messages.filter((m) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
+    : messages
 
   const handleRegenerate = useCallback((msgId: string) => {
     setMessages((prev) => {
@@ -325,6 +349,9 @@ function ChatPage() {
           </div>
           <div className="flex items-center gap-2">
             <ModelSelector value={model} onChange={setModel} />
+            <Button variant="ghost" size="icon" className="size-8" aria-label="搜索消息" onClick={() => setSearchOpen((o) => !o)}>
+              <Search className="size-4" />
+            </Button>
             <Badge variant="outline" className="gap-1">
               <span className="size-1.5 rounded-full bg-green-500" />
               在线
@@ -332,10 +359,33 @@ function ChatPage() {
           </div>
         </div>
 
+        {/* Message search bar */}
+        {searchOpen && (
+          <div className="flex items-center gap-2 border-b px-5 py-2">
+            <Search className="size-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索聊天记录…"
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              autoFocus
+            />
+            {searchQuery && (
+              <span className="text-xs text-muted-foreground">
+                {filteredMessages.filter((m) => m.role !== "system").length} 条结果
+              </span>
+            )}
+            <Button variant="ghost" size="icon" className="size-6" aria-label="关闭搜索" onClick={() => { setSearchOpen(false); setSearchQuery("") }}>
+              <X className="size-3" />
+            </Button>
+          </div>
+        )}
+
         {/* Messages */}
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="flex flex-col gap-4 px-5 py-4">
-            {messages.map((m) => {
+            {filteredMessages.map((m) => {
               const props: BubbleProps = {
                 role: m.role,
                 content: m.content,
@@ -375,7 +425,11 @@ function ChatPage() {
             onCancel={handleStopStreaming}
             suggestions={QUICK_REPLIES}
             onSuggestionClick={(s) => setDraft(s)}
+            attachments={attachments}
+            onRemoveAttachment={handleRemoveAttachment}
+            mentions={MENTION_ITEMS}
             prefix={<AttachmentDialog />}
+            onAttach={handleAddAttachment}
             footerText="AI 回复仅供参考，请以实际为准"
           />
         </div>

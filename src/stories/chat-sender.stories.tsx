@@ -1,0 +1,310 @@
+import { useState } from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import { expect, userEvent, within } from "storybook/test"
+import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat-sender"
+import { Button } from "@/components/ui/button"
+import { Mic, Image } from "lucide-react"
+
+const meta: Meta<typeof ChatSender> = {
+  title: "UI/ChatSender",
+  component: ChatSender,
+  tags: ["autodocs"],
+  parameters: { layout: "centered" },
+}
+
+export default meta
+type Story = StoryObj<typeof ChatSender>
+
+/* ------------------------------------------------------------------ */
+/*  Basic                                                              */
+/* ------------------------------------------------------------------ */
+
+export const Default: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    const [messages, setMessages] = useState<string[]>([])
+    return (
+      <div className="w-[480px]">
+        {messages.length > 0 && (
+          <div className="mb-3 flex flex-col gap-1 rounded-lg bg-muted p-3">
+            {messages.map((m, i) => (
+              <p key={i} className="text-xs">已发送: {m}</p>
+            ))}
+          </div>
+        )}
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          placeholder="输入消息… (Enter 发送)"
+          onSubmit={(text) => {
+            setMessages((prev) => [...prev, text])
+            setValue("")
+          }}
+        />
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const textarea = canvas.getByPlaceholderText("输入消息… (Enter 发送)")
+    await expect(textarea).toBeInTheDocument()
+    await expect(canvas.getByRole("button", { name: "发送" })).toBeInTheDocument()
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  With Suggestions                                                   */
+/* ------------------------------------------------------------------ */
+
+export const WithSuggestions: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          suggestions={["解释一下", "生成测试", "优化代码", "添加类型"]}
+          onSuggestionClick={(s) => setValue(s)}
+        />
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("解释一下")).toBeInTheDocument()
+    await expect(canvas.getByText("生成测试")).toBeInTheDocument()
+    // Click suggestion fills the input
+    await userEvent.click(canvas.getByText("解释一下"))
+    await expect(canvas.getByRole("textbox")).toHaveValue("解释一下")
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Loading / Stop                                                     */
+/* ------------------------------------------------------------------ */
+
+export const LoadingState: Story = {
+  render: function Render() {
+    const [loading, setLoading] = useState(true)
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value=""
+          loading={loading}
+          onCancel={() => setLoading(false)}
+          footerText="AI 正在生成回复…"
+        />
+        {!loading && (
+          <Button size="sm" className="mt-2" onClick={() => setLoading(true)}>
+            重新触发 loading
+          </Button>
+        )}
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("停止生成")).toBeInTheDocument()
+    await expect(canvas.getByText("AI 正在生成回复…")).toBeInTheDocument()
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Disabled                                                           */
+/* ------------------------------------------------------------------ */
+
+export const Disabled: Story = {
+  render: () => (
+    <div className="w-[480px]">
+      <ChatSender disabled placeholder="暂时无法输入" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole("textbox")).toBeDisabled()
+    await expect(canvas.getByRole("button", { name: "发送" })).toBeDisabled()
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Custom Prefix/Suffix                                               */
+/* ------------------------------------------------------------------ */
+
+export const CustomSlots: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          prefix={
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="size-8 shrink-0">
+                <Image className="size-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="size-8 shrink-0">
+                <Mic className="size-4" />
+              </Button>
+            </div>
+          }
+          footerText="支持发送图片和语音"
+        />
+      </div>
+    )
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Uncontrolled mode                                                  */
+/* ------------------------------------------------------------------ */
+
+export const Uncontrolled: Story = {
+  render: function Render() {
+    const [sent, setSent] = useState<string[]>([])
+    return (
+      <div className="w-[480px]">
+        {sent.length > 0 && (
+          <div className="mb-3 flex flex-col gap-1 rounded-lg bg-muted p-3">
+            {sent.map((m, i) => (
+              <p key={i} className="text-xs">已发送: {m}</p>
+            ))}
+          </div>
+        )}
+        <ChatSender
+          defaultValue=""
+          placeholder="不受控模式 — 内部管理状态"
+          onSubmit={(text) => setSent((prev) => [...prev, text])}
+          allowAttachment={false}
+        />
+      </div>
+    )
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Footer text                                                        */
+/* ------------------------------------------------------------------ */
+
+export const WithFooter: Story = {
+  render: () => (
+    <div className="w-[480px]">
+      <ChatSender
+        placeholder="输入问题…"
+        footerText="AI 回复仅供参考，请以实际为准 · 模型: GPT-4o"
+      />
+    </div>
+  ),
+}
+
+/* ------------------------------------------------------------------ */
+/*  Attachment Preview                                                 */
+/* ------------------------------------------------------------------ */
+
+const SAMPLE_ATTACHMENTS: Attachment[] = [
+  { id: "1", name: "screenshot.png", type: "image", size: "256KB", previewUrl: "https://placehold.co/80x80/6c47ff/white?text=IMG" },
+  { id: "2", name: "document.pdf", type: "file", size: "1.2MB" },
+  { id: "3", name: "photo.jpg", type: "image", size: "512KB" },
+]
+
+export const WithAttachments: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    const [attachments, setAttachments] = useState<Attachment[]>(SAMPLE_ATTACHMENTS)
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          attachments={attachments}
+          onRemoveAttachment={(id) => setAttachments((prev) => prev.filter((a) => a.id !== id))}
+          onSubmit={(text, atts) => {
+            alert(`发送: ${text}\n附件: ${atts?.map((a) => a.name).join(", ")}`)
+            setValue("")
+            setAttachments([])
+          }}
+          onAttach={() => {
+            const id = `att-${Date.now()}`
+            setAttachments((prev) => [...prev, { id, name: `新文件-${prev.length + 1}.txt`, type: "file" as const, size: "64KB" }])
+          }}
+        />
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("screenshot.png")).toBeInTheDocument()
+    await expect(canvas.getByText("document.pdf")).toBeInTheDocument()
+    await expect(canvas.getByText("photo.jpg")).toBeInTheDocument()
+    // Verify remove button exists
+    await expect(canvas.getByLabelText("移除 screenshot.png")).toBeInTheDocument()
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  @Mention                                                           */
+/* ------------------------------------------------------------------ */
+
+const MENTION_LIST: MentionItem[] = [
+  { key: "file", label: "文件", description: "引用项目文件" },
+  { key: "code", label: "代码块", description: "引用代码片段" },
+  { key: "doc", label: "文档", description: "引用技术文档" },
+  { key: "web", label: "网页", description: "引用网页内容" },
+]
+
+export const WithMentions: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("@")
+    return (
+      <div className="w-[480px]">
+        <p className="mb-2 text-xs text-muted-foreground">输入 @ 触发提及列表</p>
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          mentions={MENTION_LIST}
+          onMentionSelect={(item) => console.log("Mention selected:", item)}
+        />
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // Mention dropdown should be visible because value starts with @
+    await expect(canvas.getByText("@文件")).toBeInTheDocument()
+    await expect(canvas.getByText("@代码块")).toBeInTheDocument()
+    await expect(canvas.getByText("@文档")).toBeInTheDocument()
+    await expect(canvas.getByText("@网页")).toBeInTheDocument()
+  },
+}
+
+/* ------------------------------------------------------------------ */
+/*  Full Featured                                                      */
+/* ------------------------------------------------------------------ */
+
+export const FullFeatured: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    const [attachments, setAttachments] = useState<Attachment[]>([
+      { id: "1", name: "代码截图.png", type: "image", size: "128KB" },
+    ])
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          suggestions={["解释代码", "写测试", "优化"]}
+          onSuggestionClick={(s) => setValue(s)}
+          attachments={attachments}
+          onRemoveAttachment={(id) => setAttachments((prev) => prev.filter((a) => a.id !== id))}
+          mentions={MENTION_LIST}
+          onAttach={() => {
+            const id = `att-${Date.now()}`
+            setAttachments((prev) => [...prev, { id, name: `文件-${prev.length + 1}.txt`, type: "file" as const }])
+          }}
+          footerText="AI 回复仅供参考 · 支持 @提及 和附件"
+        />
+      </div>
+    )
+  },
+}

@@ -197,7 +197,7 @@ describe("ChatSender", () => {
     const spy = vi.fn()
     render(<ChatSender value="Hello" onSubmit={spy} />)
     fireEvent.click(screen.getByRole("button", { name: "发送" }))
-    expect(spy).toHaveBeenCalledWith("Hello")
+    expect(spy).toHaveBeenCalledWith("Hello", undefined)
   })
 
   it("calls onSubmit on Enter key", () => {
@@ -205,7 +205,7 @@ describe("ChatSender", () => {
     render(<ChatSender value="Hello" onSubmit={spy} />)
     const textarea = screen.getByRole("textbox")
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false })
-    expect(spy).toHaveBeenCalledWith("Hello")
+    expect(spy).toHaveBeenCalledWith("Hello", undefined)
   })
 
   it("does not submit on Shift+Enter", () => {
