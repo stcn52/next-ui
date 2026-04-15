@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
 
 const meta: Meta<typeof Progress> = {
   title: "UI/Progress",

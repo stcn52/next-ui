@@ -9,7 +9,7 @@ const meta: Meta = {
   tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <ThemeProvider attribute="class" defaultTheme="light">
+      <ThemeProvider defaultTheme="light">
         <Story />
         <Toaster />
       </ThemeProvider>

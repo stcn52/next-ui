@@ -52,7 +52,7 @@ export const Default: Story = {
 
 export const Multiple: Story = {
   render: () => (
-    <Accordion openMultiple className="w-96">
+    <Accordion multiple className="w-96">
       <AccordionItem value="faq-1">
         <AccordionTrigger>What is shadcn/ui?</AccordionTrigger>
         <AccordionContent>

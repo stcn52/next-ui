@@ -27,27 +27,27 @@ export const Default: Story = {
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Suggestions">
           <CommandItem>
-            <Calendar className="mr-2 size-4" />
+            <Calendar />
             Calendar
           </CommandItem>
           <CommandItem>
-            <Smile className="mr-2 size-4" />
+            <Smile />
             Search Emoji
           </CommandItem>
           <CommandItem>
-            <Calculator className="mr-2 size-4" />
+            <Calculator />
             Calculator
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Settings">
           <CommandItem>
-            <User className="mr-2 size-4" />
+            <User />
             Profile
             <CommandShortcut>⌘P</CommandShortcut>
           </CommandItem>
           <CommandItem>
-            <Settings className="mr-2 size-4" />
+            <Settings />
             Settings
             <CommandShortcut>⌘S</CommandShortcut>
           </CommandItem>
