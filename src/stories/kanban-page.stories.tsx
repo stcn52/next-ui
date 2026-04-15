@@ -11,6 +11,7 @@ import {
   type KanbanItem,
   type KanbanColumn as KanbanCol,
 } from "@/components/ui/kanban"
+import { useKanbanStorage } from "@/components/ui/use-kanban-storage"
 import {
   Sidebar,
   SidebarHeader,
@@ -62,6 +63,7 @@ import {
   GripVertical,
   PanelLeftClose,
   PanelLeftOpen,
+  RotateCcw,
 } from "lucide-react"
 
 const meta: Meta = {
@@ -69,6 +71,14 @@ const meta: Meta = {
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
+    docs: {
+      description: {
+        component:
+          "Full-featured kanban project management page. Integrates Sidebar navigation, " +
+          "KanbanBoard with drag & drop (via @dnd-kit), filter toolbar, and multiple " +
+          "state displays (loading, error, empty). Responsive: sidebar collapses on mobile.",
+      },
+    },
   },
 }
 
@@ -496,7 +506,7 @@ function KanbanPage() {
   const [pageState, setPageState] = useState<"normal" | "loading" | "error">("normal")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Issue #6: Convert data for KanbanBoard
+  // Issue #6: Convert data for KanbanBoard with localStorage persistence
   const initialColumns: KanbanCol<Task>[] = useMemo(() => {
     return STATUS_COLUMNS.map((col) => ({
       id: col.id,
@@ -505,12 +515,15 @@ function KanbanPage() {
     }))
   }, [])
 
-  const [columns, setColumns] = useState(initialColumns)
+  const { columns, setColumns, resetColumns } = useKanbanStorage<Task>(
+    "kanban-page-columns",
+    initialColumns,
+  )
 
   // Columns change handler for drag & drop
   const handleColumnsChange = useCallback((newColumns: KanbanCol<Task>[]) => {
     setColumns(newColumns)
-  }, [])
+  }, [setColumns])
 
   // Filter visible columns
   const filteredColumns: KanbanCol<Task>[] = useMemo(() => {
@@ -562,6 +575,10 @@ function KanbanPage() {
           </Button>
           <Button size="xs" variant={pageState === "error" ? "default" : "ghost"} onClick={() => setPageState("error")}>
             <AlertCircle className="size-3 mr-1" />异常
+          </Button>
+          <Separator orientation="vertical" className="h-4 mx-1" />
+          <Button size="xs" variant="ghost" onClick={resetColumns}>
+            <RotateCcw className="size-3 mr-1" />重置
           </Button>
         </div>
 

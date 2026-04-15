@@ -7,6 +7,37 @@ import { Badge } from "@/components/ui/badge"
 const meta: Meta = {
   title: "Patterns/Kanban Board",
   tags: ["autodocs"],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "Drag-and-drop kanban board powered by @dnd-kit. Supports reordering within " +
+          "columns and moving items between columns. Fully accessible with keyboard navigation.",
+      },
+    },
+  },
+  argTypes: {
+    columns: {
+      description: "Array of KanbanColumn objects, each with id, title, and items array",
+      control: false,
+    },
+    onColumnsChange: {
+      description: "Callback when columns change due to drag-and-drop reordering",
+      action: "columnsChanged",
+    },
+    renderItem: {
+      description: "Render function for each kanban card",
+      control: false,
+    },
+    renderColumnHeader: {
+      description: "Optional custom column header renderer",
+      control: false,
+    },
+    renderOverlay: {
+      description: "Optional custom drag overlay renderer",
+      control: false,
+    },
+  },
 }
 
 export default meta
