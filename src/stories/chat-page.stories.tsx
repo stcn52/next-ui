@@ -5,22 +5,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Bot,
+  BrainCircuit,
   Check,
+  ChevronDown,
   Copy,
   MessageSquarePlus,
   Paperclip,
+  Pencil,
+  RefreshCcw,
   Search,
   Send,
   Sparkles,
+  Square,
   ThumbsDown,
   ThumbsUp,
   User,
+  X,
 } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
@@ -36,6 +43,10 @@ interface ChatMessage {
   content: string
   timestamp: string
   status?: MessageStatus
+  /** ThoughtChain thinking steps shown before AI answer */
+  thinking?: string[]
+  /** Whether this message is currently streaming */
+  streaming?: boolean
 }
 
 interface Conversation {
@@ -73,6 +84,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     role: "assistant",
     content: "好的，这是一个 `useDebounceSearch` Hook 的实现：\n\n```typescript\nfunction useDebounceSearch(delay = 300) {\n  const [query, setQuery] = useState('')\n  const [debouncedQuery, setDebouncedQuery] = useState('')\n\n  useEffect(() => {\n    const timer = setTimeout(() => {\n      setDebouncedQuery(query)\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay])\n\n  return { query, setQuery, debouncedQuery }\n}\n```\n\n**主要特点：**\n1. 输入变化后延迟 300ms 才触发实际搜索\n2. 每次输入都会重置计时器，避免频繁请求\n3. 组件卸载时自动清理 timer",
     timestamp: "10:05",
+    thinking: ["分析用户需求：React 防抖搜索 Hook", "选择 useState + useEffect 实现方案", "添加清理函数防止内存泄漏"],
   },
   { id: "m4", role: "user", content: "能加上 loading 状态和取消请求的功能吗？", timestamp: "10:28", status: "sent" },
   {
@@ -80,6 +92,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
     role: "assistant",
     content: "当然可以！这里是增强版本，加入了 `loading` 状态和 `AbortController` 取消请求：\n\n```typescript\nfunction useDebounceSearch<T>(fetcher: (q: string, signal: AbortSignal) => Promise<T>, delay = 300) {\n  const [query, setQuery] = useState('')\n  const [data, setData] = useState<T | null>(null)\n  const [loading, setLoading] = useState(false)\n  const abortRef = useRef<AbortController>()\n\n  useEffect(() => {\n    if (!query) { setData(null); return }\n    const timer = setTimeout(async () => {\n      abortRef.current?.abort()\n      const ctrl = new AbortController()\n      abortRef.current = ctrl\n      setLoading(true)\n      try {\n        const res = await fetcher(query, ctrl.signal)\n        if (!ctrl.signal.aborted) setData(res)\n      } finally {\n        if (!ctrl.signal.aborted) setLoading(false)\n      }\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay, fetcher])\n\n  return { query, setQuery, data, loading }\n}\n```\n\n**改进点：**\n- 🔄 `loading` 状态跟踪请求进度\n- ❌ 新请求发起前自动取消上一个未完成的请求\n- 🛡️ 使用 `AbortSignal` 防止竞态条件",
     timestamp: "10:30",
+    thinking: ["评估需求：loading 状态 + 取消请求", "引入 AbortController 管理请求生命周期", "处理竞态条件：确保旧请求不覆盖新结果", "添加泛型支持以提升复用性"],
   },
 ]
 
@@ -100,6 +113,94 @@ const QUICK_REPLIES = [
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
+/** Renders a code block with language label and copy button */
+function CodeBlock({ code, language }: { code: string; language: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    void navigator.clipboard?.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <div className="my-2 overflow-hidden rounded-lg border bg-zinc-950 text-zinc-50 dark:border-zinc-700">
+      <div className="flex items-center justify-between bg-zinc-800 px-3 py-1.5">
+        <span className="text-[10px] font-medium text-zinc-400 uppercase">{language}</span>
+        <Button variant="ghost" size="icon" className="size-6 text-zinc-400 hover:text-zinc-200" onClick={handleCopy}>
+          {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+        </Button>
+      </div>
+      <pre className="overflow-x-auto p-3 text-xs leading-relaxed"><code>{code}</code></pre>
+    </div>
+  )
+}
+
+/** Parse content into text segments and code blocks */
+function RichContent({ content }: { content: string }) {
+  const parts = content.split(/(```\w*\n[\s\S]*?```)/g)
+  return (
+    <>
+      {parts.map((part, i) => {
+        const codeMatch = part.match(/^```(\w*)\n([\s\S]*?)```$/)
+        if (codeMatch) {
+          return <CodeBlock key={i} language={codeMatch[1] || "text"} code={codeMatch[2].trimEnd()} />
+        }
+        if (!part) return null
+        return <span key={i} className="whitespace-pre-wrap">{part}</span>
+      })}
+    </>
+  )
+}
+
+/** Streaming text that renders char by char */
+function StreamingText({ content, onComplete }: { content: string; onComplete: () => void }) {
+  const [displayed, setDisplayed] = useState(content)
+
+  useEffect(() => {
+    let charIndex = 0
+    const interval = setInterval(() => {
+      charIndex += 2
+      if (charIndex >= content.length) {
+        setDisplayed(content)
+        clearInterval(interval)
+        onComplete()
+      } else {
+        setDisplayed(content.slice(0, charIndex))
+      }
+    }, 15)
+    return () => clearInterval(interval)
+  }, [content, onComplete])
+
+  return <RichContent content={displayed} />
+}
+
+/** ThoughtChain — collapsible thinking process */
+function ThoughtChain({ steps }: { steps: string[] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="mb-1">
+      <CollapsibleTrigger asChild>
+        <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
+          <BrainCircuit className="size-3.5 text-violet-500" />
+          <span>思考过程 ({steps.length} 步)</span>
+          <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="ml-2 mt-1 border-l-2 border-violet-500/30 pl-3">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-start gap-1.5 py-0.5">
+              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-[9px] font-medium text-violet-600">
+                {i + 1}
+              </span>
+              <span className="text-xs text-muted-foreground">{step}</span>
+            </div>
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1.5 px-3 py-2">
@@ -113,10 +214,22 @@ function TypingIndicator() {
   )
 }
 
-function MessageBubble({ message, onCopy }: { message: ChatMessage; onCopy: (text: string) => void }) {
+function MessageBubble({
+  message,
+  onCopy,
+  onRegenerate,
+  onEdit,
+}: {
+  message: ChatMessage
+  onCopy: (text: string) => void
+  onRegenerate?: (id: string) => void
+  onEdit?: (id: string, newContent: string) => void
+}) {
   const isUser = message.role === "user"
   const isSystem = message.role === "system"
   const [liked, setLiked] = useState<"up" | "down" | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [editText, setEditText] = useState(message.content)
 
   if (isSystem) {
     return (
@@ -126,6 +239,14 @@ function MessageBubble({ message, onCopy }: { message: ChatMessage; onCopy: (tex
         <Separator className="flex-1" />
       </div>
     )
+  }
+
+  const handleEditSubmit = () => {
+    const trimmed = editText.trim()
+    if (trimmed && trimmed !== message.content) {
+      onEdit?.(message.id, trimmed)
+    }
+    setEditing(false)
   }
 
   return (
@@ -148,69 +269,126 @@ function MessageBubble({ message, onCopy }: { message: ChatMessage; onCopy: (tex
 
       {/* Content */}
       <div className={`flex max-w-[75%] flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
+        {/* ThoughtChain */}
+        {!isUser && message.thinking && message.thinking.length > 0 && (
+          <ThoughtChain steps={message.thinking} />
+        )}
+
         {/* Bubble */}
-        <div
-          className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-            isUser
-              ? "rounded-br-md bg-primary text-primary-foreground"
-              : "rounded-bl-md bg-muted"
-          }`}
-        >
-          {message.content}
-        </div>
+        {editing ? (
+          <div className="flex w-full flex-col gap-2">
+            <Textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="min-h-20 text-sm"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleEditSubmit}>保存并重发</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditText(message.content) }}>
+                <X className="mr-1 size-3" /> 取消
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+              isUser
+                ? "rounded-br-md bg-primary text-primary-foreground"
+                : "rounded-bl-md bg-muted"
+            }`}
+          >
+            {message.streaming ? (
+              <StreamingText content={message.content} onComplete={() => {}} />
+            ) : (
+              <RichContent content={message.content} />
+            )}
+            {message.streaming && (
+              <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-current align-text-bottom" />
+            )}
+          </div>
+        )}
 
         {/* Footer: timestamp + actions */}
-        <div className={`flex items-center gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-          <span className="text-[10px] text-muted-foreground/60">{message.timestamp}</span>
-          {message.status === "sent" && isUser && (
-            <Check className="size-3 text-muted-foreground/60" />
-          )}
+        {!editing && (
+          <div className={`flex items-center gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+            <span className="text-[10px] text-muted-foreground/60">{message.timestamp}</span>
+            {message.status === "sent" && isUser && (
+              <Check className="size-3 text-muted-foreground/60" />
+            )}
 
-          {/* Actions (visible on hover) */}
-          <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(message.content)}>
-                    <Copy className="size-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom"><p>复制</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {!isUser && (
+            {/* Actions (visible on hover) */}
+            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`size-6 ${liked === "up" ? "text-green-500" : ""}`}
-                      onClick={() => setLiked(liked === "up" ? null : "up")}
-                    >
-                      <ThumbsUp className="size-3" />
+                    <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(message.content)}>
+                      <Copy className="size-3" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`size-6 ${liked === "down" ? "text-red-500" : ""}`}
-                      onClick={() => setLiked(liked === "down" ? null : "down")}
-                    >
-                      <ThumbsDown className="size-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
+                  <TooltipContent side="bottom"><p>复制</p></TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )}
+
+              {isUser && onEdit && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-6" onClick={() => setEditing(true)}>
+                        <Pencil className="size-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {!isUser && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`size-6 ${liked === "up" ? "text-green-500" : ""}`}
+                        onClick={() => setLiked(liked === "up" ? null : "up")}
+                      >
+                        <ThumbsUp className="size-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`size-6 ${liked === "down" ? "text-red-500" : ""}`}
+                        onClick={() => setLiked(liked === "down" ? null : "down")}
+                      >
+                        <ThumbsDown className="size-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {!isUser && onRegenerate && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-6" onClick={() => onRegenerate(message.id)}>
+                        <RefreshCcw className="size-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -268,6 +446,7 @@ function ChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
+  const streamIdRef = useRef(0)
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -279,6 +458,53 @@ function ChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages, isTyping, scrollToBottom])
+
+  const simulateAIReply = useCallback((userText: string) => {
+    setIsTyping(true)
+    const thinkSteps = [
+      `分析用户输入："${userText.slice(0, 20)}…"`,
+      "检索相关上下文和知识库",
+      "生成回复内容",
+    ]
+    const replyContent = `收到你的消息："${userText}"\n\n这是一条模拟的 AI 回复。在实际应用中，这里会接入大语言模型 API 来返回智能回答。`
+
+    // Phase 1: thinking (800ms), Phase 2: streaming
+    setTimeout(() => {
+      setIsTyping(false)
+      const id = `a-${Date.now()}`
+      streamIdRef.current += 1
+      const currentStream = streamIdRef.current
+      const aiMsg: ChatMessage = {
+        id,
+        role: "assistant",
+        content: "",
+        timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+        thinking: thinkSteps,
+        streaming: true,
+      }
+      setMessages((prev) => [...prev, aiMsg])
+
+      // Simulate streaming by gradually updating content
+      let charIndex = 0
+      const streamInterval = setInterval(() => {
+        if (currentStream !== streamIdRef.current) {
+          clearInterval(streamInterval)
+          return
+        }
+        charIndex += 3
+        if (charIndex >= replyContent.length) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === id ? { ...m, content: replyContent, streaming: false } : m)),
+          )
+          clearInterval(streamInterval)
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === id ? { ...m, content: replyContent.slice(0, charIndex) } : m)),
+          )
+        }
+      }, 20)
+    }, 800)
+  }, [])
 
   const handleSend = useCallback(() => {
     const text = draft.trim()
@@ -293,20 +519,41 @@ function ChatPage() {
     }
     setMessages((prev) => [...prev, userMsg])
     setDraft("")
+    simulateAIReply(text)
+  }, [draft, simulateAIReply])
 
-    // Simulate AI typing
-    setIsTyping(true)
-    setTimeout(() => {
-      setIsTyping(false)
-      const aiMsg: ChatMessage = {
-        id: `a-${Date.now()}`,
-        role: "assistant",
-        content: `收到你的消息："${text}"\n\n这是一条模拟的 AI 回复。在实际应用中，这里会接入大语言模型 API 来返回智能回答。`,
-        timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+  const handleRegenerate = useCallback((msgId: string) => {
+    setMessages((prev) => {
+      // Find the AI message and remove it, find the preceding user message
+      const idx = prev.findIndex((m) => m.id === msgId)
+      if (idx < 0) return prev
+      const userMsg = [...prev].slice(0, idx).reverse().find((m) => m.role === "user")
+      const updated = prev.filter((m) => m.id !== msgId)
+      if (userMsg) {
+        setTimeout(() => simulateAIReply(userMsg.content), 0)
       }
-      setMessages((prev) => [...prev, aiMsg])
-    }, 1500)
-  }, [draft])
+      return updated
+    })
+  }, [simulateAIReply])
+
+  const handleEdit = useCallback((msgId: string, newContent: string) => {
+    setMessages((prev) => {
+      const idx = prev.findIndex((m) => m.id === msgId)
+      if (idx < 0) return prev
+      // Update user message, remove all messages after it
+      const updated = prev.slice(0, idx + 1).map((m) => (m.id === msgId ? { ...m, content: newContent } : m))
+      setTimeout(() => simulateAIReply(newContent), 0)
+      return updated
+    })
+  }, [simulateAIReply])
+
+  const handleStopStreaming = useCallback(() => {
+    streamIdRef.current += 1
+    setMessages((prev) =>
+      prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)),
+    )
+    setIsTyping(false)
+  }, [])
 
   const handleCopy = useCallback((text: string) => {
     void navigator.clipboard?.writeText(text)
@@ -418,7 +665,7 @@ function ChatPage() {
         <ScrollArea className="flex-1" ref={scrollRef}>
           <div className="flex flex-col gap-4 px-5 py-4">
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} onCopy={handleCopy} />
+              <MessageBubble key={m.id} message={m} onCopy={handleCopy} onRegenerate={handleRegenerate} onEdit={handleEdit} />
             ))}
             {isTyping && (
               <div className="flex items-start gap-2.5">
@@ -434,6 +681,16 @@ function ChatPage() {
             )}
           </div>
         </ScrollArea>
+
+        {/* Stop streaming button */}
+        {(isTyping || messages.some((m) => m.streaming)) && (
+          <div className="flex justify-center pb-1">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleStopStreaming}>
+              <Square className="size-3" />
+              停止生成
+            </Button>
+          </div>
+        )}
 
         {/* Quick replies */}
         <div className="flex gap-2 border-t px-5 pt-3">
