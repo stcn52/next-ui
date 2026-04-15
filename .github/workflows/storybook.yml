@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Check GitHub Pages status
         id: pages
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             try {
