@@ -108,12 +108,15 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+const MemoizedSidebar = React.memo(Sidebar)
+const MemoizedSidebarItem = React.memo(SidebarItem)
+
 export {
-  Sidebar,
+  MemoizedSidebar as Sidebar,
   SidebarHeader,
   SidebarContent,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarItem,
+  MemoizedSidebarItem as SidebarItem,
   SidebarFooter,
 }

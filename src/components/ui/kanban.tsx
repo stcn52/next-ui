@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, memo } from "react"
 import {
   DndContext,
   DragOverlay,
@@ -258,9 +258,11 @@ function KanbanSortableCard({
   )
 }
 
+const MemoizedKanbanSortableCard = memo(KanbanSortableCard)
+
 export {
   KanbanBoard,
   KanbanColumnContainer,
-  KanbanSortableCard,
+  MemoizedKanbanSortableCard as KanbanSortableCard,
   type KanbanBoardProps,
 }
