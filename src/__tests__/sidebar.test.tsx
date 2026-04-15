@@ -93,4 +93,36 @@ describe("Sidebar", () => {
     )
     expect(screen.getByTestId("sidebar")).toHaveClass("custom-class")
   })
+
+  it("has aria-label on the sidebar", () => {
+    render(
+      <Sidebar data-testid="sidebar">
+        <SidebarContent>content</SidebarContent>
+      </Sidebar>
+    )
+    expect(screen.getByTestId("sidebar")).toHaveAttribute("aria-label", "Sidebar")
+  })
+
+  it("SidebarContent renders as nav element", () => {
+    render(
+      <Sidebar>
+        <SidebarContent data-testid="sidebar-content">nav content</SidebarContent>
+      </Sidebar>
+    )
+    const content = screen.getByTestId("sidebar-content")
+    expect(content.tagName).toBe("NAV")
+  })
+
+  it("active SidebarItem has aria-current=page", () => {
+    render(
+      <Sidebar>
+        <SidebarContent>
+          <SidebarItem active>Active</SidebarItem>
+          <SidebarItem>Inactive</SidebarItem>
+        </SidebarContent>
+      </Sidebar>
+    )
+    expect(screen.getByText("Active")).toHaveAttribute("aria-current", "page")
+    expect(screen.getByText("Inactive")).not.toHaveAttribute("aria-current")
+  })
 })
