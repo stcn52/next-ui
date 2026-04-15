@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import type { ColumnDef } from "@tanstack/react-table"
 import { VirtualDataTable } from "@/components/ui/virtual-data-table"
 import { Button } from "@/components/ui/button"
@@ -117,6 +117,9 @@ export const TenThousandRows: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByRole("table")).toBeInTheDocument()
+    // Click a column header to sort
+    const nameHeader = canvas.getByText("Name")
+    await userEvent.click(nameHeader)
   },
 }
 

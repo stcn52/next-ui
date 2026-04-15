@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -41,8 +41,13 @@ export const Default: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    expect(canvas.getByRole("region")).toBeInTheDocument()
-    expect(canvas.getByText("1")).toBeInTheDocument()
+    await expect(canvas.getByRole("region")).toBeInTheDocument()
+    await expect(canvas.getByText("1")).toBeInTheDocument()
+    // Click next button if visible
+    const nextBtn = canvas.queryByLabelText("Next slide")
+    if (nextBtn) {
+      await userEvent.click(nextBtn)
+    }
   },
 }
 

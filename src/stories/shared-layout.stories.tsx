@@ -1,6 +1,6 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import { motion, AnimatePresence, LayoutGroup } from "motion/react"
 import { X } from "lucide-react"
 
@@ -149,5 +149,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("Design System")).toBeInTheDocument()
+    // Click a card to expand it
+    await userEvent.click(canvas.getByText("Design System"))
+    // Verify expanded detail is shown
+    await expect(canvas.getByText(/comprehensive design system/i)).toBeInTheDocument()
   },
 }

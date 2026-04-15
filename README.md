@@ -1,73 +1,111 @@
-# React + TypeScript + Vite
+# @chenyang/ui
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**, and **React 19**.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 55+ components — buttons, forms, data tables, kanban boards, date pickers, and more
+- **ConfigProvider** for global size (`sm` / `md` / `lg`), locale, and class prefix
+- Built-in i18n with English, Chinese (zh-CN), and Japanese (ja-JP) — extensible via `registerLocale()`
+- Advanced data patterns — virtual scrolling (100K+ rows), inline editing, URL state sync
+- Drag & drop with dnd-kit (sortable lists and kanban boards)
+- Form integration with react-hook-form + Zod validation
+- Keyboard shortcuts via react-hotkeys-hook
+- Shared layout animations (Motion)
+- Full Storybook documentation with interaction play tests
+- Dark mode support via next-themes
 
-## React Compiler
+## Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install @chenyang/ui
+# or
+pnpm add @chenyang/ui
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Peer dependencies
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm add react react-dom tailwindcss
 ```
+
+## Quick Start
+
+```tsx
+import { Button, ConfigProvider } from "@chenyang/ui"
+import "@chenyang/ui/styles.css"
+
+function App() {
+  return (
+    <ConfigProvider locale="zh-CN" size="md">
+      <Button>Click me</Button>
+    </ConfigProvider>
+  )
+}
+```
+
+## ConfigProvider
+
+Wrap your app to set global defaults for size, locale, and class prefix:
+
+```tsx
+import { ConfigProvider } from "@chenyang/ui"
+
+<ConfigProvider size="lg" locale="zh-CN">
+  {/* All components inherit size="lg" and Chinese locale */}
+</ConfigProvider>
+```
+
+### Custom Locale
+
+```tsx
+import { registerLocale, ConfigProvider } from "@chenyang/ui"
+
+registerLocale("ko-KR", {
+  confirm: "확인",
+  cancel: "취소",
+  noResults: "결과가 없습니다.",
+  // ... other keys
+})
+
+<ConfigProvider locale="ko-KR">...</ConfigProvider>
+```
+
+### Translation Hook
+
+```tsx
+import { useTranslation } from "@chenyang/ui"
+
+function MyComponent() {
+  const t = useTranslation()
+  return <p>{t("rowsSelected", { count: 3, total: 10 })}</p>
+  // → "3 of 10 row(s) selected."
+}
+```
+
+## Components
+
+| Category | Components |
+|----------|-----------|
+| **Layout** | Card, Separator, ResizablePanel, AspectRatio, ScrollArea |
+| **Forms** | Input, Textarea, Select, Checkbox, RadioGroup, Switch, Slider, InputOTP, Form (react-hook-form + Zod) |
+| **Data** | DataTable, VirtualDataTable, UrlDataTable, EditableDataTable |
+| **Feedback** | Alert, AlertDialog, Dialog, Drawer, Sheet, Sonner, Tooltip, Progress, Skeleton |
+| **Navigation** | Breadcrumb, Tabs, NavigationMenu, Menubar, ContextMenu, DropdownMenu, Command |
+| **Display** | Badge, Avatar, Carousel, HoverCard, Accordion, Collapsible, Toggle, ToggleGroup |
+| **Advanced** | KanbanBoard, SortableList, DatePicker, Combobox, Shortcuts, AnimatedCard |
+| **Config** | ConfigProvider, ThemeProvider |
+
+## Development
+
+```bash
+pnpm install
+pnpm dev          # Vite dev server
+pnpm storybook    # Storybook on port 6006
+pnpm build        # Production build
+pnpm build:lib    # Library build for npm
+```
+
+## License
+
+MIT

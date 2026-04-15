@@ -5,6 +5,14 @@
   "description": "基于 shadcn/ui v3 + Tailwind CSS v4 + React 19 构建的纯前端 UI 组件库",
   "author": "chenyang",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stcn52/next-ui.git"
+  },
+  "homepage": "https://github.com/stcn52/next-ui",
+  "sideEffects": [
+    "*.css"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

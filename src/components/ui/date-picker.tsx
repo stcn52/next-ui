@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useLocale } from "@/components/config-provider"
+import { useLocale, formatMessage } from "@/components/config-provider"
 
 function DatePicker({
   date,
@@ -36,7 +36,7 @@ function DatePicker({
         render={
           <Button
             variant="outline"
-            aria-label={date ? locale.selectedDate.replace("{date}", format(date, 'PPP')) : resolvedPlaceholder}
+            aria-label={date ? formatMessage(locale.selectedDate, { date: format(date, 'PPP') }) : resolvedPlaceholder}
             className={cn(
               "w-[240px] justify-start text-left font-normal",
               !date && "text-muted-foreground",

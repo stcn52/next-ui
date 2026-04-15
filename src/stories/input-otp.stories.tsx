@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import {
   InputOTP,
   InputOTPGroup,
@@ -35,7 +35,11 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const slots = canvas.getAllByRole("presentation")
-    expect(slots.length).toBeGreaterThan(0)
+    await expect(slots.length).toBeGreaterThan(0)
+    // Focus the OTP input and type digits
+    const input = canvas.getByRole("textbox")
+    await userEvent.click(input)
+    await userEvent.type(input, "123")
   },
 }
 

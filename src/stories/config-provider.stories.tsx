@@ -5,10 +5,15 @@ import {
   ConfigProvider,
   useConfig,
   builtinLocales,
+  getAvailableLocales,
+  registerLocale,
+  useTranslation,
 } from "@/components/config-provider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { DataTable } from "@/components/ui/data-table"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Combobox } from "@/components/ui/combobox"
@@ -199,4 +204,122 @@ export const LocaleIntegration: Story = {
     await expect(canvas.getByText("上一页")).toBeInTheDocument()
     await expect(canvas.getByText("下一页")).toBeInTheDocument()
   },
+}
+
+export const SizeIntegration: Story = {
+  name: "Size Integration",
+  render: () => {
+    const [size, setSize] = useState<Size>("md")
+    return (
+      <ConfigProvider size={size}>
+        <div className="flex flex-col gap-6 max-w-md">
+          <div className="flex gap-2 items-center">
+            <span className="text-sm font-medium">Size:</span>
+            {(["sm", "md", "lg"] as Size[]).map((s) => (
+              <Button
+                key={s}
+                size={s === "md" ? "default" : s}
+                variant={size === s ? "default" : "outline"}
+                onClick={() => setSize(s)}
+              >
+                {s}
+              </Button>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2 items-center flex-wrap">
+              <Button>Default Button</Button>
+              <Button variant="outline">Outline</Button>
+              <Badge>Badge</Badge>
+              <Badge variant="secondary">Secondary</Badge>
+            </div>
+            <Input placeholder="Input responds to size" />
+            <Textarea placeholder="Textarea responds to size" />
+          </div>
+        </div>
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // Switch to sm
+    await userEvent.click(canvas.getByText("sm"))
+    await expect(canvas.getByPlaceholderText("Input responds to size")).toBeInTheDocument()
+    // Switch to lg
+    await userEvent.click(canvas.getByText("lg"))
+    await expect(canvas.getByPlaceholderText("Textarea responds to size")).toBeInTheDocument()
+  },
+}
+
+export const CustomLocale: Story = {
+  name: "Custom Locale (registerLocale)",
+  render: () => {
+    // Register a custom Korean locale on mount
+    registerLocale("ko-KR", {
+      noResults: "결과가 없습니다.",
+      previous: "이전",
+      next: "다음",
+      confirm: "확인",
+      cancel: "취소",
+      filter: "필터...",
+      pickADate: "날짜 선택",
+      selectOption: "선택하세요...",
+    })
+
+    const [locale, setLocale] = useState("en")
+    const availableLocales = getAvailableLocales()
+
+    return (
+      <ConfigProvider locale={locale}>
+        <div className="flex flex-col gap-4 max-w-md">
+          <div className="flex gap-2 flex-wrap">
+            {availableLocales.map((l) => (
+              <Button
+                key={l}
+                size="sm"
+                variant={locale === l ? "default" : "outline"}
+                onClick={() => setLocale(l)}
+              >
+                {l}
+              </Button>
+            ))}
+          </div>
+          <TranslationDemo />
+        </div>
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // Switch to ko-KR
+    await userEvent.click(canvas.getByText("ko-KR"))
+    await expect(canvas.getByText("확인")).toBeInTheDocument()
+    await expect(canvas.getByText("취소")).toBeInTheDocument()
+  },
+}
+
+function TranslationDemo() {
+  const t = useTranslation()
+  return (
+    <Card>
+      <CardContent className="pt-6 flex flex-col gap-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">confirm:</span>
+          <span>{t("confirm")}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">cancel:</span>
+          <span>{t("cancel")}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">rowsSelected:</span>
+          <span>{t("rowsSelected", { count: 3, total: 10 })}</span>
+        </div>
+        <div className="mt-2 flex gap-2">
+          <Button>{t("confirm")}</Button>
+          <Button variant="outline">{t("cancel")}</Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }

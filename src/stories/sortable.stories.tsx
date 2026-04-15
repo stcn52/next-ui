@@ -54,6 +54,12 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("Design system architecture")).toBeInTheDocument()
+    // Focus a drag handle and verify focus state
+    const handles = canvasElement.querySelectorAll('[aria-label="Drag to reorder"]')
+    if (handles.length > 0) {
+      (handles[0] as HTMLElement).focus()
+      await expect(handles[0]).toHaveFocus()
+    }
   },
 }
 

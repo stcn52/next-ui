@@ -123,5 +123,11 @@ export const Default: Story = {
     await expect(canvas.getByText("In Progress")).toBeInTheDocument()
     await expect(canvas.getByText("Done")).toBeInTheDocument()
     await expect(canvas.getByText("User authentication flow")).toBeInTheDocument()
+    // Verify drag handles are focusable
+    const dragHandles = canvasElement.querySelectorAll('[aria-label="Drag to reorder"]')
+    if (dragHandles.length > 0) {
+      (dragHandles[0] as HTMLElement).focus()
+      await expect(dragHandles[0]).toHaveFocus()
+    }
   },
 }

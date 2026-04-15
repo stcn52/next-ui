@@ -1,6 +1,6 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import { Slider } from "@/components/ui/slider"
 
 const meta: Meta<typeof Slider> = {
@@ -21,7 +21,11 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByRole("slider")).toBeInTheDocument()
+    const slider = canvas.getByRole("slider")
+    await expect(slider).toBeInTheDocument()
+    // Focus slider and use keyboard to change value
+    await userEvent.click(slider)
+    await userEvent.keyboard("{ArrowRight}")
   },
 }
 

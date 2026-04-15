@@ -116,6 +116,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
 
 function InputGroupInput({
   className,
+  size: _htmlSize,
   ...props
 }: React.ComponentProps<"input">) {
   return (

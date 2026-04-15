@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useLocale } from "@/components/config-provider"
+import { useLocale, formatMessage } from "@/components/config-provider"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -142,9 +142,10 @@ function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-between px-2">
         <div className="text-sm text-muted-foreground" role="status" aria-live="polite">
-          {locale.rowsSelected
-            .replace("{count}", String(table.getFilteredSelectedRowModel().rows.length))
-            .replace("{total}", String(table.getFilteredRowModel().rows.length))}
+          {formatMessage(locale.rowsSelected, {
+            count: table.getFilteredSelectedRowModel().rows.length,
+            total: table.getFilteredRowModel().rows.length,
+          })}
         </div>
         <div className="flex items-center gap-2">
           <Button

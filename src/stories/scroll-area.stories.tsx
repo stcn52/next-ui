@@ -32,6 +32,12 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("Tags")).toBeInTheDocument()
+    // Scroll down to verify last items are accessible
+    const scrollContainer = canvasElement.querySelector("[data-slot=scroll-area-viewport]")
+    if (scrollContainer) {
+      scrollContainer.scrollTop = scrollContainer.scrollHeight
+      await expect(canvas.getByText("v1.49.0-beta")).toBeInTheDocument()
+    }
   },
 }
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -37,6 +37,12 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("One")).toBeInTheDocument()
     await expect(canvas.getByText("Two")).toBeInTheDocument()
+    // Focus the resize handle and use keyboard to resize
+    const handle = canvasElement.querySelector('[data-slot="resize-handle"]') as HTMLElement
+    if (handle) {
+      handle.focus()
+      await userEvent.keyboard("{ArrowRight}")
+    }
   },
 }
 
