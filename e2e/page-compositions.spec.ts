@@ -47,4 +47,38 @@ test.describe("Composite Pages", () => {
     await page.getByRole("button", { name: "解析 CSS" }).click()
     await expect(page.getByText("Light 模式")).toBeVisible()
   })
+
+  test("inbox page renders emails and preview pane", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-inbox--default&viewMode=story")
+
+    await expect(page.getByText("收件箱")).toBeVisible()
+    await expect(
+      page.getByText("[next-ui] New pull request #42").first(),
+    ).toBeVisible()
+    // Click second email to open preview
+    await page
+      .getByText("Deployment successful: next-ui-docs")
+      .click()
+    await expect(
+      page.getByText("Your deployment for next-ui-docs was successful."),
+    ).toBeVisible()
+  })
+
+  test("projects page renders cards and filters", async ({ page }) => {
+    await page.goto(
+      "/iframe.html?id=pages-projects--default&viewMode=story",
+    )
+
+    await expect(page.getByText("项目").first()).toBeVisible()
+    await expect(page.getByText("next-ui")).toBeVisible()
+    await expect(page.getByText("API Gateway")).toBeVisible()
+  })
+
+  test("orders page renders table and KPIs", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-orders--default&viewMode=story")
+
+    await expect(page.getByText("订单管理")).toBeVisible()
+    await expect(page.getByText("ORD-001")).toBeVisible()
+    await expect(page.getByText("¥59,693")).toBeVisible()
+  })
 })
