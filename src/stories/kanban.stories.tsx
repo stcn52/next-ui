@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 const meta: Meta = {
   title: "Patterns/Kanban Board",
+  component: KanbanBoard,
   tags: ["autodocs"],
   parameters: {
     docs: {

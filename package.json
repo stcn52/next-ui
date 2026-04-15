@@ -38,7 +38,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "tsc -b && vite build --config vite.lib.config.ts",
+    "build:lib": "tsc -b && vite build --config vite.lib.config.ts && node scripts/postbuild-lib.mjs",
     "analyze": "ANALYZE=true pnpm build:lib",
     "lint": "eslint .",
     "test": "vitest run",
@@ -47,6 +47,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "publish:check": "pnpm build:lib && pnpm pack --dry-run",
     "prepublishOnly": "pnpm build:lib"
   },
   "keywords": [

@@ -317,4 +317,9 @@ export const Notifications: Story = {
 export const Security: Story = {
   name: "Security Section",
   render: () => <SecuritySection />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("安全设置")).toBeInTheDocument()
+    await expect(canvas.getByText("两步验证")).toBeInTheDocument()
+  },
 }

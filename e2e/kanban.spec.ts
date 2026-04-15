@@ -7,9 +7,9 @@ test.describe("Kanban Page", () => {
   })
 
   test("renders sidebar navigation", async ({ page }) => {
-    await expect(page.getByText("工作区")).toBeVisible()
-    await expect(page.getByText("事项")).toBeVisible()
-    await expect(page.getByText("设置")).toBeVisible()
+    await expect(page.getByRole("button", { name: /工作区/ })).toBeVisible()
+    await expect(page.getByRole("button", { name: "事项", exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: "设置" })).toBeVisible()
   })
 
   test("renders kanban columns", async ({ page }) => {
@@ -49,7 +49,7 @@ test.describe("Kanban Page", () => {
     await expect(page.getByText("数据加载失败")).toBeVisible()
 
     // Retry button goes back to normal
-    await page.getByText("重试").click()
+    await page.getByRole("button", { name: "重试" }).click()
     await expect(page.getByText("待梳理")).toBeVisible()
   })
 })

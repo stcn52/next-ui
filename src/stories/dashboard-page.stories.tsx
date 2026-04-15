@@ -319,6 +319,11 @@ export const KpiCards: Story = {
       ))}
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("总任务数")).toBeInTheDocument()
+    await expect(canvas.getByText("活跃成员")).toBeInTheDocument()
+  },
 }
 
 export const ProjectOverview: Story = {
@@ -328,6 +333,11 @@ export const ProjectOverview: Story = {
       <ProjectTable />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("项目概览")).toBeInTheDocument()
+    await expect(canvas.getByText("用户系统重构")).toBeInTheDocument()
+  },
 }
 
 export const Activity: Story = {
@@ -337,4 +347,9 @@ export const Activity: Story = {
       <ActivityFeed />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("最近动态")).toBeInTheDocument()
+    await expect(canvas.getByText("Alice")).toBeInTheDocument()
+  },
 }

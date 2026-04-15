@@ -14,9 +14,17 @@ export default defineConfig({
     tailwindcss(),
     libInjectCss(),
     dts({
+      tsconfigPath: path.resolve(__dirname, "tsconfig.app.json"),
       include: ["src/components", "src/lib", "src/locales", "src/index.ts"],
+      exclude: [
+        "src/**/*.stories.tsx",
+        "src/**/*.test.tsx",
+        "src/test-setup.ts",
+        "e2e/**",
+      ],
       outDir: "dist",
-      rollupTypes: true,
+      insertTypesEntry: true,
+      rollupTypes: false,
     }),
     analyze && visualizer({
       filename: "dist/stats.html",
@@ -44,12 +52,10 @@ export default defineConfig({
           react: "React",
           "react-dom": "ReactDOM",
         },
-        preserveModules: true,
-        preserveModulesRoot: "src",
         exports: "named",
       },
     },
     sourcemap: true,
-    emptyOutDir: false,
+    emptyOutDir: true,
   },
 })

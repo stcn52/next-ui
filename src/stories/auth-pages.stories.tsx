@@ -200,4 +200,9 @@ export const Register: Story = {
 export const ForgotPassword: Story = {
   name: "Forgot Password",
   render: () => <ForgotPasswordPage />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("忘记密码")).toBeInTheDocument()
+    await expect(canvas.getByText("发送重置链接")).toBeInTheDocument()
+  },
 }

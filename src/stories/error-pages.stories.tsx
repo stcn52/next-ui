@@ -112,4 +112,9 @@ export const ServerError: Story = {
 export const Maintenance: Story = {
   name: "Maintenance",
   render: () => <MaintenancePage />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("系统维护中")).toBeInTheDocument()
+    await expect(canvas.getByText(/维护时间/)).toBeInTheDocument()
+  },
 }

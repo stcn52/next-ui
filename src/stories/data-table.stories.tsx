@@ -115,7 +115,30 @@ const simpleColumns: ColumnDef<Payment>[] = [
 
 const meta: Meta = {
   title: "UI/DataTable",
+  component: DataTable,
   tags: ["autodocs"],
+  argTypes: {
+    columns: {
+      control: false,
+      description: "Column definitions powered by @tanstack/react-table.",
+    },
+    data: {
+      control: false,
+      description: "Row data array.",
+    },
+    filterColumn: {
+      control: "text",
+      description: "Column id/key used for filter input.",
+    },
+    filterPlaceholder: {
+      control: "text",
+      description: "Placeholder text for filter input.",
+    },
+    pageSize: {
+      control: { type: "number", min: 1, max: 100, step: 1 },
+      description: "Initial rows per page.",
+    },
+  },
 }
 
 export default meta
