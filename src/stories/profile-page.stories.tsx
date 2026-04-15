@@ -10,10 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
 import {
   Calendar,
-  Github,
+  GitFork,
   Globe,
   Mail,
   MapPin,
@@ -80,7 +79,7 @@ function ProfilePage() {
                 <Globe className="size-3" /> stcn52.dev
               </span>
               <span className="flex items-center gap-1">
-                <Github className="size-3" /> @stcn52
+                <GitFork className="size-3" /> @stcn52
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="size-3" /> 2024 年加入

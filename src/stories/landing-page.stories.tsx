@@ -21,7 +21,6 @@ import {
   Star,
   Zap,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const meta: Meta = {
   title: "Pages/Landing",
