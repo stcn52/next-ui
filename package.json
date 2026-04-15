@@ -1,9 +1,9 @@
 {
-  "name": "@chenyang/ui",
+  "name": "@stcn52/next-ui",
   "private": false,
   "version": "0.1.0",
   "description": "基于 shadcn/ui v3 + Tailwind CSS v4 + React 19 构建的纯前端 UI 组件库",
-  "author": "chenyang",
+  "author": "stcn52",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -24,7 +24,10 @@
       "require": "./dist/index.cjs"
     },
     "./styles.css": "./dist/style.css",
-    "./locales/*": "./dist/locales/*"
+    "./locales/*": "./dist/locales/*",
+    "./locales/en.json": "./dist/locales/en.json",
+    "./locales/zh-CN.json": "./dist/locales/zh-CN.json",
+    "./locales/ja-JP.json": "./dist/locales/ja-JP.json"
   },
   "files": [
     "dist"
@@ -43,7 +46,8 @@
     "test:e2e": "playwright test",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepublishOnly": "pnpm build:lib"
   },
   "keywords": [
     "ui",
@@ -90,6 +94,7 @@
     "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.59.1",
     "@storybook/addon-a11y": "10.3.5",
+    "@storybook/addon-docs": "10.3.5",
     "@storybook/addon-themes": "10.3.5",
     "@storybook/react": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
@@ -115,6 +120,7 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.4",
+    "vite-plugin-dts": "^4.5.4",
     "vite-plugin-lib-inject-css": "^2.2.2",
     "vitest": "^4.1.4"
   }

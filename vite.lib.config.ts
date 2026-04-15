@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { libInjectCss } from "vite-plugin-lib-inject-css"
+import dts from "vite-plugin-dts"
 import { visualizer } from "rollup-plugin-visualizer"
 
 const analyze = process.env.ANALYZE === "true"
@@ -12,6 +13,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
     libInjectCss(),
+    dts({
+      include: ["src/components", "src/lib", "src/locales", "src/index.ts"],
+      outDir: "dist",
+      rollupTypes: true,
+    }),
     analyze && visualizer({
       filename: "dist/stats.html",
       open: false,
