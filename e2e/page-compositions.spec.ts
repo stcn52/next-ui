@@ -5,9 +5,11 @@ test.describe("Composite Pages", () => {
     await page.goto("/iframe.html?id=pages-chat--default&viewMode=story")
 
     await expect(page.getByText("会话列表")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "AI 编码助手" })).toBeVisible()
+    await expect(page.getByText("翻译助手")).toBeVisible()
 
-    const input = page.getByPlaceholder("输入消息…")
-    await expect(input).toBeVisible()
+    const textarea = page.getByPlaceholder("输入消息… (Enter 发送, Shift+Enter 换行)")
+    await expect(textarea).toBeVisible()
     await expect(page.getByRole("button", { name: "发送" })).toBeVisible()
   })
 
