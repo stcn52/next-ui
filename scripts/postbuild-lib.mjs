@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs"
+import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
 import { resolve } from "node:path"
 
 const root = process.cwd()
@@ -28,6 +28,13 @@ for (const file of filesToRemove) {
   if (existsSync(file)) {
     rmSync(file, { force: true })
   }
+}
+
+// Generate proper types entry that re-exports from dts output
+const dtsEntry = resolve(distDir, "index.d.ts")
+const dtsSource = resolve(distDir, "src/index.d.ts")
+if (existsSync(dtsSource)) {
+  writeFileSync(dtsEntry, 'export * from "./src/index";\n')
 }
 
 const requiredFiles = [

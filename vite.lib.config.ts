@@ -24,7 +24,7 @@ export default defineConfig({
         "e2e/**",
       ],
       outDir: "dist",
-      insertTypesEntry: true,
+      insertTypesEntry: false,
       rollupTypes: false,
     }),
     analyze && visualizer({

@@ -27,3 +27,7 @@ test-results
 *.njsproj
 *.sln
 *.sw?
+
+# AI skills / prompts (local only)
+.claude/skills/ui-ux-pro-max
+.github/prompts/ui-ux-pro-max
