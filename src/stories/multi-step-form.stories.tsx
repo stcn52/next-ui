@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -69,6 +69,10 @@ function MultiStepForm() {
   const form3 = useForm<Step3>({
     resolver: zodResolver(step3Schema),
     defaultValues: { terms: formData.terms ?? false },
+  })
+  const acceptedTerms = useWatch({
+    control: form3.control,
+    name: "terms",
   })
 
   const progress = ((step + 1) / STEPS.length) * 100
@@ -216,7 +220,7 @@ function MultiStepForm() {
               data-invalid={form3.formState.errors.terms ? "true" : undefined}
             >
               <Checkbox
-                checked={form3.watch("terms")}
+                checked={acceptedTerms}
                 onCheckedChange={(v) => form3.setValue("terms", !!v, { shouldValidate: true })}
               />
               <FieldContent>

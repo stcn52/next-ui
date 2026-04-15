@@ -15,6 +15,8 @@ function Sidebar({
   collapsed?: boolean
   onCollapsedChange?: (collapsed: boolean) => void
 }) {
+  void onCollapsedChange
+
   return (
     <motion.aside
       data-slot="sidebar"

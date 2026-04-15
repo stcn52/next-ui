@@ -54,7 +54,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function App() {
-  const [_inputValue, setInputValue] = useState("")
+  const [, setInputValue] = useState("")
 
   return (
     <div className="min-h-screen bg-background text-foreground">

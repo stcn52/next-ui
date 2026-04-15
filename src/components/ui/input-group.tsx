@@ -119,6 +119,8 @@ function InputGroupInput({
   size: _htmlSize,
   ...props
 }: React.ComponentProps<"input">) {
+  void _htmlSize
+
   return (
     <Input
       data-slot="input-group-control"

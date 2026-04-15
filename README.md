@@ -1,4 +1,4 @@
-# @chenyang/ui
+# @stcn52/next-ui
 
 A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**, and **React 19**.
 
@@ -18,9 +18,9 @@ A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**,
 ## Installation
 
 ```bash
-npm install @chenyang/ui
+npm install @stcn52/next-ui
 # or
-pnpm add @chenyang/ui
+pnpm add @stcn52/next-ui
 ```
 
 ### Peer dependencies
@@ -32,8 +32,8 @@ pnpm add react react-dom tailwindcss
 ## Quick Start
 
 ```tsx
-import { Button, ConfigProvider } from "@chenyang/ui"
-import "@chenyang/ui/styles.css"
+import { Button, ConfigProvider } from "@stcn52/next-ui"
+import "@stcn52/next-ui/styles.css"
 
 function App() {
   return (
@@ -49,7 +49,7 @@ function App() {
 Wrap your app to set global defaults for size, locale, and class prefix:
 
 ```tsx
-import { ConfigProvider } from "@chenyang/ui"
+import { ConfigProvider } from "@stcn52/next-ui"
 
 <ConfigProvider size="lg" locale="zh-CN">
   {/* All components inherit size="lg" and Chinese locale */}
@@ -59,7 +59,7 @@ import { ConfigProvider } from "@chenyang/ui"
 ### Custom Locale
 
 ```tsx
-import { registerLocale, ConfigProvider } from "@chenyang/ui"
+import { registerLocale, ConfigProvider } from "@stcn52/next-ui"
 
 registerLocale("ko-KR", {
   confirm: "확인",
@@ -74,7 +74,7 @@ registerLocale("ko-KR", {
 ### Translation Hook
 
 ```tsx
-import { useTranslation } from "@chenyang/ui"
+import { useTranslation } from "@stcn52/next-ui"
 
 function MyComponent() {
   const t = useTranslation()
@@ -115,7 +115,7 @@ Pre-built composite pages in Storybook demonstrating real-world component compos
 ### Sidebar
 
 ```tsx
-import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter } from "@chenyang/ui"
+import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter } from "@stcn52/next-ui"
 
 <Sidebar collapsed={false} onCollapsedChange={setCollapsed}>
   <SidebarHeader>...</SidebarHeader>
@@ -130,7 +130,7 @@ import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter } fr
 ### KanbanBoard
 
 ```tsx
-import { KanbanBoard } from "@chenyang/ui"
+import { KanbanBoard } from "@stcn52/next-ui"
 
 <KanbanBoard
   columns={columns}
@@ -144,7 +144,7 @@ import { KanbanBoard } from "@chenyang/ui"
 ### useKanbanStorage
 
 ```tsx
-import { useKanbanStorage } from "@chenyang/ui"
+import { useKanbanStorage } from "@stcn52/next-ui"
 
 const { columns, setColumns, resetColumns } = useKanbanStorage("my-board", initialColumns)
 ```
@@ -152,7 +152,7 @@ const { columns, setColumns, resetColumns } = useKanbanStorage("my-board", initi
 ### ThemeProvider
 
 ```tsx
-import { ThemeProvider, useTheme } from "@chenyang/ui"
+import { ThemeProvider, useTheme } from "@stcn52/next-ui"
 
 <ThemeProvider preset="blue" radius={8}>
   <App />
@@ -165,7 +165,7 @@ const { setTokens, resetTokens, applyPreset, resolvedTheme } = useTheme()
 ## Testing
 
 ```bash
-pnpm test         # Run Vitest unit tests (26 tests)
+pnpm test         # Run Vitest unit tests (40 tests)
 pnpm test:watch   # Watch mode
 pnpm test:e2e     # Run Playwright E2E tests
 ```
@@ -183,8 +183,8 @@ Built-in locale files at `src/locales/`:
 | 日本語 | `ja-JP.json` |
 
 ```tsx
-import { ConfigProvider, useTranslation } from "@chenyang/ui"
-import zhCN from "@chenyang/ui/locales/zh-CN.json"
+import { ConfigProvider, useTranslation } from "@stcn52/next-ui"
+import zhCN from "@stcn52/next-ui/locales/zh-CN.json"
 
 <ConfigProvider locale={zhCN}>
   <App />
@@ -197,11 +197,10 @@ t("kanban.addTask") // "添加任务"
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR:
-1. **Lint** — ESLint
-2. **Build** — TypeScript + Vite
-3. **Test** — Vitest
-4. **Storybook** — Build & deploy to GitHub Pages
+GitHub Actions workflows:
+1. [ci.yml](./.github/workflows/ci.yml) — runs lint, unit tests, library build, Storybook build, and Playwright E2E checks for `main` and pull requests
+2. [storybook.yml](./.github/workflows/storybook.yml) — deploys Storybook to GitHub Pages on `main` when Pages is enabled
+3. [publish.yml](./.github/workflows/publish.yml) — builds the library and publishes to npm on version tags or manual dispatch
 
 ## Development
 
