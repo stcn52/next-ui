@@ -25,4 +25,26 @@ test.describe("Composite Pages", () => {
     await expect(page.getByText(/^Pro$/)).toBeVisible()
     await expect(page.getByText("升级到 Pro")).toBeVisible()
   })
+
+  test("analytics page renders KPIs and tabs", async ({ page }) => {
+    await page.goto(
+      "/iframe.html?id=pages-analytics--default&viewMode=story",
+    )
+
+    await expect(page.getByText("Analytics")).toBeVisible()
+    await expect(page.getByText("45,231")).toBeVisible()
+    await expect(page.getByText("Total Visitors")).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Overview" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Top Pages" })).toBeVisible()
+  })
+
+  test("theme import playground parses CSS", async ({ page }) => {
+    await page.goto(
+      "/iframe.html?id=docs-theme-import--playground&viewMode=story",
+    )
+
+    await expect(page.getByText("主题导入")).toBeVisible()
+    await page.getByRole("button", { name: "解析 CSS" }).click()
+    await expect(page.getByText("Light 模式")).toBeVisible()
+  })
 })
