@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
@@ -13,6 +14,10 @@ type Story = StoryObj<typeof Textarea>
 
 export const Default: Story = {
   args: { placeholder: "Type your message here..." },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByPlaceholderText("Type your message here...")).toBeInTheDocument()
+  },
 }
 
 export const WithLabel: Story = {

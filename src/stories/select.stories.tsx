@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Select,
   SelectTrigger,
@@ -34,6 +35,10 @@ export const Default: Story = {
       </SelectContent>
     </Select>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Select a fruit")).toBeInTheDocument()
+  },
 }
 
 export const WithGroups: Story = {

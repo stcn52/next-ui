@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Tooltip,
   TooltipTrigger,
@@ -34,6 +35,10 @@ export const Default: Story = {
       </Tooltip>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Hover me")).toBeInTheDocument()
+  },
 }
 
 export const WithIcon: Story = {

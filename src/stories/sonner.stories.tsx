@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Toaster } from "@/components/ui/sonner"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
@@ -26,6 +27,10 @@ export const Default: Story = {
       Show Toast
     </Button>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Show Toast")).toBeInTheDocument()
+  },
 }
 
 export const Success: Story = {

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
@@ -28,6 +29,12 @@ export const Default: Story = {
       </div>
     </RadioGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Option 1")).toBeInTheDocument()
+    await expect(canvas.getByText("Option 2")).toBeInTheDocument()
+    await expect(canvas.getByText("Option 3")).toBeInTheDocument()
+  },
 }
 
 export const Disabled: Story = {

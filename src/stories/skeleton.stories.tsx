@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const meta: Meta<typeof Skeleton> = {
@@ -12,6 +13,10 @@ type Story = StoryObj<typeof Skeleton>
 
 export const Default: Story = {
   args: { className: "h-4 w-48" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole("status")).toBeInTheDocument()
+  },
 }
 
 export const CardSkeleton: Story = {

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Popover,
   PopoverTrigger,
@@ -43,6 +44,10 @@ export const Default: Story = {
       </Popover>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Open Popover")).toBeInTheDocument()
+  },
 }
 
 export const Positions: Story = {

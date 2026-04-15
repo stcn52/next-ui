@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Command,
   CommandDialog,
@@ -57,6 +58,12 @@ export const Default: Story = {
       </CommandList>
     </Command>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByPlaceholderText("Type a command or search...")).toBeInTheDocument()
+    await expect(canvas.getByText("Calendar")).toBeInTheDocument()
+    await expect(canvas.getByText("Settings")).toBeInTheDocument()
+  },
 }
 
 export const WithDialog: Story = {

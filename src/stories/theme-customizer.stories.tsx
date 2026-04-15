@@ -1,5 +1,6 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { ThemeProvider, useTheme } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
@@ -134,6 +135,11 @@ function ThemeCustomizerDemo() {
 
 export const Default: Story = {
   render: () => <ThemeCustomizerDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Theme Customizer")).toBeInTheDocument()
+    await expect(canvas.getByText("Preview")).toBeInTheDocument()
+  },
 }
 
 export const WithToggle: Story = {

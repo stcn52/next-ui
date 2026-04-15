@@ -1,5 +1,6 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   AnimatedCard,
   FadeIn,
@@ -32,6 +33,11 @@ export const Default: Story = {
       </p>
     ),
     footer: <Button size="sm">Learn More</Button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Animated Card")).toBeInTheDocument()
+    await expect(canvas.getByText("Learn More")).toBeInTheDocument()
   },
 }
 

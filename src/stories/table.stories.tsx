@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Table,
   TableHeader,
@@ -56,4 +57,10 @@ export const Default: Story = {
       </TableFooter>
     </Table>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole("table")).toBeInTheDocument()
+    await expect(canvas.getByText("INV001")).toBeInTheDocument()
+    await expect(canvas.getByText("$1,200.00")).toBeInTheDocument()
+  },
 }

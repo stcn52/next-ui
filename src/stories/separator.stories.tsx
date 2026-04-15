@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Separator } from "@/components/ui/separator"
 
 const meta: Meta<typeof Separator> = {
@@ -18,6 +19,11 @@ export const Horizontal: Story = {
       <p className="text-sm">Below the separator</p>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Above the separator")).toBeInTheDocument()
+    await expect(canvas.getByRole("separator")).toBeInTheDocument()
+  },
 }
 
 export const Vertical: Story = {

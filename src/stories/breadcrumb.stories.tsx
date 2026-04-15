@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -36,6 +37,12 @@ export const Default: Story = {
       </BreadcrumbList>
     </Breadcrumb>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Home")).toBeInTheDocument()
+    await expect(canvas.getByText("Components")).toBeInTheDocument()
+    await expect(canvas.getByText("Breadcrumb")).toBeInTheDocument()
+  },
 }
 
 export const WithEllipsis: Story = {

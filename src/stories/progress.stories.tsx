@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
 import { useEffect, useState } from "react"
 
@@ -18,6 +19,10 @@ type Story = StoryObj<typeof Progress>
 
 export const Default: Story = {
   args: { value: 60 },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole("progressbar")).toBeInTheDocument()
+  },
 }
 
 export const WithLabel: Story = {
