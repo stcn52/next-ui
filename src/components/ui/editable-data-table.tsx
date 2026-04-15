@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useLocale } from "@/components/config-provider"
 
 // ---------------------------------------------------------------------------
 // Editable cell – click to edit, blur/Enter to commit, Escape to cancel
@@ -34,6 +35,7 @@ interface EditableCellProps {
 }
 
 function EditableCell({ value, onSave }: EditableCellProps) {
+  const locale = useLocale()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -59,7 +61,7 @@ function EditableCell({ value, onSave }: EditableCellProps) {
         onClick={() => setEditing(true)}
         role="button"
         tabIndex={0}
-        aria-label={`Edit ${value || 'empty'}: click to enter edit mode`}
+        aria-label={`${locale.clickToEdit}: ${value || 'empty'}`}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault()
@@ -145,9 +147,10 @@ function EditableDataTable<TData extends Record<string, unknown>>({
   data: initialData,
   onDataChange,
   filterColumn,
-  filterPlaceholder = "Filter...",
+  filterPlaceholder,
   pageSize = 10,
 }: EditableDataTableProps<TData>) {
+  const locale = useLocale()
   const [data, setData] = useState(initialData)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -184,7 +187,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
       {filterColumn && (
         <div className="flex items-center">
           <Input
-            placeholder={filterPlaceholder}
+            placeholder={filterPlaceholder ?? locale.filter}
             aria-label={`Filter by ${filterColumn}`}
             value={
               (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
@@ -231,7 +234,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {locale.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -244,18 +247,18 @@ function EditableDataTable<TData extends Record<string, unknown>>({
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          aria-label="Go to previous page"
+          aria-label={locale.goToPreviousPage}
         >
-          Previous
+          {locale.previous}
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          aria-label="Go to next page"
+          aria-label={locale.goToNextPage}
         >
-          Next
+          {locale.next}
         </Button>
       </div>
     </div>

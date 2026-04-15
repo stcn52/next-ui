@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLocale } from "@/components/config-provider"
 
 export interface ComboboxOption {
   value: string
@@ -29,9 +30,9 @@ function Combobox({
   options,
   value,
   onValueChange,
-  placeholder = "Select option...",
-  searchPlaceholder = "Search...",
-  emptyMessage = "No results found.",
+  placeholder,
+  searchPlaceholder,
+  emptyMessage,
   className,
 }: {
   options: ComboboxOption[]
@@ -42,8 +43,12 @@ function Combobox({
   emptyMessage?: string
   className?: string
 }) {
+  const locale = useLocale()
   const [open, setOpen] = React.useState(false)
 
+  const resolvedPlaceholder = placeholder ?? locale.selectOption
+  const resolvedSearchPlaceholder = searchPlaceholder ?? locale.search
+  const resolvedEmptyMessage = emptyMessage ?? locale.noResults
   const selectedLabel = options.find((opt) => opt.value === value)?.label
 
   return (
@@ -54,7 +59,7 @@ function Combobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label={selectedLabel ? `${selectedLabel} selected` : placeholder}
+            aria-label={selectedLabel ? `${selectedLabel} selected` : resolvedPlaceholder}
             className={cn(
               "w-[200px] justify-between font-normal",
               !value && "text-muted-foreground",
@@ -63,14 +68,14 @@ function Combobox({
           />
         }
       >
-        {selectedLabel ?? placeholder}
+        {selectedLabel ?? resolvedPlaceholder}
         <ChevronsUpDownIcon className="opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          <CommandInput placeholder={resolvedSearchPlaceholder} />
           <CommandList>
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
+            <CommandEmpty>{resolvedEmptyMessage}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem

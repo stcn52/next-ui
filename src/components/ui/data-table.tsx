@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useLocale } from "@/components/config-provider"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -37,9 +38,10 @@ function DataTable<TData, TValue>({
   columns,
   data,
   filterColumn,
-  filterPlaceholder = "Filter...",
+  filterPlaceholder,
   pageSize = 10,
 }: DataTableProps<TData, TValue>) {
+  const locale = useLocale()
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -67,12 +69,14 @@ function DataTable<TData, TValue>({
     },
   })
 
+  const resolvedPlaceholder = filterPlaceholder ?? locale.filter
+
   return (
     <div data-slot="data-table" className="flex flex-col gap-4">
       {filterColumn && (
         <div className="flex items-center">
           <Input
-            placeholder={filterPlaceholder}
+            placeholder={resolvedPlaceholder}
             aria-label={`Filter results by ${filterColumn}`}
             value={
               (table
@@ -129,7 +133,7 @@ function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {locale.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -138,8 +142,9 @@ function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-between px-2">
         <div className="text-sm text-muted-foreground" role="status" aria-live="polite">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {locale.rowsSelected
+            .replace("{count}", String(table.getFilteredSelectedRowModel().rows.length))
+            .replace("{total}", String(table.getFilteredRowModel().rows.length))}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -147,18 +152,18 @@ function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            aria-label="Go to previous page"
+            aria-label={locale.goToPreviousPage}
           >
-            Previous
+            {locale.previous}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            aria-label="Go to next page"
+            aria-label={locale.goToNextPage}
           >
-            Next
+            {locale.next}
           </Button>
         </div>
       </div>

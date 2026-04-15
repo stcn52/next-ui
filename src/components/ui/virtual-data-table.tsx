@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useLocale } from "@/components/config-provider"
 
 interface VirtualDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -33,6 +34,7 @@ function VirtualDataTable<TData, TValue>({
   estimateSize = 35,
   className,
 }: VirtualDataTableProps<TData, TValue>) {
+  const locale = useLocale()
   const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
@@ -87,7 +89,7 @@ function VirtualDataTable<TData, TValue>({
                 colSpan={columns.length}
                 className="h-24 text-center"
               >
-                No results.
+                {locale.noResults}
               </TableCell>
             </TableRow>
           ) : (

@@ -14,6 +14,7 @@ type Size = "sm" | "md" | "lg"
 
 interface LocaleStrings {
   locale: string
+  // Common
   noResults: string
   loading: string
   previous: string
@@ -23,6 +24,23 @@ interface LocaleStrings {
   clear: string
   confirm: string
   cancel: string
+  // DataTable / Pagination
+  filter: string
+  rowsSelected: string
+  goToPreviousPage: string
+  goToNextPage: string
+  // DatePicker
+  pickADate: string
+  selectedDate: string
+  // Combobox
+  selectOption: string
+  // Editable
+  clickToEdit: string
+  // Command
+  typeCommand: string
+  // Kanban
+  items: string
+  // Allow custom keys
   [key: string]: string
 }
 
@@ -37,6 +55,16 @@ const defaultLocale: LocaleStrings = {
   clear: "Clear",
   confirm: "Confirm",
   cancel: "Cancel",
+  filter: "Filter...",
+  rowsSelected: "{count} of {total} row(s) selected.",
+  goToPreviousPage: "Go to previous page",
+  goToNextPage: "Go to next page",
+  pickADate: "Pick a date",
+  selectedDate: "Selected date: {date}",
+  selectOption: "Select option...",
+  clickToEdit: "Click to edit",
+  typeCommand: "Type a command or search...",
+  items: "items",
 }
 
 const zhCN: LocaleStrings = {
@@ -50,6 +78,16 @@ const zhCN: LocaleStrings = {
   clear: "清除",
   confirm: "确认",
   cancel: "取消",
+  filter: "筛选…",
+  rowsSelected: "已选择 {count} / {total} 行。",
+  goToPreviousPage: "前往上一页",
+  goToNextPage: "前往下一页",
+  pickADate: "选择日期",
+  selectedDate: "已选日期：{date}",
+  selectOption: "请选择…",
+  clickToEdit: "点击编辑",
+  typeCommand: "输入命令或搜索…",
+  items: "项",
 }
 
 const builtinLocales: Record<string, LocaleStrings> = {

@@ -23,6 +23,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/config-provider"
 
 export interface KanbanItem {
   id: UniqueIdentifier
@@ -185,11 +186,12 @@ function KanbanColumnContainer<T extends KanbanItem>({
   renderItem: (item: T) => React.ReactNode
   renderColumnHeader?: (column: KanbanColumn<T>) => React.ReactNode
 }) {
+  const locale = useLocale()
   return (
     <div
       data-slot="kanban-column"
       role="region"
-      aria-label={`${column.title} column, ${column.items.length} items`}
+      aria-label={`${column.title} column, ${column.items.length} ${locale.items}`}
       className="flex w-72 flex-col rounded-lg border bg-muted/30 p-3"
     >
       {renderColumnHeader ? (

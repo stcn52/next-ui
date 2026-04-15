@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useLocale } from "@/components/config-provider"
 
 function parseUrlState() {
   const params = new URLSearchParams(window.location.search)
@@ -93,9 +94,10 @@ function UrlDataTable<TData, TValue>({
   columns,
   data,
   filterColumn,
-  filterPlaceholder = "Filter...",
+  filterPlaceholder,
   syncUrl = true,
 }: UrlDataTableProps<TData, TValue>) {
+  const locale = useLocale()
   const initialState = useRef(
     typeof window !== "undefined" && syncUrl
       ? parseUrlState()
@@ -133,7 +135,7 @@ function UrlDataTable<TData, TValue>({
     <div data-slot="url-data-table" className="flex flex-col gap-4">
       {filterColumn && (
         <Input
-          placeholder={filterPlaceholder}
+          placeholder={filterPlaceholder ?? locale.filter}
           value={
             (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
           }
@@ -181,7 +183,7 @@ function UrlDataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {locale.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -199,16 +201,18 @@ function UrlDataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            aria-label={locale.goToPreviousPage}
           >
-            Previous
+            {locale.previous}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            aria-label={locale.goToNextPage}
           >
-            Next
+            {locale.next}
           </Button>
         </div>
       </div>

@@ -12,11 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLocale } from "@/components/config-provider"
 
 function DatePicker({
   date,
   onDateChange,
-  placeholder = "Pick a date",
+  placeholder,
   className,
   ...props
 }: {
@@ -25,7 +26,9 @@ function DatePicker({
   placeholder?: string
   className?: string
 } & Omit<React.ComponentProps<typeof Calendar>, "mode" | "selected" | "onSelect">) {
+  const locale = useLocale()
   const [open, setOpen] = React.useState(false)
+  const resolvedPlaceholder = placeholder ?? locale.pickADate
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -33,7 +36,7 @@ function DatePicker({
         render={
           <Button
             variant="outline"
-            aria-label={date ? `Selected date: ${format(date, 'PPP')}` : 'Select a date'}
+            aria-label={date ? locale.selectedDate.replace("{date}", format(date, 'PPP')) : resolvedPlaceholder}
             className={cn(
               "w-[240px] justify-start text-left font-normal",
               !date && "text-muted-foreground",
@@ -43,7 +46,7 @@ function DatePicker({
         }
       >
         <CalendarIcon />
-        {date ? format(date, "PPP") : <span>{placeholder}</span>}
+        {date ? format(date, "PPP") : <span>{resolvedPlaceholder}</span>}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
