@@ -1,1 +1,0 @@
-import{n as e}from"./chunk-zsgVPwQN.js";import{_ as t,g as n}from"./useRenderElement-BEIMEjYa.js";function r(e){return t(19)?e:e?`true`:void 0}var i=e((()=>{n()}));export{i as n,r as t};
