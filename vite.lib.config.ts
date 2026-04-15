@@ -17,6 +17,7 @@ export default defineConfig({
       tsconfigPath: path.resolve(__dirname, "tsconfig.app.json"),
       include: ["src/components", "src/lib", "src/locales", "src/index.ts"],
       exclude: [
+        "src/components/pages/**",
         "src/**/*.stories.tsx",
         "src/**/*.test.tsx",
         "src/test-setup.ts",
@@ -55,7 +56,7 @@ export default defineConfig({
         exports: "named",
       },
     },
-    sourcemap: true,
+    sourcemap: false,
     emptyOutDir: true,
   },
 })

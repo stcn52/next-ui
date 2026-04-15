@@ -2,6 +2,8 @@
 
 A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**, and **React 19**.
 
+[简体中文文档](./README.zh-CN.md) | [中文更新日志](./CHANGELOG.zh-CN.md)
+
 ## Features
 
 - 55+ components — buttons, forms, data tables, kanban boards, date pickers, and more
@@ -100,6 +102,8 @@ function MyComponent() {
 ## Page Templates
 
 Pre-built composite pages in Storybook demonstrating real-world component composition:
+
+These page templates are for Storybook demos and project reference only. They are not part of the npm public API and should not be imported from the package entry.
 
 | Page | Description |
 |------|-------------|

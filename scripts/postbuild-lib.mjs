@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from "node:fs"
+import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs"
 import { resolve } from "node:path"
 
 const root = process.cwd()
@@ -17,6 +17,17 @@ const cssEntry = resolve(distDir, "index.css")
 const cssExport = resolve(distDir, "style.css")
 if (!existsSync(cssExport) && existsSync(cssEntry)) {
   copyFileSync(cssEntry, cssExport)
+}
+
+const filesToRemove = [
+  resolve(distDir, "favicon.svg"),
+  resolve(distDir, "icons.svg"),
+]
+
+for (const file of filesToRemove) {
+  if (existsSync(file)) {
+    rmSync(file, { force: true })
+  }
 }
 
 const requiredFiles = [

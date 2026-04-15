@@ -1,0 +1,135 @@
+# @stcn52/next-ui
+
+基于 **shadcn/ui v3**、**Tailwind CSS v4** 和 **React 19** 构建的现代 React 组件库。
+
+[English README](./README.md) | [中文更新日志](./CHANGELOG.zh-CN.md)
+
+## 特性
+
+- 55+ 组件，覆盖按钮、表单、数据表格、看板、日期选择器等常见场景
+- `ConfigProvider` 统一管理全局尺寸、语言和类名前缀
+- 内置 i18n，支持英文、简体中文、日文，也支持自定义 locale
+- 提供大数据量表格、虚拟滚动、行内编辑、URL 状态同步等高级数据能力
+- 集成 dnd-kit，支持拖拽排序和看板交互
+- 支持 `react-hook-form` + `zod` 表单校验
+- 支持深色模式、Storybook 文档和可访问性
+
+## 安装
+
+```bash
+npm install @stcn52/next-ui
+# 或
+pnpm add @stcn52/next-ui
+```
+
+### Peer Dependencies
+
+```bash
+pnpm add react react-dom tailwindcss
+```
+
+## 快速开始
+
+```tsx
+import { Button, ConfigProvider } from "@stcn52/next-ui"
+import "@stcn52/next-ui/styles.css"
+
+function App() {
+  return (
+    <ConfigProvider locale="zh-CN" size="md">
+      <Button>点击我</Button>
+    </ConfigProvider>
+  )
+}
+```
+
+## 核心能力
+
+### ConfigProvider
+
+```tsx
+import { ConfigProvider } from "@stcn52/next-ui"
+
+<ConfigProvider size="lg" locale="zh-CN">
+  {/* 所有组件都会继承大尺寸和中文语言 */}
+</ConfigProvider>
+```
+
+### 自定义语言包
+
+```tsx
+import { registerLocale, ConfigProvider } from "@stcn52/next-ui"
+
+registerLocale("ko-KR", {
+  confirm: "확인",
+  cancel: "취소",
+  noResults: "결과가 없습니다.",
+})
+
+<ConfigProvider locale="ko-KR">...</ConfigProvider>
+```
+
+### useTranslation
+
+```tsx
+import { useTranslation } from "@stcn52/next-ui"
+
+function MyComponent() {
+  const t = useTranslation()
+  return <p>{t("rowsSelected", { count: 3, total: 10 })}</p>
+}
+```
+
+## 组件分类
+
+| 分类 | 组件 |
+| --- | --- |
+| 布局 | Card、Separator、Resizable、AspectRatio、ScrollArea、Sidebar |
+| 表单 | Input、Textarea、Select、Checkbox、RadioGroup、Switch、Slider、InputOTP、Form |
+| 数据 | DataTable、VirtualDataTable、UrlDataTable、EditableDataTable |
+| 反馈 | Alert、AlertDialog、Dialog、Drawer、Sheet、Sonner、Tooltip、Progress、Skeleton |
+| 导航 | Breadcrumb、Tabs、NavigationMenu、Menubar、ContextMenu、DropdownMenu、Command |
+| 展示 | Badge、Avatar、Carousel、HoverCard、Accordion、Collapsible、Toggle、ToggleGroup |
+| 高级 | KanbanBoard、SortableList、DatePicker、Combobox、Shortcuts、AnimatedCard |
+
+## 页面模板说明
+
+Storybook 中提供了一些组合式页面示例，用于演示真实业务场景下的组件编排方式。
+
+这些页面模板仅用于演示和项目参考，不属于 npm 包的公共 API，也不建议业务方通过包入口直接依赖。
+
+## 国际化
+
+内置语言文件位于 `src/locales/`：
+
+- `en.json`
+- `zh-CN.json`
+- `ja-JP.json`
+
+```tsx
+import { ConfigProvider, useTranslation } from "@stcn52/next-ui"
+import zhCN from "@stcn52/next-ui/locales/zh-CN.json"
+
+<ConfigProvider locale={zhCN}>
+  <App />
+</ConfigProvider>
+
+const { t } = useTranslation()
+t("kanban.addTask") // "添加任务"
+```
+
+## 开发
+
+```bash
+pnpm install
+pnpm dev
+pnpm storybook
+pnpm build
+pnpm build:lib
+pnpm test
+pnpm analyze
+```
+
+## License
+
+MIT
