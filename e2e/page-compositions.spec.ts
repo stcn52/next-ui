@@ -81,4 +81,28 @@ test.describe("Composite Pages", () => {
     await expect(page.getByText("ORD-001")).toBeVisible()
     await expect(page.getByText("¥59,693")).toBeVisible()
   })
+
+  test("blog page renders featured post and articles", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-blog--default&viewMode=story")
+
+    await expect(page.getByText("博客")).toBeVisible()
+    await expect(page.getByText("构建可扩展的 React 组件库")).toBeVisible()
+    await expect(page.getByText("精选")).toBeVisible()
+  })
+
+  test("landing page renders hero and features", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-landing--default&viewMode=story")
+
+    await expect(page.getByText("构建精美 React 应用")).toBeVisible()
+    await expect(page.getByText("50+ 组件")).toBeVisible()
+    await expect(page.getByText("用户评价")).toBeVisible()
+  })
+
+  test("team page renders members and role badges", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-team--default&viewMode=story")
+
+    await expect(page.getByText("团队管理")).toBeVisible()
+    await expect(page.getByText("Chen Yang")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "邀请新成员" })).toBeVisible()
+  })
 })
