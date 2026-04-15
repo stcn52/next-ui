@@ -1,12 +1,16 @@
 /**
  * Kanban Page — Full-featured project management board.
- * Implements issues #1-#7:
- *   #1 Overall layout, #2 Left sidebar nav, #3 Top filter/toolbar,
- *   #4 Kanban columns, #5 Task cards, #6 Data structure, #7 States
+ * Implements issues #1-#7 + dnd-kit drag & drop + responsive + i18n
  */
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
+import type { UniqueIdentifier } from "@dnd-kit/core"
+import {
+  KanbanBoard,
+  type KanbanItem,
+  type KanbanColumn as KanbanCol,
+} from "@/components/ui/kanban"
 import {
   Sidebar,
   SidebarHeader,
@@ -55,6 +59,9 @@ import {
   User,
   AlertCircle,
   Loader2,
+  GripVertical,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
 
 const meta: Meta = {
@@ -74,8 +81,8 @@ type Priority = "urgent" | "high" | "medium" | "low"
 type TaskStatus = "backlog" | "todo" | "in-progress" | "review" | "done" | "blocked"
 type FilterTab = "all" | "member" | "agent"
 
-interface Task {
-  id: string
+interface Task extends KanbanItem {
+  id: UniqueIdentifier
   title: string
   status: TaskStatus
   priority: Priority
@@ -85,13 +92,13 @@ interface Task {
   labels?: string[]
 }
 
-interface StatusColumn {
+interface StatusColumnDef {
   id: TaskStatus
   title: string
   color: string
 }
 
-const STATUS_COLUMNS: StatusColumn[] = [
+const STATUS_COLUMNS: StatusColumnDef[] = [
   { id: "backlog", title: "待梳理", color: "bg-gray-400" },
   { id: "todo", title: "待处理", color: "bg-blue-500" },
   { id: "in-progress", title: "进行中", color: "bg-amber-500" },
@@ -136,10 +143,13 @@ function TaskCard({ task }: { task: Task }) {
   return (
     <div
       data-testid={`task-${task.id}`}
-      className="group rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md cursor-pointer"
+      className="group rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-xs text-muted-foreground font-mono">{task.id}</span>
+        <div className="flex items-center gap-1">
+          <GripVertical className="size-3.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+          <span className="text-xs text-muted-foreground font-mono">{task.id}</span>
+        </div>
         <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${pri.color}`}>
           {pri.label}
         </span>
@@ -181,47 +191,40 @@ function TaskCard({ task }: { task: Task }) {
   )
 }
 
-// ─── Issue #4: KanbanColumn Component ───────────────────────────
+// ─── Issue #4: KanbanColumn Header ──────────────────────────────
 
-function KanbanColumn({
-  column,
-  tasks,
-}: {
-  column: StatusColumn
-  tasks: Task[]
-}) {
+const STATUS_COLOR_MAP: Record<TaskStatus, string> = {
+  backlog: "bg-gray-400",
+  todo: "bg-blue-500",
+  "in-progress": "bg-amber-500",
+  review: "bg-purple-500",
+  done: "bg-green-500",
+  blocked: "bg-red-500",
+}
+
+function KanbanColumnHeader({ column }: { column: KanbanCol<Task> }) {
+  const color = STATUS_COLOR_MAP[column.id as TaskStatus] ?? "bg-gray-400"
   return (
-    <div className="flex w-[280px] min-w-[280px] flex-col rounded-lg bg-muted/40">
-      {/* Column header */}
-      <div className="flex items-center gap-2 px-3 py-2.5">
-        <span className={`size-2.5 rounded-full ${column.color}`} />
-        <span className="text-sm font-medium">{column.title}</span>
-        <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
-          {tasks.length}
-        </Badge>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon-xs">
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>排序</DropdownMenuItem>
-            <DropdownMenuItem>折叠</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="ghost" size="icon-xs">
-          <Plus className="size-3.5" />
-        </Button>
-      </div>
-      {/* Cards */}
-      <div className="flex flex-col gap-2 px-2 pb-2 overflow-y-auto max-h-[calc(100vh-220px)]">
-        {tasks.length === 0 ? (
-          <EmptyColumn />
-        ) : (
-          tasks.map((task) => <TaskCard key={task.id} task={task} />)
-        )}
-      </div>
+    <div className="flex items-center gap-2 mb-2">
+      <span className={`size-2.5 rounded-full ${color}`} />
+      <span className="text-sm font-medium">{column.title}</span>
+      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
+        {column.items.length}
+      </Badge>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="ghost" size="icon-xs">
+            <MoreHorizontal className="size-3.5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>排序</DropdownMenuItem>
+          <DropdownMenuItem>折叠</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button variant="ghost" size="icon-xs">
+        <Plus className="size-3.5" />
+      </Button>
     </div>
   )
 }
@@ -285,109 +288,134 @@ function ErrorState({ onRetry }: { onRetry?: () => void }) {
   )
 }
 
-// ─── Issue #2: Left Sidebar Navigation ──────────────────────────
+// ─── Issue #2: Left Sidebar Navigation (Responsive) ────────────
 
-function AppSidebar({ activeItem = "事项" }: { activeItem?: string }) {
+function AppSidebar({
+  activeItem = "事项",
+  collapsed = false,
+  onToggle,
+}: {
+  activeItem?: string
+  collapsed?: boolean
+  onToggle?: () => void
+}) {
   return (
-    <Sidebar>
+    <Sidebar collapsed={collapsed}>
       <SidebarHeader>
-        {/* Workspace switcher */}
-        <button className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent text-left">
-          <div className="flex size-7 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-bold">
-            W
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-medium truncate">工作区</p>
-          </div>
-          <ChevronDown className="size-3.5 text-sidebar-foreground/50" />
-        </button>
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-sidebar-foreground/50" />
-          <Input
-            placeholder="搜索..."
-            className="h-7 pl-8 text-xs bg-sidebar-accent/50 border-0"
-          />
-          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sidebar-foreground/40 font-mono">⌘K</kbd>
-        </div>
+        {!collapsed && (
+          <>
+            {/* Workspace switcher */}
+            <button className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent text-left">
+              <div className="flex size-7 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-bold">
+                W
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-medium truncate">工作区</p>
+              </div>
+              <ChevronDown className="size-3.5 text-sidebar-foreground/50" />
+            </button>
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-sidebar-foreground/50" />
+              <Input
+                placeholder="搜索..."
+                className="h-7 pl-8 text-xs bg-sidebar-accent/50 border-0"
+              />
+              <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sidebar-foreground/40 font-mono">⌘K</kbd>
+            </div>
+          </>
+        )}
+        {/* Collapse toggle */}
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className={collapsed ? "mx-auto" : "ml-auto"}
+          onClick={onToggle}
+        >
+          {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+        </Button>
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* Quick actions */}
-        <SidebarGroup>
-          <SidebarItem>
-            <Search className="size-4" />
-            搜索
-          </SidebarItem>
-          <SidebarItem>
-            <Plus className="size-4" />
-            新建事项
-          </SidebarItem>
-          <SidebarItem>
-            <Inbox className="size-4" />
-            收件箱
-            <Badge variant="secondary" className="ml-auto text-[10px] px-1.5">3</Badge>
-          </SidebarItem>
-          <SidebarItem>
-            <User className="size-4" />
-            我的事项
-          </SidebarItem>
-        </SidebarGroup>
+      {!collapsed && (
+        <SidebarContent>
+          {/* Quick actions */}
+          <SidebarGroup>
+            <SidebarItem>
+              <Search className="size-4" />
+              搜索
+            </SidebarItem>
+            <SidebarItem>
+              <Plus className="size-4" />
+              新建事项
+            </SidebarItem>
+            <SidebarItem>
+              <Inbox className="size-4" />
+              收件箱
+              <Badge variant="secondary" className="ml-auto text-[10px] px-1.5">3</Badge>
+            </SidebarItem>
+            <SidebarItem>
+              <User className="size-4" />
+              我的事项
+            </SidebarItem>
+          </SidebarGroup>
 
-        <Separator className="my-1" />
+          <Separator className="my-1" />
 
-        {/* Workspace nav */}
-        <SidebarGroup>
-          <SidebarGroupLabel>工作区</SidebarGroupLabel>
-          <SidebarItem active={activeItem === "事项"}>
-            <ListTodo className="size-4" />
-            事项
-          </SidebarItem>
-          <SidebarItem active={activeItem === "项目"}>
-            <LayoutGrid className="size-4" />
-            项目
-          </SidebarItem>
-          <SidebarItem active={activeItem === "智能体"}>
-            <Bot className="size-4" />
-            智能体
-          </SidebarItem>
-          <SidebarItem active={activeItem === "运行时"}>
-            <Play className="size-4" />
-            运行时
-          </SidebarItem>
-          <SidebarItem active={activeItem === "技能"}>
-            <Wrench className="size-4" />
-            技能
-          </SidebarItem>
-        </SidebarGroup>
+          {/* Workspace nav */}
+          <SidebarGroup>
+            <SidebarGroupLabel>工作区</SidebarGroupLabel>
+            <SidebarItem active={activeItem === "事项"}>
+              <ListTodo className="size-4" />
+              事项
+            </SidebarItem>
+            <SidebarItem active={activeItem === "项目"}>
+              <LayoutGrid className="size-4" />
+              项目
+            </SidebarItem>
+            <SidebarItem active={activeItem === "智能体"}>
+              <Bot className="size-4" />
+              智能体
+            </SidebarItem>
+            <SidebarItem active={activeItem === "运行时"}>
+              <Play className="size-4" />
+              运行时
+            </SidebarItem>
+            <SidebarItem active={activeItem === "技能"}>
+              <Wrench className="size-4" />
+              技能
+            </SidebarItem>
+          </SidebarGroup>
 
-        <Separator className="my-1" />
+          <Separator className="my-1" />
 
-        {/* Config */}
-        <SidebarGroup>
-          <SidebarGroupLabel>配置</SidebarGroupLabel>
-          <SidebarItem active={activeItem === "设置"}>
-            <Settings className="size-4" />
-            设置
-          </SidebarItem>
-        </SidebarGroup>
-      </SidebarContent>
+          {/* Config */}
+          <SidebarGroup>
+            <SidebarGroupLabel>配置</SidebarGroupLabel>
+            <SidebarItem active={activeItem === "设置"}>
+              <Settings className="size-4" />
+              设置
+            </SidebarItem>
+          </SidebarGroup>
+        </SidebarContent>
+      )}
 
-      <SidebarFooter>
-        <div className="flex items-center gap-2">
-          <Avatar className="size-7">
-            <AvatarImage src="" />
-            <AvatarFallback className="text-xs">CY</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-medium truncate">chenyang</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">cy@example.com</p>
+      {!collapsed && (
+        <SidebarFooter>
+          <div className="flex items-center gap-2">
+            <Avatar className="size-7">
+              <AvatarImage src="" />
+              <AvatarFallback className="text-xs">CY</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-medium truncate">chenyang</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate">cy@example.com</p>
+            </div>
+            <Button variant="ghost" size="icon-xs">
+              <MoreHorizontal className="size-3.5" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon-xs">
-            <MoreHorizontal className="size-3.5" />
-          </Button>
-        </div>
-      </SidebarFooter>
+        </SidebarFooter>
+      )}
     </Sidebar>
   )
 }
@@ -461,43 +489,67 @@ function TopToolbar({
   )
 }
 
-// ─── Issue #1: Overall Page Layout ──────────────────────────────
+// ─── Issue #1: Overall Page Layout (Responsive + DnD) ───────────
 
 function KanbanPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all")
   const [pageState, setPageState] = useState<"normal" | "loading" | "error">("normal")
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Issue #6: Data grouping by status
-  const columnData = useMemo(() => {
+  // Issue #6: Convert data for KanbanBoard
+  const initialColumns: KanbanCol<Task>[] = useMemo(() => {
     return STATUS_COLUMNS.map((col) => ({
-      ...col,
-      tasks: MOCK_TASKS.filter((t) => t.status === col.id),
+      id: col.id,
+      title: col.title,
+      items: MOCK_TASKS.filter((t) => t.status === col.id),
     }))
   }, [])
 
-  // Filter could reduce visible tasks (demo: "agent" filter shows empty)
-  const filteredColumns = useMemo(() => {
-    if (activeTab === "all") return columnData
-    if (activeTab === "agent") {
-      // simulate empty filter result
-      return columnData.map((col) => ({ ...col, tasks: [] }))
-    }
-    // "member" filter: only tasks with assignee
-    return columnData.map((col) => ({
-      ...col,
-      tasks: col.tasks.filter((t) => t.assignee),
-    }))
-  }, [columnData, activeTab])
+  const [columns, setColumns] = useState(initialColumns)
 
-  const totalFiltered = filteredColumns.reduce((acc, c) => acc + c.tasks.length, 0)
+  // Columns change handler for drag & drop
+  const handleColumnsChange = useCallback((newColumns: KanbanCol<Task>[]) => {
+    setColumns(newColumns)
+  }, [])
+
+  // Filter visible columns
+  const filteredColumns: KanbanCol<Task>[] = useMemo(() => {
+    if (activeTab === "all") return columns
+    if (activeTab === "agent") {
+      return columns.map((col) => ({ ...col, items: [] }))
+    }
+    return columns.map((col) => ({
+      ...col,
+      items: col.items.filter((t) => t.assignee),
+    }))
+  }, [columns, activeTab])
+
+  const totalFiltered = filteredColumns.reduce((acc, c) => acc + c.items.length, 0)
 
   return (
     <div className="flex h-[700px] bg-background text-foreground">
-      {/* Issue #2: Left sidebar */}
-      <AppSidebar />
+      {/* Issue #2: Responsive sidebar */}
+      <div className="hidden md:block">
+        <AppSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      </div>
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Mobile sidebar toggle */}
+        <div className="flex items-center gap-2 px-4 pt-2 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            <PanelLeftOpen className="size-4" />
+          </Button>
+          <span className="text-sm font-medium">看板</span>
+        </div>
+
         {/* Issue #3: Top toolbar */}
         <TopToolbar activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -513,7 +565,7 @@ function KanbanPage() {
           </Button>
         </div>
 
-        {/* Issue #1: Kanban content area */}
+        {/* Issue #1: Kanban content area with dnd-kit */}
         {pageState === "loading" ? (
           <LoadingState />
         ) : pageState === "error" ? (
@@ -522,10 +574,19 @@ function KanbanPage() {
           <EmptyFilter />
         ) : (
           <ScrollArea className="flex-1">
-            <div className="flex gap-4 p-4" style={{ minWidth: `${STATUS_COLUMNS.length * 296}px` }}>
-              {filteredColumns.map((col) => (
-                <KanbanColumn key={col.id} column={col} tasks={col.tasks} />
-              ))}
+            <div className="p-4 min-w-0">
+              <KanbanBoard<Task>
+                columns={filteredColumns}
+                onColumnsChange={handleColumnsChange}
+                renderItem={(task) => <TaskCard task={task} />}
+                renderColumnHeader={(col) => <KanbanColumnHeader column={col} />}
+                renderOverlay={(task) => (
+                  <div className="w-[260px] rotate-2 opacity-90">
+                    <TaskCard task={task} />
+                  </div>
+                )}
+                className="gap-4"
+              />
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
