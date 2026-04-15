@@ -105,4 +105,19 @@ test.describe("Composite Pages", () => {
     await expect(page.getByText("Chen Yang")).toBeVisible()
     await expect(page.getByRole("heading", { name: "邀请新成员" })).toBeVisible()
   })
+
+  test("faq page renders questions and accordion", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-faq--default&viewMode=story")
+
+    await expect(page.getByText("常见问题")).toBeVisible()
+    await expect(page.getByText("如何安装 next-ui？")).toBeVisible()
+  })
+
+  test("changelog page renders version timeline", async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-changelog--default&viewMode=story")
+
+    await expect(page.getByText("更新日志")).toBeVisible()
+    await expect(page.getByText("v0.2.0")).toBeVisible()
+    await expect(page.getByText("v0.1.0")).toBeVisible()
+  })
 })
