@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 
-/** Sidebar root container — fixed position left panel */
+/** Sidebar root container — animated width transitions */
 function Sidebar({
   className,
   collapsed = false,
@@ -15,18 +16,19 @@ function Sidebar({
   onCollapsedChange?: (collapsed: boolean) => void
 }) {
   return (
-    <aside
+    <motion.aside
       data-slot="sidebar"
       data-collapsed={collapsed}
+      animate={{ width: collapsed ? 52 : 240 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       className={cn(
-        "flex h-full flex-col border-r bg-sidebar text-sidebar-foreground transition-[width] duration-200",
-        collapsed ? "w-[52px]" : "w-[240px]",
+        "flex h-full flex-col border-r bg-sidebar text-sidebar-foreground overflow-hidden",
         className,
       )}
-      {...props}
+      {...(props as React.ComponentProps<typeof motion.aside>)}
     >
       {children}
-    </aside>
+    </motion.aside>
   )
 }
 

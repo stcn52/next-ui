@@ -20,7 +20,7 @@ describe("Sidebar", () => {
     )
     const sidebar = screen.getByTestId("sidebar")
     expect(sidebar).toHaveAttribute("data-slot", "sidebar")
-    expect(sidebar).toHaveClass("w-[240px]")
+    expect(sidebar).not.toHaveAttribute("data-collapsed", "true")
   })
 
   it("renders collapsed state", () => {
@@ -31,7 +31,6 @@ describe("Sidebar", () => {
     )
     const sidebar = screen.getByTestId("sidebar")
     expect(sidebar).toHaveAttribute("data-collapsed", "true")
-    expect(sidebar).toHaveClass("w-[52px]")
   })
 
   it("renders all sub-components with correct data-slot", () => {
