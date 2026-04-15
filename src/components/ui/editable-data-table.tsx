@@ -55,12 +55,16 @@ function EditableCell({ value, onSave }: EditableCellProps) {
   if (!editing) {
     return (
       <span
-        className="block w-full cursor-pointer rounded px-2 py-1 hover:bg-muted"
+        className="block w-full cursor-pointer rounded px-2 py-1 hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
         onClick={() => setEditing(true)}
         role="button"
         tabIndex={0}
+        aria-label={`Edit ${value || 'empty'}: click to enter edit mode`}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") setEditing(true)
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            setEditing(true)
+          }
         }}
       >
         {value || <span className="text-muted-foreground italic">empty</span>}
@@ -181,6 +185,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
         <div className="flex items-center">
           <Input
             placeholder={filterPlaceholder}
+            aria-label={`Filter by ${filterColumn}`}
             value={
               (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
             }
@@ -239,6 +244,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          aria-label="Go to previous page"
         >
           Previous
         </Button>
@@ -247,6 +253,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          aria-label="Go to next page"
         >
           Next
         </Button>

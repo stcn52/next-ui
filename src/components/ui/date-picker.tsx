@@ -33,6 +33,7 @@ function DatePicker({
         render={
           <Button
             variant="outline"
+            aria-label={date ? `Selected date: ${format(date, 'PPP')}` : 'Select a date'}
             className={cn(
               "w-[240px] justify-start text-left font-normal",
               !date && "text-muted-foreground",

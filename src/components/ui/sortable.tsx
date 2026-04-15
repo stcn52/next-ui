@@ -66,7 +66,7 @@ function SortableList<T extends { id: string | number }>({
         items={items.map((i) => i.id)}
         strategy={sortingStrategy}
       >
-        <div data-slot="sortable-list" className={className}>
+        <div data-slot="sortable-list" role="list" className={className}>
           {items.map((item) => (
             <SortableItem key={item.id} id={item.id}>
               {(dragHandle) => renderItem(item, dragHandle)}
@@ -101,8 +101,9 @@ function SortableItem({
 
   const dragHandle = (
     <button
+      aria-label="Drag to reorder"
       className={cn(
-        "cursor-grab touch-none text-muted-foreground hover:text-foreground",
+        "cursor-grab touch-none text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded",
         isDragging && "cursor-grabbing"
       )}
       {...attributes}
@@ -117,6 +118,7 @@ function SortableItem({
       ref={setNodeRef}
       style={style}
       data-slot="sortable-item"
+      role="listitem"
       className={cn(isDragging && "z-50 opacity-80")}
     >
       {children(dragHandle)}

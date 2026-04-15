@@ -59,9 +59,11 @@ function VirtualDataTable<TData, TValue>({
     <div
       ref={parentRef}
       data-slot="virtual-data-table"
+      role="region"
+      aria-label="Scrollable data table"
       className={className ?? "h-[500px] overflow-auto rounded-md border"}
     >
-      <Table>
+      <Table aria-rowcount={rows.length} aria-colcount={columns.length}>
         <TableHeader className="sticky top-0 z-10 bg-background">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

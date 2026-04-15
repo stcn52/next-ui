@@ -54,6 +54,7 @@ function Combobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-label={selectedLabel ? `${selectedLabel} selected` : placeholder}
             className={cn(
               "w-[200px] justify-between font-normal",
               !value && "text-muted-foreground",

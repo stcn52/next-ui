@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
@@ -133,7 +133,13 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByRole("table")).toBeInTheDocument()
-    await expect(canvas.getByPlaceholderText("Filter emails...")).toBeInTheDocument()
+    const filter = canvas.getByPlaceholderText("Filter emails...")
+    await expect(filter).toBeInTheDocument()
+    // Type a filter value to narrow results
+    await userEvent.type(filter, "ken")
+    await expect(canvas.getByText("ken99@yahoo.com")).toBeInTheDocument()
+    // Clear filter
+    await userEvent.clear(filter)
   },
 }
 

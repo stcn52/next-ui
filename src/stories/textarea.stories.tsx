@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
+import { expect, within, userEvent } from "storybook/test"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
@@ -16,7 +16,10 @@ export const Default: Story = {
   args: { placeholder: "Type your message here..." },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByPlaceholderText("Type your message here...")).toBeInTheDocument()
+    const textarea = canvas.getByPlaceholderText("Type your message here...")
+    await expect(textarea).toBeInTheDocument()
+    await userEvent.type(textarea, "Hello, World!")
+    await expect(textarea).toHaveValue("Hello, World!")
   },
 }
 

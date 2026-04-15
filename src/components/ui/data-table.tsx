@@ -73,6 +73,7 @@ function DataTable<TData, TValue>({
         <div className="flex items-center">
           <Input
             placeholder={filterPlaceholder}
+            aria-label={`Filter results by ${filterColumn}`}
             value={
               (table
                 .getColumn(filterColumn)
@@ -136,7 +137,7 @@ function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-between px-2">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground" role="status" aria-live="polite">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -146,6 +147,7 @@ function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            aria-label="Go to previous page"
           >
             Previous
           </Button>
@@ -154,6 +156,7 @@ function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            aria-label="Go to next page"
           >
             Next
           </Button>

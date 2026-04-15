@@ -188,6 +188,8 @@ function KanbanColumnContainer<T extends KanbanItem>({
   return (
     <div
       data-slot="kanban-column"
+      role="region"
+      aria-label={`${column.title} column, ${column.items.length} items`}
       className="flex w-72 flex-col rounded-lg border bg-muted/30 p-3"
     >
       {renderColumnHeader ? (
@@ -204,7 +206,7 @@ function KanbanColumnContainer<T extends KanbanItem>({
         items={column.items.map((i) => i.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex flex-col gap-2 min-h-[40px]">
+        <div role="list" className="flex flex-col gap-2 min-h-[40px]">
           {column.items.map((item) => (
             <KanbanSortableCard key={item.id} id={item.id}>
               {renderItem(item)}
