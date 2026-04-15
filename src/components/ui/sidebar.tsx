@@ -21,6 +21,7 @@ function Sidebar({
     <motion.aside
       data-slot="sidebar"
       data-collapsed={collapsed}
+      aria-label="Sidebar"
       animate={{ width: collapsed ? 52 : 240 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className={cn(
@@ -46,9 +47,9 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /** Sidebar main navigation content */
-function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+function SidebarContent({ className, ...props }: React.ComponentProps<"nav">) {
   return (
-    <div
+    <nav
       data-slot="sidebar-content"
       className={cn("flex-1 overflow-y-auto px-3 py-2", className)}
       {...props}
@@ -91,6 +92,7 @@ function SidebarItem({
     <button
       data-slot="sidebar-item"
       data-active={active || undefined}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-foreground/80 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring",
         active && "bg-sidebar-accent text-sidebar-accent-foreground",

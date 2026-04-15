@@ -320,3 +320,72 @@ export function generateThemeFromColor(
 
   return { name, label, light, dark }
 }
+
+// ─── CSS Theme Importer (shadcnthemer.com / shadcn CLI) ─────────
+
+/** Known token names that map to ThemeTokens keys */
+const KNOWN_TOKENS = new Set<string>([
+  "background", "foreground", "card", "card-foreground",
+  "popover", "popover-foreground", "primary", "primary-foreground",
+  "secondary", "secondary-foreground", "muted", "muted-foreground",
+  "accent", "accent-foreground", "destructive", "border", "input", "ring",
+  "radius", "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
+  "sidebar", "sidebar-foreground", "sidebar-primary", "sidebar-primary-foreground",
+  "sidebar-accent", "sidebar-accent-foreground", "sidebar-border", "sidebar-ring",
+])
+
+/**
+ * Parse a CSS string containing custom property declarations into ThemeTokens.
+ * Supports CSS exported from shadcnthemer.com, shadcn CLI, or manual CSS.
+ *
+ * Handles two formats:
+ * 1. A single block of `--name: value;` declarations → returns `{ tokens }`
+ * 2. Separate `:root`/`.light` and `.dark` blocks → returns `{ light, dark }`
+ *
+ * HSL values (e.g. `0 0% 100%`) are passed through as-is since they may be valid
+ * depending on project setup. OKLCH values are preferred and used natively.
+ *
+ * @param css - Raw CSS string, e.g. from a theme editor or clipboard paste
+ * @param name - Optional preset name
+ * @param label - Optional human-readable label
+ * @returns A ThemePreset if both light/dark are found, otherwise just tokens
+ */
+export function parseThemeCSS(
+  css: string,
+  name = "imported",
+  label = "Imported",
+): ThemePreset {
+  const light = extractTokensFromBlock(css, /(?::root|\.light)\s*\{([^}]+)\}/g)
+  const dark = extractTokensFromBlock(css, /\.dark\s*\{([^}]+)\}/g)
+
+  // If no selector blocks found, try parsing as raw declarations
+  if (Object.keys(light).length === 0 && Object.keys(dark).length === 0) {
+    const tokens = parseDeclarations(css)
+    return { name, label, light: tokens, dark: {} }
+  }
+
+  return { name, label, light, dark }
+}
+
+function extractTokensFromBlock(css: string, pattern: RegExp): ThemeTokens {
+  const tokens: ThemeTokens = {}
+  let match: RegExpExecArray | null
+  while ((match = pattern.exec(css)) !== null) {
+    Object.assign(tokens, parseDeclarations(match[1]))
+  }
+  return tokens
+}
+
+function parseDeclarations(block: string): ThemeTokens {
+  const tokens: ThemeTokens = {}
+  const re = /--([a-z][a-z0-9-]*)\s*:\s*([^;]+);/gi
+  let match: RegExpExecArray | null
+  while ((match = re.exec(block)) !== null) {
+    const key = match[1].trim()
+    const value = match[2].trim()
+    if (KNOWN_TOKENS.has(key)) {
+      ;(tokens as Record<string, string>)[key] = value
+    }
+  }
+  return tokens
+}
