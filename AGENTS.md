@@ -23,6 +23,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
   builds Storybook and deploys to GitHub Pages when Pages is enabled
 - All repo workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
   to opt JavaScript actions into the Node 24 runtime ahead of GitHub's default switch
+- Workflows now use `pnpm/action-setup@v6`
+  to align the pnpm setup action itself with the newer Node 24 action runtime
 
 ## One-Step Release Rule
 
