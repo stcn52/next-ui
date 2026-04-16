@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -248,7 +247,7 @@ function ProjectsPage() {
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Progress */}
                 <div>
                   <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
@@ -272,10 +271,8 @@ function ProjectsPage() {
                   ))}
                 </div>
 
-                <Separator />
-
                 {/* Footer */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between border-t pt-2">
                   <div className="flex -space-x-2">
                     {project.team.map((m) => (
                       <Avatar key={m.name} className="size-7 border-2 border-background">

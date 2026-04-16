@@ -7,7 +7,6 @@ import { within, expect, userEvent } from "storybook/test"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -235,16 +234,16 @@ function NotificationsPage() {
                     暂无通知
                   </p>
                 ) : (
-                  notifications.map((n, i) => (
-                    <div key={n.id}>
+                  <div className="divide-y divide-border">
+                    {notifications.map((n) => (
                       <NotificationItem
+                        key={n.id}
                         notification={n}
                         onToggleRead={toggleRead}
                         onDelete={deleteNotification}
                       />
-                      {i < notifications.length - 1 && <Separator />}
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -258,18 +257,18 @@ function NotificationsPage() {
                     没有未读通知
                   </p>
                 ) : (
-                  notifications
-                    .filter((n) => !n.read)
-                    .map((n, i, arr) => (
-                      <div key={n.id}>
+                  <div className="divide-y divide-border">
+                    {notifications
+                      .filter((n) => !n.read)
+                      .map((n) => (
                         <NotificationItem
+                          key={n.id}
                           notification={n}
                           onToggleRead={toggleRead}
                           onDelete={deleteNotification}
                         />
-                        {i < arr.length - 1 && <Separator />}
-                      </div>
-                    ))
+                      ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -278,18 +277,18 @@ function NotificationsPage() {
           <TabsContent value="mentions" className="mt-4">
             <Card>
               <CardContent className="p-0">
-                {notifications
-                  .filter((n) => n.type === "mention")
-                  .map((n, i, arr) => (
-                    <div key={n.id}>
+                <div className="divide-y divide-border">
+                  {notifications
+                    .filter((n) => n.type === "mention")
+                    .map((n) => (
                       <NotificationItem
+                        key={n.id}
                         notification={n}
                         onToggleRead={toggleRead}
                         onDelete={deleteNotification}
                       />
-                      {i < arr.length - 1 && <Separator />}
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
