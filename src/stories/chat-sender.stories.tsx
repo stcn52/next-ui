@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Mic, Image } from "lucide-react"
 
 const meta: Meta<typeof ChatSender> = {
-  title: "UI/ChatSender",
+  title: "Chat/Sender",
   component: ChatSender,
   tags: ["autodocs"],
   parameters: { layout: "centered" },
@@ -203,9 +203,9 @@ export const WithFooter: Story = {
 /* ------------------------------------------------------------------ */
 
 const SAMPLE_ATTACHMENTS: Attachment[] = [
-  { id: "1", name: "screenshot.png", type: "image", size: "256KB", previewUrl: "https://placehold.co/80x80/6c47ff/white?text=IMG" },
-  { id: "2", name: "document.pdf", type: "file", size: "1.2MB" },
-  { id: "3", name: "photo.jpg", type: "image", size: "512KB" },
+  { id: "1", name: "screenshot.png", type: "image", size: "256KB", previewUrl: "https://placehold.co/80x80/6c47ff/white?text=IMG", status: "done" },
+  { id: "2", name: "document.pdf", type: "file", size: "1.2MB", status: "uploading", progress: 58 },
+  { id: "3", name: "photo.jpg", type: "image", size: "512KB", status: "error", error: "网络超时" },
 ]
 
 export const WithAttachments: Story = {
@@ -227,6 +227,11 @@ export const WithAttachments: Story = {
           onAttach={() => {
             const id = `att-${Date.now()}`
             setAttachments((prev) => [...prev, { id, name: `新文件-${prev.length + 1}.txt`, type: "file" as const, size: "64KB" }])
+          }}
+          onRetryAttachment={(id) => {
+            setAttachments((prev) =>
+              prev.map((a) => (a.id === id ? { ...a, status: "uploading", progress: 30, error: undefined } : a)),
+            )
           }}
         />
       </div>

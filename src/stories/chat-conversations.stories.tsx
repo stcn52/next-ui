@@ -6,7 +6,7 @@ import { MessageCircle, Code, Languages, FileSpreadsheet, BookOpen } from "lucid
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const meta: Meta<typeof ChatConversations> = {
-  title: "UI/ChatConversations",
+  title: "Chat/Conversations",
   component: ChatConversations,
   tags: ["autodocs"],
   parameters: { layout: "centered" },

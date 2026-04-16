@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/chat-bubble"
 
 const meta: Meta = {
-  title: "UI/ChatBubble",
+  title: "Chat/Bubble",
   tags: ["autodocs"],
   parameters: { layout: "centered" },
 }

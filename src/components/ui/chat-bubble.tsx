@@ -329,6 +329,7 @@ function Bubble({
                   <TooltipTrigger
                     className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
                     onClick={() => onCopy(content)}
+                    aria-label="复制消息"
                   >
                     <Copy className="size-3" />
                   </TooltipTrigger>
@@ -341,6 +342,7 @@ function Bubble({
                   <TooltipTrigger
                     className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
                     onClick={() => setEditing(true)}
+                    aria-label="编辑消息"
                   >
                     <Pencil className="size-3" />
                   </TooltipTrigger>
@@ -354,6 +356,7 @@ function Bubble({
                     <TooltipTrigger
                       className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "up" && "text-green-500")}
                       onClick={() => handleFeedback("up")}
+                      aria-label="点赞"
                     >
                       <ThumbsUp className="size-3" />
                     </TooltipTrigger>
@@ -363,6 +366,7 @@ function Bubble({
                     <TooltipTrigger
                       className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "down" && "text-red-500")}
                       onClick={() => handleFeedback("down")}
+                      aria-label="点踩"
                     >
                       <ThumbsDown className="size-3" />
                     </TooltipTrigger>
@@ -376,6 +380,7 @@ function Bubble({
                   <TooltipTrigger
                     className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
                     onClick={onRegenerate}
+                    aria-label="重新生成消息"
                   >
                     <RefreshCcw className="size-3" />
                   </TooltipTrigger>

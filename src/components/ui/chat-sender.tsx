@@ -16,6 +16,12 @@ interface Attachment {
   size?: string
   /** Preview URL for images */
   previewUrl?: string
+  /** Upload state */
+  status?: "uploading" | "done" | "error"
+  /** Upload progress percent */
+  progress?: number
+  /** Error message when upload fails */
+  error?: string
 }
 
 interface MentionItem {
@@ -53,8 +59,12 @@ interface ChatSenderProps {
   onSuggestionClick?: (suggestion: string) => void
   /** Callback when attachment button is clicked */
   onAttach?: () => void
+  /** Callback when files are dropped or selected */
+  onAttachFiles?: (files: FileList | File[]) => void
   /** Callback when an attachment is removed */
   onRemoveAttachment?: (id: string) => void
+  /** Callback when retry upload is clicked */
+  onRetryAttachment?: (id: string) => void
   /** Callback when a mention is selected */
   onMentionSelect?: (item: MentionItem) => void
   /** Custom prefix content (left of textarea) */
@@ -86,7 +96,9 @@ function ChatSender({
   onCancel,
   onSuggestionClick,
   onAttach,
+  onAttachFiles,
   onRemoveAttachment,
+  onRetryAttachment,
   onMentionSelect,
   prefix,
   suffix,
@@ -97,6 +109,7 @@ function ChatSender({
   const [internalValue, setInternalValue] = React.useState(defaultValue)
   const [showMentions, setShowMentions] = React.useState(false)
   const [mentionQuery, setMentionQuery] = React.useState("")
+  const [isDragOver, setIsDragOver] = React.useState(false)
   const isControlled = controlledValue !== undefined
   const draft = isControlled ? controlledValue : internalValue
 
@@ -150,7 +163,24 @@ function ChatSender({
   }, [mentions, mentionQuery])
 
   return (
-    <div data-slot="chat-sender" className={cn("flex flex-col gap-1", className)} {...props}>
+    <div
+      data-slot="chat-sender"
+      className={cn("flex flex-col gap-1", isDragOver && "rounded-lg border-2 border-dashed border-primary/60 p-2", className)}
+      onDragOver={(e) => {
+        e.preventDefault()
+        if (disabled) return
+        setIsDragOver(true)
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault()
+        setIsDragOver(false)
+        if (disabled) return
+        const files = e.dataTransfer.files
+        if (files && files.length > 0) onAttachFiles?.(files)
+      }}
+      {...props}
+    >
       {/* Suggestions */}
       {suggestions && suggestions.length > 0 && (
         <div className="flex flex-wrap gap-2 pb-1">
@@ -196,9 +226,29 @@ function ChatSender({
               <div className="min-w-0">
                 <p className="truncate text-xs font-medium">{a.name}</p>
                 {a.size && <p className="text-[10px] text-muted-foreground">{a.size}</p>}
+                {a.status === "uploading" && (
+                  <div className="mt-1 w-24 overflow-hidden rounded bg-muted">
+                    <div className="h-1 bg-primary transition-all" style={{ width: `${Math.min(100, Math.max(0, a.progress ?? 0))}%` }} />
+                  </div>
+                )}
+                {a.status === "error" && (
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <p className="text-[10px] text-destructive">{a.error ?? "上传失败"}</p>
+                    {onRetryAttachment && (
+                      <button
+                        type="button"
+                        className="text-[10px] text-primary underline-offset-2 hover:underline"
+                        onClick={() => onRetryAttachment(a.id)}
+                      >
+                        重试
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               {onRemoveAttachment && (
                 <button
+                  type="button"
                   onClick={() => onRemoveAttachment(a.id)}
                   className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover/att:opacity-100"
                   aria-label={`移除 ${a.name}`}
@@ -273,6 +323,10 @@ function ChatSender({
 
       {footerText && (
         <p className="text-center text-[10px] text-muted-foreground">{footerText}</p>
+      )}
+
+      {isDragOver && (
+        <p className="text-center text-xs text-primary">释放文件以上传</p>
       )}
     </div>
   )
