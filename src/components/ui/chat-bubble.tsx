@@ -418,7 +418,7 @@ function BubbleList({ items, autoScroll = true, className, ...props }: BubbleLis
     <div
       data-slot="bubble-list"
       ref={ref}
-      className={cn("flex flex-col gap-4 overflow-y-auto", className)}
+      className={cn("flex flex-col gap-3 overflow-y-auto", className)}
       {...props}
     >
       {items.map((item, i) => (

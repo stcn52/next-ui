@@ -131,7 +131,7 @@ function PromptLibrary({
   return (
     <div
       data-slot="prompt-library"
-      className={cn("grid gap-4 lg:grid-cols-[280px_1fr]", className)}
+      className={cn("grid gap-3 lg:grid-cols-[280px_1fr]", className)}
       {...props}
     >
       <Card size="sm">
@@ -188,8 +188,8 @@ function PromptLibrary({
             <CardDescription>{selectedItem.description}</CardDescription>
           )}
         </CardHeader>
-        <CardContent className="grid gap-4 pt-4 lg:grid-cols-[1fr_1fr]">
-          <div className="space-y-4">
+        <CardContent className="grid gap-3 pt-4 lg:grid-cols-[1fr_1fr]">
+          <div className="space-y-3">
             <div className="space-y-2">
               <div className="text-sm font-medium">变量</div>
               {selectedItem?.variables?.length ? (
