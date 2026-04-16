@@ -72,7 +72,7 @@ function DataTable<TData, TValue>({
   const resolvedPlaceholder = filterPlaceholder ?? locale.filter
 
   return (
-    <div data-slot="data-table" className="flex flex-col gap-4">
+    <div data-slot="data-table" className="flex flex-col gap-3">
       {filterColumn && (
         <div className="flex items-center">
           <Input
@@ -131,7 +131,7 @@ function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-16 text-center"
                 >
                   {locale.noResults}
                 </TableCell>

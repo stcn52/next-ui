@@ -68,14 +68,14 @@ function ProfileSection() {
         <CardTitle>个人资料</CardTitle>
         <CardDescription>管理你的公开信息</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <div className="flex items-center gap-4">
           <Avatar className="size-16">
             <AvatarFallback className="text-lg">CY</AvatarFallback>
           </Avatar>
           <Button variant="outline" size="sm">更换头像</Button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">用户名</Label>
             <Input id="name" defaultValue="chenyang" />
@@ -104,7 +104,7 @@ function NotificationsSection() {
         <CardTitle>通知设置</CardTitle>
         <CardDescription>配置通知方式与频率</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {[
           { id: "email-notif", label: "邮件通知", desc: "通过邮件接收任务变更通知" },
           { id: "push-notif", label: "浏览器推送", desc: "通过浏览器接收实时通知" },
@@ -131,7 +131,7 @@ function AppearanceSection() {
         <CardTitle>外观设置</CardTitle>
         <CardDescription>自定义显示方式</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <div className="space-y-2">
           <Label>主题</Label>
           <div className="grid grid-cols-3 gap-3">
@@ -284,7 +284,7 @@ function SettingsPage() {
           <h1 className="text-xl font-semibold mb-1 hidden md:block">
             {SECTIONS.find((s) => s.id === activeSection)?.label}
           </h1>
-          <p className="text-sm text-muted-foreground mb-6 hidden md:block">
+          <p className="text-sm text-muted-foreground mb-4 hidden md:block">
             管理你的账户设置和偏好
           </p>
           {sectionComponents[activeSection]}

@@ -111,7 +111,7 @@ function ProfilePage() {
           ))}
         </div>
 
-        <Separator className="my-6" />
+        <Separator className="my-4" />
 
         {/* Tabs */}
         <Tabs defaultValue="activity">
@@ -126,7 +126,7 @@ function ProfilePage() {
               <CardHeader>
                 <CardTitle className="text-base">最近活动</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {ACTIVITIES.map((a, i) => (
                   <div key={i} className="flex items-center gap-3 text-sm">
                     <div className="size-2 rounded-full bg-primary shrink-0" />
@@ -148,7 +148,7 @@ function ProfilePage() {
               <CardHeader>
                 <CardTitle className="text-base">技术栈</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {SKILLS.map((s) => (
                   <div key={s.name} className="space-y-1">
                     <div className="flex justify-between text-sm">
