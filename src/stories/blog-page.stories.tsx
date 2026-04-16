@@ -144,7 +144,7 @@ function BlogPage() {
   return (
     <div className="min-h-175 bg-background text-foreground">
       {/* Header */}
-      <div className="border-b px-6 py-6">
+      <div className="border-b px-6 py-4">
         <div className="mx-auto max-w-4xl">
           <div className="flex items-center gap-3">
             <BookOpen className="size-5 text-primary" />
@@ -281,7 +281,7 @@ function BlogPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-16 text-center text-sm text-muted-foreground">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             没有匹配的文章
           </div>
         )}

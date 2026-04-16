@@ -43,7 +43,7 @@ const plans = [
 function PricingPage() {
   return (
     <div className="w-full max-w-6xl p-6">
-      <div className="mb-8 text-center">
+      <div className="mb-6 text-center">
         <h1 className="text-3xl font-semibold">选择适合你的方案</h1>
         <p className="mt-2 text-sm text-muted-foreground">支持按月计费，随时升级或降级</p>
       </div>

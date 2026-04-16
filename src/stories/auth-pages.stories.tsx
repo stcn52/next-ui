@@ -41,7 +41,7 @@ function LoginPage() {
           <CardTitle className="text-xl">欢迎回来</CardTitle>
           <CardDescription>登录你的账户以继续</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="login-email">邮箱</Label>
             <Input id="login-email" type="email" placeholder="name@example.com" />
@@ -90,8 +90,8 @@ function RegisterPage() {
           <CardTitle className="text-xl">创建账户</CardTitle>
           <CardDescription>填写以下信息以注册</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="reg-first">姓</Label>
               <Input id="reg-first" placeholder="张" />
@@ -153,7 +153,7 @@ function ForgotPasswordPage() {
               : "输入你的邮箱地址，我们将发送重置链接"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {!sent ? (
             <>
               <div className="space-y-2">
