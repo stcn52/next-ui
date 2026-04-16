@@ -1,5 +1,36 @@
 # 更新日志
 
+## 0.2.3（2026-05-04）
+
+### 优化
+
+**compact-ui-review 全面扫描** — 系统性地对所有页面模板和复合组件进行间距压缩与配色规范化，遵循 [compact-ui-review SKILL.md v7](https://github.com/stcn52/next-ui/blob/main/.agents/skills/compact-ui-review/SKILL.md)。
+
+#### 页面模板（story 层）
+- **通知页 / 项目页** — 用 CSS border 模式替换条件式 `<Separator />`（§9.2 深度代替外边距）
+- **团队页 / 订单页 / 收件箱 / FAQ / 日历 / 更新日志** — 页头 `py-5→py-4`，页面主体 `p-6→p-5`，间距 `gap-4→gap-3`，Separator 外边距缩减
+- **分析页 / 仪表盘 / 文件管理 / 用户列表** — 主体 `p-6→p-5 space-y-6→space-y-5`，KPI 网格 `gap-4→gap-3`
+- **认证 / 博客 / 定价 / 设置 / 个人资料** — 表单间距 `space-y-4→space-y-3`，节头距离缩减
+
+#### UI 组件
+- **ChatBubble** `BubbleList` — `gap-4→gap-3`
+- **PromptLibrary** — 网格 `gap-4→gap-3`，变量列表 `space-y-4→space-y-3`
+- **DataTable / VirtualDataTable / EditableDataTable** — 空状态单元格 `h-24→h-16`，根容器 `gap-4→gap-3`
+
+#### Bug 修复
+- **UserListPage** — 未激活状态圆点 `bg-gray-300→bg-border`（改善暗色模式对比度）
+
+#### SKILL.md v7（361 行）
+- §9 Apple HIG 空间设计原则（6 个子原则）
+- §10 原子组件锁定名单（button/input/badge 等锁定，禁止审核）
+- §11 配色与暗色模式审核规则（语义 token、`dark:` 模式、grep 命令）
+
+### 数据
+- 108 个单元测试全部通过
+- 所有变更通过 lint + build 验证
+
+---
+
 ## 0.2.2（2026-04-16）
 
 ### 优化
