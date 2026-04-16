@@ -25,6 +25,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
   to opt JavaScript actions into the Node 24 runtime ahead of GitHub's default switch
 - Workflows now use `pnpm/action-setup@v6`
   to align the pnpm setup action itself with the newer Node 24 action runtime
+- Trusted dependency build scripts now live in `pnpm-workspace.yaml` under `allowBuilds`
+  so CI, Storybook deploy, publish, and local installs all rely on the same pnpm approval source
 
 ## One-Step Release Rule
 

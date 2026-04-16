@@ -38,9 +38,6 @@ jobs:
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Configure pnpm build approvals
-        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

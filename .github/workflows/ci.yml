@@ -36,9 +36,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - name: Configure pnpm build approvals
-        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -69,9 +66,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - name: Configure pnpm build approvals
-        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -95,9 +89,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-
-      - name: Configure pnpm build approvals
-        run: pnpm config set --location project --json onlyBuiltDependencies '["esbuild","msw"]'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
