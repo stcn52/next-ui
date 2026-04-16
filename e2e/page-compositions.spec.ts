@@ -16,7 +16,8 @@ test.describe("Composite Pages", () => {
   test("chat sender story renders with suggestions and attachments", async ({ page }) => {
     await page.goto("/iframe.html?id=chat-sender--full-featured&viewMode=story")
 
-    // Verify suggestions are visible
+    // Open suggestions overlay and verify content
+    await page.getByRole("button", { name: "打开快捷提示" }).click()
     await expect(page.getByText("解释代码")).toBeVisible()
     await expect(page.getByText("写测试")).toBeVisible()
     await expect(page.getByText("优化")).toBeVisible()
