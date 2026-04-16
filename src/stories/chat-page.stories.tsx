@@ -384,7 +384,7 @@ function ChatPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="flex flex-col gap-4 px-5 py-4">
+          <div className="flex flex-col gap-3 px-4 py-3">
             {filteredMessages.map((m) => {
               const props: BubbleProps = {
                 role: m.role,
@@ -415,7 +415,7 @@ function ChatPage() {
         </div>
 
         {/* Sender */}
-        <div className="px-5 pb-4 pt-2">
+        <div className="px-4 pb-3 pt-1.5">
           <ChatSender
             value={draft}
             onChange={setDraft}
@@ -508,7 +508,7 @@ function ChatWelcomePage() {
         <WelcomeScreen onPrompt={handleSend} />
       ) : (
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="flex flex-col gap-4 px-5 py-4">
+          <div className="flex flex-col gap-3 px-4 py-3">
             {messages.map((m) => (
               <Bubble key={m.id} role={m.role} content={m.content} timestamp={m.timestamp} status={m.status} onCopy={() => handleCopy(m.content)} />
             ))}
@@ -529,7 +529,7 @@ function ChatWelcomePage() {
       )}
 
       {/* Sender */}
-      <div className="px-5 pb-4 pt-2">
+      <div className="px-4 pb-3 pt-1.5">
         <ChatSender
           value={draft}
           onChange={setDraft}

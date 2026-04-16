@@ -74,7 +74,7 @@ function InvoicePage() {
 
         {/* Invoice card */}
         <Card>
-          <CardContent className="p-8 space-y-6">
+          <CardContent className="p-6 space-y-5">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
@@ -111,7 +111,7 @@ function InvoicePage() {
             <Separator />
 
             {/* Parties */}
-            <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="grid grid-cols-2 gap-5 text-sm">
               <div>
                 <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide mb-2">发票方</p>
                 <p className="font-semibold">{INVOICE.from.name}</p>

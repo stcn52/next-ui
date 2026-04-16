@@ -18,7 +18,7 @@ interface MessageComposerProps
 
 function MessageComposer({ className, ...props }: MessageComposerProps) {
   return (
-    <div data-slot="message-composer" className={cn("border-t p-3", className)}>
+    <div data-slot="message-composer" className={cn("border-t p-2", className)}>
       <ChatSender {...props} />
     </div>
   )

@@ -123,7 +123,7 @@ function ChatSender({
   density = "default",
   suggestionsVariant = "overlay",
   attachmentLayout = "scroll",
-  attachmentDisplay = "preview",
+  attachmentDisplay = "summary",
   onSubmit,
   onChange,
   onCancel,

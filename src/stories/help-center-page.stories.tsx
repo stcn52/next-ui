@@ -73,9 +73,9 @@ function HelpCenterPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="bg-gradient-to-b from-primary/10 to-background border-b px-6 py-14 text-center">
+      <div className="bg-gradient-to-b from-primary/10 to-background border-b px-6 py-10 text-center">
         <h1 className="text-3xl font-bold mb-2">帮助中心</h1>
-        <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm">
+        <p className="text-muted-foreground mb-4 max-w-md mx-auto text-sm">
           搜索文档、教程和 FAQ，快速找到你需要的答案
         </p>
         <div className="relative max-w-md mx-auto">
@@ -89,7 +89,7 @@ function HelpCenterPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-5 py-10 space-y-10">
+      <div className="mx-auto max-w-5xl px-5 py-6 space-y-6">
         {/* Categories */}
         {!search && (
           <section>
@@ -121,7 +121,7 @@ function HelpCenterPage() {
             {search ? `"${search}" 的搜索结果 (${filtered.length})` : "热门文章"}
           </h2>
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center py-12 text-muted-foreground gap-3">
+            <div className="flex flex-col items-center py-8 text-muted-foreground gap-3">
               <SearchIcon className="size-10 opacity-30" />
               <p className="text-sm">未找到相关文章</p>
               <Button variant="outline" size="sm" onClick={() => setSearch("")}>清除筛选</Button>
