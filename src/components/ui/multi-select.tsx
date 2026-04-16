@@ -142,11 +142,15 @@ export function MultiSelect({
           </div>
           <div className="flex items-center gap-1 shrink-0 ml-1">
             {clearable && selected.length > 0 && (
-              <XCircleIcon
-                className="size-4 text-muted-foreground hover:text-foreground cursor-pointer"
+              <button
+                type="button"
                 aria-label="清除所有"
+                className="p-0 text-muted-foreground hover:text-foreground cursor-pointer"
                 onClick={clear}
-              />
+                onKeyDown={(e) => e.key === "Enter" && clear(e as unknown as React.MouseEvent)}
+              >
+                <XCircleIcon className="size-4" />
+              </button>
             )}
             <ChevronsUpDownIcon className="size-4 text-muted-foreground" />
           </div>

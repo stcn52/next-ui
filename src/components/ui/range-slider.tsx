@@ -135,6 +135,8 @@ export function RangeSlider({
           showTooltip={showTooltip}
           active={active === "lo"}
           aria-label={`最小值 ${label(lo)}`}
+          valueMin={min}
+          valueMax={hi}
           onKeyDown={(e) => {
             if (e.key === "ArrowLeft") emit(clamp(lo - step), hi)
             if (e.key === "ArrowRight") emit(clamp(lo + step), hi)
@@ -153,6 +155,8 @@ export function RangeSlider({
           showTooltip={showTooltip}
           active={active === "hi"}
           aria-label={`最大值 ${label(hi)}`}
+          valueMin={lo}
+          valueMax={max}
           onKeyDown={(e) => {
             if (e.key === "ArrowLeft") emit(lo, clamp(hi - step))
             if (e.key === "ArrowRight") emit(lo, clamp(hi + step))
@@ -183,11 +187,13 @@ interface ThumbProps {
   showTooltip: boolean
   active: boolean
   "aria-label": string
+  valueMin: number
+  valueMax: number
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
   onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void
 }
 
-function Thumb({ percent, label, showTooltip, active, "aria-label": ariaLabel, onKeyDown, onPointerDown }: ThumbProps) {
+function Thumb({ percent, value, label, showTooltip, active, "aria-label": ariaLabel, valueMin, valueMax, onKeyDown, onPointerDown }: ThumbProps) {
   const [hover, setHover] = React.useState(false)
   const show = showTooltip || hover || active
 
@@ -196,7 +202,9 @@ function Thumb({ percent, label, showTooltip, active, "aria-label": ariaLabel, o
       role="slider"
       tabIndex={0}
       aria-label={ariaLabel}
-      aria-valuenow={Number(label)}
+      aria-valuenow={value}
+      aria-valuemin={valueMin}
+      aria-valuemax={valueMax}
       className={cn(
         "absolute top-1/2 -translate-x-1/2 -translate-y-1/2 size-4 rounded-full border-2 border-primary bg-background cursor-grab active:cursor-grabbing shadow-sm transition-transform focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
         active && "scale-110",
