@@ -174,6 +174,38 @@ When in doubt: **compress the chrome (outer containers), not the content.**
 - Overlay suggestion panel header: remove if content is self-describing
 - Low-frequency buttons: merge into adjacent input row, not standalone rows
 
+### Message / Bubble List
+- `BubbleList` container: `gap-3` (not `gap-4`); bubbles are already self-enclosed
+- Between email subject and body: `Separator my-3` (keep — true content boundary)
+- Reply / action bar: `gap-2` between icon buttons
+
+### Data Display (Tables, Lists)
+- Empty state cell: `h-16` (vs default `h-24`) — large empty area wastes scroll space
+- Root flex/grid wrapper: `gap-3` (not `gap-4`) for toolbar+table+pagination stacks
+- Row cell padding: keep `px-4 py-2`; scanability threshold ≥4px row gap
+
+### Prompt Library
+- Two-panel layout grid: `gap-3` between sidebar panel and content panel
+- Variable list inside panel: `space-y-3` (not `space-y-4`)
+- Empty list placeholder: `py-6` acceptable (content empty state, not page chrome)
+
+### Timeline / Stepper
+- `TimelineItem` horizontal layout: `gap-4` — keep (icon + content column; tighter breaks alignment)
+- Connector line depends on `pb-6` per item; do not reduce without verifying `top-[Npx]` offset
+- Stepper horizontal: `gap-4` — keep (step circle + label; 12px is minimum for readability)
+
+### Kanban
+- Column-to-column gap: `gap-4` — keep (16px; cards inside columns need breathing room relative to lanes)
+- Card internal padding: `p-3` preferred over `p-4`
+
+### Page-level Chrome Rules (story pages)
+- Page header (`border-b`): `py-4` ceiling (not `py-5` or `py-6`)
+- Page body wrapper: `p-5` (not `p-6`); `space-y-5` (not `space-y-6`) for major sections
+- KPI/stat grid: `gap-3` (not `gap-4`)
+- `<Separator my-8>` between major sections → `my-6`; between title/body → `my-3`
+- FAQ / Docs outer padding: `py-4` (not `py-6`)
+- Changelog footer divider: `my-6` sufficient
+
 ### Page Shells
 - Hero section: keep original padding — it sets visual tone
 - Section header (icon + title + subtitle): `py-4` sufficient for non-hero
