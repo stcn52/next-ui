@@ -294,3 +294,19 @@ The following principles are adapted from Apple's Human Interface Guidelines (La
 - Use `shadow-sm` on action cards → reduces need for large `space-y-*` separation
 
 When visual affordance is strong, spacing can be reduced safely.
+
+### §10 — Atomic Primitives Audit Guardrail
+
+**Do not audit** internal padding/gap of shadcn primitives (button, input, badge, select, etc.).
+These are intentionally sized for WCAG touch targets and text alignment.
+
+| Component | Key sizes | Status |
+|---|---|---|
+| `button` | `h-6/7/8/9`, `px-2`–`px-2.5` | Locked |
+| `input` | `h-7/8/9`, `px-2`–`px-3`, `py-1` | Locked |
+| `badge` | `h-4/5/6`, proportional `px`/`py` | Locked |
+| `card` | `gap-4` + `data-[size=sm]:gap-3` | Locked (responsive) |
+| `alert` | `px-2.5 py-2` | Locked |
+| `form` | field wrapper `gap-2` | Locked (label–input proximity) |
+
+**Only audit** composite components and page-level wrappers that use these primitives.
