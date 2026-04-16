@@ -158,3 +158,29 @@ export const NoPagination: Story = {
     />
   ),
 }
+
+/** 虚拟滚动 — 5000 行仅渲染可视区域 */
+export const Virtualized: Story = {
+  render: () => {
+    const bigData: Employee[] = Array.from({ length: 5000 }, (_, i) => ({
+      id: i + 1,
+      name: ["陈宇", "李薇", "张文", "王磊", "刘芳", "赵阳", "黄静", "周涛"][i % 8],
+      department: ["工程", "产品", "设计", "市场", "运营"][i % 5],
+      role: ["高级工程师", "产品经理", "UI设计师", "市场专员", "运营主管"][i % 5],
+      salary: 15000 + (i % 10) * 3000,
+      status: (["active", "inactive", "onleave"] as const)[i % 3],
+    }))
+    return (
+      <DataGrid
+        columns={EMPLOYEE_COLUMNS}
+        data={bigData}
+        virtualized
+        enablePagination={false}
+        height="480px"
+        filterColumn="name"
+        filterPlaceholder="搜索姓名…"
+        enableSorting
+      />
+    )
+  },
+}

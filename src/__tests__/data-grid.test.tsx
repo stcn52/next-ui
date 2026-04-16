@@ -160,3 +160,43 @@ describe("DataGrid — formula bar utils", () => {
     expect(cellAddress(2, 4)).toBe("C5")
   })
 })
+
+describe("DataGrid — virtualized mode", () => {
+  it("renders only a subset of rows when virtualized=true", () => {
+    const bigData: Row[] = Array.from({ length: 500 }, (_, i) => ({
+      id: i + 1,
+      name: `User${i}`,
+      dept: "工程",
+      salary: 10000,
+    }))
+    render(
+      <DataGrid
+        columns={COLS}
+        data={bigData}
+        virtualized
+        enablePagination={false}
+        height="400px"
+      />,
+    )
+    // With virtualisation, not all 500 rows are rendered at once.
+    // We have at most ~30 overscan rows visible in JSDOM (no real scroll).
+    const rows = screen.getAllByRole("row")
+    // Header row(s) + data rows — should be far less than 500+1
+    expect(rows.length).toBeLessThan(200)
+  })
+
+  it("still renders table structure with header", () => {
+    render(
+      <DataGrid
+        columns={COLS}
+        data={ROWS}
+        virtualized
+        enablePagination={false}
+        height="300px"
+      />,
+    )
+    // Header should always render regardless of virtualization
+    expect(screen.getByText("姓名")).toBeInTheDocument()
+    expect(screen.getByText("部门")).toBeInTheDocument()
+  })
+})

@@ -33,6 +33,7 @@
  */
 
 import * as React from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -82,6 +83,9 @@ export interface DataGridProps<TData, TValue = unknown> {
   // Spreadsheet mode
   spreadsheet?: boolean
   onCellEdit?: (rowIndex: number, columnId: string, value: string) => void
+  // Virtualized mode
+  virtualized?: boolean
+  estimateRowHeight?: number
   // Layout
   height?: string
   className?: string
@@ -119,7 +123,8 @@ function selectionColumn<TData>(): ColumnDef<TData, unknown> {
     size: 36,
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? "indeterminate" : false}
+        checked={table.getIsAllPageRowsSelected() || undefined}
+        indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
         onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
         aria-label="全选当前页"
         className="mx-auto block"
@@ -160,6 +165,8 @@ export function DataGrid<TData, TValue = unknown>({
   filterPlaceholder,
   spreadsheet = false,
   onCellEdit,
+  virtualized = false,
+  estimateRowHeight = 32,
   height,
   className,
   onRowSelectionChange,
@@ -288,8 +295,23 @@ export function DataGrid<TData, TValue = unknown>({
     }
   }
 
+  // ── Virtualization ────────────────────────────────────────────────────────
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const allRows = table.getRowModel().rows
+
+  const virtualizer = useVirtualizer({
+    count: allRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => estimateRowHeight,
+    overscan: 10,
+    enabled: virtualized,
+  })
+
+  const virtualItems = virtualized ? virtualizer.getVirtualItems() : null
+  const totalVirtualSize = virtualized ? virtualizer.getTotalSize() : 0
+
   // ── Render ─────────────────────────────────────────────────────────────────
-  const rows = table.getRowModel().rows
+  const rows = virtualized ? allRows : allRows
 
   return (
     <div className={cn("flex flex-col gap-0", className)}>
@@ -317,6 +339,7 @@ export function DataGrid<TData, TValue = unknown>({
 
       {/* Table */}
       <div
+        ref={scrollRef}
         className={cn("rounded-md border overflow-auto", height && "overflow-auto")}
         style={height ? { height } : undefined}
       >
@@ -362,7 +385,7 @@ export function DataGrid<TData, TValue = unknown>({
           </TableHeader>
 
           <TableBody>
-            {rows.length === 0 ? (
+            {allRows.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -371,7 +394,62 @@ export function DataGrid<TData, TValue = unknown>({
                   暂无数据
                 </TableCell>
               </TableRow>
+            ) : virtualized && virtualItems ? (
+              // ── Virtualized body ─────────────────────────────────────────
+              <>
+                <tr style={{ height: virtualItems[0]?.start ?? 0 }} aria-hidden />
+                {virtualItems.map((vItem) => {
+                  const row = allRows[vItem.index]
+                  const ri = vItem.index
+                  return (
+                    <TableRow
+                      key={row.id}
+                      data-index={vItem.index}
+                      ref={virtualizer.measureElement}
+                      data-state={row.getIsSelected() ? "selected" : undefined}
+                      className={cn(row.getIsSelected() && "bg-primary/5")}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const colId = cell.column.id
+                        const isSpecial = colId === "__row_num__" || colId === "__select__"
+                        const isDataCol = !isSpecial
+                        const isActive = activeCell?.ri === ri && activeCell?.colId === colId
+                        const isEditing = editingCell?.ri === ri && editingCell?.colId === colId
+                        const editable = spreadsheet && isDataCol && !!onCellEdit
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            className="p-0 border-r last:border-r-0 h-8 max-h-8 overflow-hidden"
+                            style={getPinStyle(cell.column)}
+                          >
+                            {isDataCol && spreadsheet ? (
+                              <GridCell
+                                value={(row.original as Record<string, unknown>)[colId]}
+                                active={isActive}
+                                editing={isEditing}
+                                editable={editable}
+                                rowSelected={row.getIsSelected()}
+                                onActivate={() => activateCell(ri, colId)}
+                                onStartEdit={() => startEdit(ri, colId)}
+                                onCommit={(v) => commitEdit(ri, colId, v)}
+                                onCancel={cancelEdit}
+                                onKeyNav={(e) => handleKeyNav(e, ri, colId)}
+                              />
+                            ) : (
+                              <div className={cn("px-2 py-1.5 text-sm", isSpecial && "flex justify-center")}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </div>
+                            )}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  )
+                })}
+                <tr style={{ height: totalVirtualSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) }} aria-hidden />
+              </>
             ) : (
+              // ── Standard body ────────────────────────────────────────────
               rows.map((row, ri) => (
                 <TableRow
                   key={row.id}
@@ -417,6 +495,7 @@ export function DataGrid<TData, TValue = unknown>({
               ))
             )}
           </TableBody>
+          {/* ^^^ ternary: empty | virtual | standard */}
         </Table>
       </div>
 
