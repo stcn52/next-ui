@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.2.1 (2026-04-16)
+
+### New Features
+
+- **Chat components** — reusable UI components for conversational interfaces
+  - `Bubble` — message display with variants (filled/outlined/shadow/borderless)
+  - `BubbleList` — scrollable message thread
+  - `ChatSender` — input with attachments, @mentions, suggestions, loading state
+  - `ChatConversations` — grouped conversation list with search
+  - `ThoughtChain` — collapsible AI reasoning steps
+  - `TypingIndicator` — animated "thinking" indicator
+  - `RichContent` — markdown code block rendering
+
+### Improvements
+
+- **React warning fixes** — resolved nested button issue in ThoughtChain and DropdownMenuTrigger
+- **Test enhancements** — async state handling with `waitFor` in ChatConversations tests
+- **E2E coverage** — 4 new Chat-specific E2E tests (sender, mentions, bubble variants, conversations)
+
+### Tests
+
+- Unit tests: 88 passing (49 base + 39 Chat-related)
+- E2E tests: 22 passing (18 Page compositions + 4 Chat-specific)
+- All React warnings addressed
+
+---
+
 ## 0.2.0 (2026-04-16)
 
 ### New Components

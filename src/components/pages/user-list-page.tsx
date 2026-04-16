@@ -156,9 +156,9 @@ export function UserListPage() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <button className="inline-flex items-center justify-center rounded-md hover:bg-muted size-8 p-0">
                           <MoreHorizontal className="size-4" />
-                        </Button>
+                        </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>{t("editUser")}</DropdownMenuItem>

@@ -24,7 +24,7 @@ interface MentionItem {
   description?: string
 }
 
-interface ChatSenderProps extends Omit<React.ComponentProps<"div">, "onSubmit"> {
+interface ChatSenderProps {
   /** Current input value (controlled) */
   value?: string
   /** Default input value (uncontrolled) */
@@ -63,6 +63,8 @@ interface ChatSenderProps extends Omit<React.ComponentProps<"div">, "onSubmit"> 
   suffix?: React.ReactNode
   /** Footer text below the sender */
   footerText?: string
+  /** Additional CSS class */
+  className?: string
 }
 
 /* ------------------------------------------------------------------ */

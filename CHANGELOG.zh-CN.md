@@ -1,5 +1,32 @@
 # 更新日志
 
+## 0.2.1（2026-04-16）
+
+### 新增功能
+
+- **对话组件（Chat Components）** — 用于构建对话交互界面的可复用 UI 组件
+  - `Bubble` — 消息气泡，支持多种变体（filled/outlined/shadow/borderless）
+  - `BubbleList` — 消息流列表
+  - `ChatSender` — 输入框，支持附件、@提及、快速回复、流式加载状态
+  - `ChatConversations` — 分组对话列表，支持搜索
+  - `ThoughtChain` — 可折叠的 AI 推理步骤
+  - `TypingIndicator` — 动画"正在思考"指示器
+  - `RichContent` — Markdown 代码块渲染
+
+### 改进
+
+- **React 警告修复** — 解决 ThoughtChain 和 DropdownMenuTrigger 的嵌套 button 问题
+- **测试增强** — ChatConversations 测试中使用 `waitFor` 处理异步状态
+- **E2E 覆盖扩展** — 新增 4 个对话相关 E2E 测试（sender、mentions、bubble variants、conversations）
+
+### 测试
+
+- 单元测试：88/88 通过（基础 49 + 对话 39）
+- E2E 测试：22/22 通过（页面组合 18 + 对话 4）
+- 全部 React 警告已解决
+
+---
+
 ## 0.2.0（2026-04-16）
 
 ### 新增组件

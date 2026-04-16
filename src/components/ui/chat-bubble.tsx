@@ -325,33 +325,29 @@ function Bubble({
 
             <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
               {onCopy && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(content)}>
-                        <Copy className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>复制</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(content)}>
+                      <Copy className="size-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom"><p>复制</p></TooltipContent>
+                </Tooltip>
               )}
 
               {isUser && onEdit && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-6" onClick={() => setEditing(true)}>
-                        <Pencil className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-6" onClick={() => setEditing(true)}>
+                      <Pencil className="size-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
+                </Tooltip>
               )}
 
               {!isUser && onFeedback && (
-                <TooltipProvider delayDuration={200}>
+                <>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -378,20 +374,18 @@ function Bubble({
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
+                </>
               )}
 
               {!isUser && onRegenerate && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-6" onClick={onRegenerate}>
-                        <RefreshCcw className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-6" onClick={onRegenerate}>
+                      <RefreshCcw className="size-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
+                </Tooltip>
               )}
             </div>
           </div>
