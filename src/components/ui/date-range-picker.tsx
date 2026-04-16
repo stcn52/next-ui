@@ -15,6 +15,18 @@ import {
 } from "@/components/ui/popover"
 import { useLocale } from "@/components/config-provider"
 
+/**
+ * DateRangePicker — 弹出式日期范围选择器。
+ *
+ * 基于 react-day-picker `Calendar` 的 `mode="range"` 模式，
+ * 通过 `Popover` 触发展开，支持 i18n 占位符（`datePicker.pickDateRange`）。
+ *
+ * @example
+ * ```tsx
+ * const [range, setRange] = useState<DateRange>()
+ * <DateRangePicker dateRange={range} onDateRangeChange={setRange} />
+ * ```
+ */
 function DateRangePicker({
   dateRange,
   onDateRangeChange,

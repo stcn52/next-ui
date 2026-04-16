@@ -116,7 +116,7 @@ const MENTION_ITEMS: MentionItem[] = [
 
 function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
       <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white shadow-lg">
         <Sparkles className="size-8" />
       </div>

@@ -35,6 +35,12 @@ function formatBytes(bytes: number): string {
 // FileUploadItem component
 // ---------------------------------------------------------------------------
 
+/**
+ * FileUploadItemRow — 单个已选文件的行视图。
+ *
+ * 显示文件图标、名称、大小，以及上传进度条、完成标记或错误消息。
+ * 需要提供 `onRemove` 时会渲染移除按钮。
+ */
 function FileUploadItemRow({
   item,
   onRemove,
@@ -127,6 +133,29 @@ interface FileUploadProps {
   className?: string
 }
 
+/**
+ * FileUpload — 拖拽 & 点击式文件上传区。
+ *
+ * - 支持拖拽放置（drag-and-drop）和点击选择两种方式。
+ * - 可配置 `maxSize`（字节）与 `maxFiles` 数量限制（超限文件自动过滤）。
+ * - 通过 `items` + `onRemove` 支持受控文件列表；每个条目使用 `FileUploadItemRow` 渲染。
+ *
+ * @example
+ * ```tsx
+ * const [items, setItems] = useState<FileUploadItem[]>([])
+ * <FileUpload
+ *   multiple
+ *   accept="image/*"
+ *   maxSize={5 * 1024 * 1024}
+ *   items={items}
+ *   onFilesChange={(files) => {
+ *     const newItems = files.map((f) => ({ id: crypto.randomUUID(), file: f }))
+ *     setItems((prev) => [...prev, ...newItems])
+ *   }}
+ *   onRemove={(id) => setItems((prev) => prev.filter((i) => i.id !== id))}
+ * />
+ * ```
+ */
 function FileUpload({
   accept,
   multiple = false,
