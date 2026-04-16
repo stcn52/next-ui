@@ -109,7 +109,7 @@ function ChatConversations({
   return (
     <div data-slot="chat-conversations" className={cn("flex flex-col", className)} {...props}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-3">
+      <div className="flex items-center justify-between border-b px-3 py-3">
         <h2 className="text-sm font-semibold">{title}</h2>
         {onNewChat && (
           <Button variant="ghost" size="icon" className="size-8" aria-label="新建会话" onClick={onNewChat}>
@@ -139,7 +139,7 @@ function ChatConversations({
           {Object.entries(grouped).map(([group, groupItems]) => (
             <div key={group}>
               {group && (
-                <p className="px-2 pt-3 pb-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+                <p className="px-2 pt-2 pb-0.5 text-[10px] font-medium tracking-wide text-muted-foreground">
                   {group}
                 </p>
               )}
@@ -149,7 +149,7 @@ function ChatConversations({
                   onClick={() => handleSelect(c)}
                   disabled={c.disabled}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-1.5 text-left transition-colors",
                     activeId === c.key ? "bg-accent" : "hover:bg-accent/50",
                     c.disabled && "pointer-events-none opacity-50",
                   )}
