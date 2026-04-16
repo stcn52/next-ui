@@ -1,5 +1,27 @@
 # 更新日志
 
+## 0.2.4（2026-04-17）
+
+### 新增组件
+
+- **DateRangePicker** — 弹出式日期范围选择器，基于 react-day-picker `mode="range"` + `Popover`，支持 i18n（zh-CN / en / ja-JP）
+- **FileUpload** — 拖拽上传区，支持拖拽放置、点击选择、文件列表、进度条、错误状态、大小限制
+
+### 新增页面模板
+
+- **ReportPage** — KPI 卡片 + 渠道表格 + 产品表格 + DateRangePicker 日期过滤
+- **OnboardingPage** — 4 步引导页，使用 Stepper，含资料表单 + 偏好开关
+
+### 测试
+
+- 新增 28 个单元测试（DateRangePicker 5 个 + FileUpload 23 个），总计 136 个测试
+
+### compact-ui-review 审查
+
+- **blog-page** — `space-y-6 p-6 → space-y-5 p-5`
+- **pricing-page** — `mb-6 p-6 → mb-4 p-5`
+- **chat-page 欢迎屏** — `gap-6 → gap-4`
+
 ## 0.2.3（2026-05-04）
 
 ### 优化
