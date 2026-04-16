@@ -133,6 +133,16 @@ pnpm perf:chat
 pnpm analyze
 ```
 
+性能基准命令支持参数：
+
+```bash
+RUNS=5 pnpm perf:chat
+BASELINE_SEC=3.2 FAIL_ABOVE_PCT=15 pnpm perf:chat
+```
+
+- `BASELINE_SEC`：基线平均耗时（秒）
+- `FAIL_ABOVE_PCT`：允许回归阈值百分比（默认 `20`）
+
 ## 发布检查
 
 ```bash
@@ -143,6 +153,21 @@ pnpm publish:check
 ```
 
 `publish:check` 会执行组件库构建和 npm 打包 dry-run 校验。
+
+## 迁移指南（0.2.x）
+
+- 样式请从 `@stcn52/next-ui/styles.css` 引入。
+- Storybook 中的页面模板仅用于演示，不属于 npm 公共 API 导出。
+- 对话场景建议优先使用 `ui` 下可复用组件：`Bubble`、`ChatSender`、`ChatConversations`。
+
+## 常见问题（FAQ）
+
+1. 为什么 `publish:check` 比普通构建慢？
+因为会执行类型声明生成（`vite:dts`）和 npm dry-run 打包，这是预期行为。
+
+2. 如何在 CI 中做聊天 E2E 性能回归告警？
+可使用基线与阈值参数，例如：
+`BASELINE_SEC=3.2 FAIL_ABOVE_PCT=15 pnpm perf:chat`。
 
 ## License
 

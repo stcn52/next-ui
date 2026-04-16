@@ -4,6 +4,8 @@ import { performance } from "node:perf_hooks"
 
 const runs = Number(process.env.RUNS || 3)
 const grep = process.env.GREP || "chat"
+const baseline = process.env.BASELINE_SEC ? Number(process.env.BASELINE_SEC) : null
+const failAbovePct = Number(process.env.FAIL_ABOVE_PCT || 20)
 
 function runOnce(index) {
   const start = performance.now()
@@ -49,3 +51,15 @@ console.log(`avg=${avg.toFixed(2)}s`)
 console.log(`min=${sorted[0].toFixed(2)}s`)
 console.log(`max=${sorted[sorted.length - 1].toFixed(2)}s`)
 console.log(`p95=${p95.toFixed(2)}s`)
+
+if (baseline && Number.isFinite(baseline)) {
+  const deltaPct = ((avg - baseline) / baseline) * 100
+  const sign = deltaPct >= 0 ? "+" : ""
+  console.log(`baseline=${baseline.toFixed(2)}s delta=${sign}${deltaPct.toFixed(2)}%`)
+  if (deltaPct > failAbovePct) {
+    console.error(
+      `[perf:chat] Regression detected: avg exceeds baseline by ${deltaPct.toFixed(2)}% (threshold ${failAbovePct}%)`,
+    )
+    process.exit(1)
+  }
+}

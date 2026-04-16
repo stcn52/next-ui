@@ -176,6 +176,16 @@ pnpm test:e2e     # Run Playwright E2E tests
 pnpm perf:chat    # Run chat E2E benchmark (default 3 runs)
 ```
 
+Performance benchmark options:
+
+```bash
+RUNS=5 pnpm perf:chat
+BASELINE_SEC=3.2 FAIL_ABOVE_PCT=15 pnpm perf:chat
+```
+
+- `BASELINE_SEC`: baseline average seconds for comparison
+- `FAIL_ABOVE_PCT`: allowed regression threshold (default `20`)
+
 Unit tests cover Sidebar, KanbanBoard, drag interactions, and useKanbanStorage hook. E2E tests validate the Kanban page in a real Storybook environment.
 
 ## Release Checklist
@@ -231,6 +241,21 @@ pnpm test         # Unit tests
 pnpm test:e2e     # E2E tests
 pnpm analyze      # Bundle visualization
 ```
+
+## Migration Guide (0.2.x)
+
+- Import package styles from `@stcn52/next-ui/styles.css`.
+- Page templates in Storybook are demos only and are not public npm API exports.
+- For chat interactions, prefer the reusable primitives in `ui`: `Bubble`, `ChatSender`, `ChatConversations`.
+
+## FAQ
+
+1. Why does `publish:check` run slowly?
+It runs type generation (`vite:dts`) and npm dry-run packaging, so it is expected to be slower than plain build.
+
+2. How do I benchmark chat E2E in CI?
+Use `BASELINE_SEC` and `FAIL_ABOVE_PCT` to fail CI on regressions, for example:
+`BASELINE_SEC=3.2 FAIL_ABOVE_PCT=15 pnpm perf:chat`.
 
 ## License
 
