@@ -310,3 +310,52 @@ These are intentionally sized for WCAG touch targets and text alignment.
 | `form` | field wrapper `gap-2` | Locked (label–input proximity) |
 
 **Only audit** composite components and page-level wrappers that use these primitives.
+
+---
+
+## §11 — Color & Dark Mode Audit Rules
+
+### 11.1 Use Semantic Tokens, Not Raw Colors
+
+The project uses CSS variable–based color tokens. Any hardcoded color is a smell unless intentional.
+
+| Pattern | Verdict | Action |
+|---|---|---|
+| `bg-gray-100`, `text-gray-500` | ❌ Forbidden in components | Replace with `bg-muted`, `text-muted-foreground` |
+| `bg-zinc-950 text-zinc-50` (code block) | ✓ Intentional | Keep — code blocks are always dark |
+| `bg-background text-foreground` | ✓ Correct | Semantic root colors |
+| `bg-card text-card-foreground` | ✓ Correct | Card surface |
+| `bg-muted/30`, `bg-muted/50` | ✓ Correct | Tinted section backgrounds |
+| `border-input`, `ring-ring/50` | ✓ Correct | Input and focus ring tokens |
+
+### 11.2 Dark Mode via `dark:` Modifier
+
+`dark:` classes are **only needed** when a semantic CSS variable cannot achieve the dark variant automatically. Most shadcn primitives handle dark mode via CSS variables — do not add redundant `dark:` overrides.
+
+**Allowed** `dark:` patterns (verified in codebase):
+- `dark:bg-input/30` — slightly transparent input bg in dark mode
+- `dark:hover:bg-muted/50` — lighter hover surface in dark mode  
+- `dark:aria-invalid:ring-destructive/40` — error ring needs different opacity in dark
+- `dark:data-[variant=destructive]:focus:bg-destructive/20` — contextual dark interaction
+
+**Anti-pattern to flag:**
+- `dark:text-gray-400` → replace with `dark:text-muted-foreground`
+- `dark:bg-gray-800` → replace with `dark:bg-card` or `dark:bg-input/30`
+- Adding `dark:` when a CSS variable already handles it
+
+### 11.3 Story-Level Dark Mode Wrappers
+
+Story canvases often use `p-6 bg-gray-100` or similar as Storybook story padding. This is acceptable for story isolation and should not be flagged as a spacing issue.
+
+| Context | Verdict |
+|---|---|
+| `class="p-6 bg-gray-100"` on story canvas root | ✓ Acceptable (Storybook only) |
+| `class="bg-gray-100"` inside a component | ❌ Flag — use `bg-muted` |
+
+### 11.4 Color Audit Grep Patterns
+
+```
+bg-gray-\|text-gray-\|border-gray-   →  semantic token audit
+dark:bg-gray\|dark:text-gray         →  dark: raw color audit
+bg-zinc-\|text-zinc-                 →  intentional only if code block
+```
