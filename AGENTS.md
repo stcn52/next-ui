@@ -6,9 +6,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current published version: `0.2.2`
-- Current latest git release: `v0.2.2`
-- v0.2.3 release in progress — compact-ui-review audit sweep complete, ready for tag+publish
+- Current published version: `0.2.3`
+- Current latest git release: `v0.2.3`
 
 ## Workflow Map
 
