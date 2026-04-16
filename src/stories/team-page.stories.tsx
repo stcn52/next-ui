@@ -118,7 +118,7 @@ function TeamPage() {
         </div>
       </div>
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-5 p-5">
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
           <Card>

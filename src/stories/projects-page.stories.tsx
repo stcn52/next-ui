@@ -214,7 +214,7 @@ function ProjectsPage() {
       </div>
 
       {/* Project Grid */}
-      <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((project) => {
           const cfg = STATUS_CONFIG[project.status]
           return (
@@ -292,7 +292,7 @@ function ProjectsPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="py-16 text-center text-sm text-muted-foreground">
+        <div className="py-8 text-center text-sm text-muted-foreground">
           没有匹配的项目
         </div>
       )}

@@ -23,6 +23,12 @@ interface TagInputProps extends Omit<React.ComponentProps<"div">, "onChange"> {
   maxTags?: number
   /** Allow duplicate tags */
   allowDuplicates?: boolean
+  /**
+   * Whether to show the remove (×) button on each tag chip.
+   * Set to `false` to render tags in display-only mode.
+   * @default true
+   */
+  allowRemove?: boolean
   /** Characters that trigger tag creation (default: Enter and comma) */
   delimiters?: string[]
   /** Disabled state */
@@ -49,6 +55,7 @@ function TagInput({
   placeholder = "输入后回车添加标签…",
   maxTags,
   allowDuplicates = false,
+  allowRemove = true,
   delimiters = ["Enter", ","],
   disabled = false,
   className,
@@ -128,7 +135,7 @@ function TagInput({
           className="gap-1 pr-1 text-xs"
         >
           {tag}
-          {!disabled && (
+          {allowRemove && !disabled && (
             <button
               type="button"
               onClick={(e) => {

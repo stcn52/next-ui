@@ -91,3 +91,21 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const DisplayOnly: Story = {
+  name: "仅展示（不可删除）",
+  render: function Render() {
+    const skills = ["React", "TypeScript", "Node.js", "Tailwind CSS", "GraphQL"]
+    return (
+      <div className="flex flex-col gap-1.5 w-80">
+        <Label>技能标签（展示模式）</Label>
+        <TagInput
+          value={skills}
+          allowRemove={false}
+          placeholder=""
+        />
+        <p className="text-xs text-muted-foreground">标签不可删除，仅供展示</p>
+      </div>
+    )
+  },
+}

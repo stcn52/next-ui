@@ -174,7 +174,7 @@ function FaqPage() {
             ))}
           </Accordion>
         ) : (
-          <div className="py-16 text-center text-sm text-muted-foreground">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             没有匹配的问题
           </div>
         )}

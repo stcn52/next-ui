@@ -99,6 +99,11 @@ interface ChatSenderProps
   suffix?: React.ReactNode
   /** Footer text below the sender */
   footerText?: string
+  /**
+   * Maximum number of visible rows before the textarea enters scroll mode.
+   * Defaults to 6.
+   */
+  maxRows?: number
 }
 
 /* ------------------------------------------------------------------ */
@@ -136,11 +141,13 @@ function ChatSender({
   prefix,
   suffix,
   footerText,
+  maxRows = 6,
   className,
   ...props
 }: ChatSenderProps) {
   const rootRef = React.useRef<HTMLDivElement>(null)
   const [internalValue, setInternalValue] = React.useState(defaultValue)
+  const [isComposing, setIsComposing] = React.useState(false)
   const [showMentions, setShowMentions] = React.useState(false)
   const [showSuggestions, setShowSuggestions] = React.useState(false)
   const [mentionQuery, setMentionQuery] = React.useState("")
@@ -339,7 +346,7 @@ function ChatSender({
         }
       }
 
-      if (event.key === "Enter" && !event.shiftKey) {
+      if (event.key === "Enter" && !event.shiftKey && !isComposing) {
         event.preventDefault()
         handleSubmit()
       }
@@ -350,6 +357,7 @@ function ChatSender({
       filteredMentions,
       handleMentionClick,
       handleSubmit,
+      isComposing,
       showMentions,
       showSuggestions,
     ],
@@ -381,10 +389,7 @@ function ChatSender({
       )
     ) : null
 
-  const hasMetaRow =
-    Boolean(footerText) ||
-    Boolean(statusActions) ||
-    (attachmentDisplay === "summary" && attachmentCount > 0)
+    const hasMetaRow = true
 
   return (
     <div
@@ -603,12 +608,17 @@ function ChatSender({
                 value={draft}
                 onChange={(event) => updateValue(event.target.value)}
                 onKeyDown={handleKeyDown}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={(event) => {
+                  setIsComposing(false)
+                  updateValue(event.currentTarget.value)
+                }}
                 disabled={disabled}
+                style={{ maxHeight: `${maxRows * 1.5}rem` }}
                 className={cn(
-                  "flex-1 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0",
+                  "flex-1 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0",
                   densityStyles.textarea,
                 )}
-                rows={1}
               />
               {trailingActions}
               {suffix ?? (
@@ -649,11 +659,14 @@ function ChatSender({
                     </p>
                   )}
                 </div>
-                {statusActions && (
-                  <div className="flex shrink-0 items-center gap-1">
-                    {statusActions}
-                  </div>
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                  {statusActions}
+                  {!statusActions && (
+                    <p className={cn("text-muted-foreground/60 select-none", densityStyles.metaText)}>
+                      ⇧↵ 换行
+                    </p>
+                  )}
+                </div>
               </div>
             )}
         </div>
