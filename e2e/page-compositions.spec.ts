@@ -13,6 +13,48 @@ test.describe("Composite Pages", () => {
     await expect(page.getByRole("button", { name: "发送" })).toBeVisible()
   })
 
+  test("chat sender story renders with suggestions and attachments", async ({ page }) => {
+    await page.goto("/iframe.html?id=ui-chatsender--full-featured&viewMode=story")
+
+    // Verify suggestions are visible
+    await expect(page.getByText("解释代码")).toBeVisible()
+    await expect(page.getByText("写测试")).toBeVisible()
+    await expect(page.getByText("优化")).toBeVisible()
+
+    // Verify attachments preview
+    await expect(page.getByText("代码截图.png")).toBeVisible()
+    await expect(page.getByText("128KB")).toBeVisible()
+
+    // Verify footer text
+    await expect(page.getByText("AI 回复仅供参考 · 支持 @提及 和附件")).toBeVisible()
+  })
+
+  test("chat sender with mentions renders mention items", async ({ page }) => {
+    await page.goto("/iframe.html?id=ui-chatsender--with-mentions&viewMode=story")
+
+    // Just verify the page loads and mention list is visible
+    await expect(page.getByText("输入 @ 触发提及列表")).toBeVisible()
+  })
+
+  test("chat bubble stories render variants", async ({ page }) => {
+    await page.goto("/iframe.html?id=ui-chatbubble--variants&viewMode=story")
+
+    // Just check that the page loads with bubbles
+    await expect(page.locator('[data-slot="chat-bubble"]')).toHaveCount(8)
+  })
+
+  test("chat conversations show grouping and search", async ({ page }) => {
+    await page.goto("/iframe.html?id=ui-chatconversations--grouped&viewMode=story")
+
+    // Check for group headers
+    await expect(page.getByText("今天")).toBeVisible()
+    await expect(page.getByText("更早")).toBeVisible()
+
+    // Check for items
+    await expect(page.getByText("AI 编码助手")).toBeVisible()
+    await expect(page.getByText("学习计划")).toBeVisible()
+  })
+
   test("calendar page story renders events", async ({ page }) => {
     await page.goto("/iframe.html?id=pages-calendar--default&viewMode=story")
 

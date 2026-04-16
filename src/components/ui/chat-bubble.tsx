@@ -125,12 +125,10 @@ function ThoughtChain({ steps }: { steps: string[] }) {
   const [open, setOpen] = React.useState(false)
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="thought-chain" className="mb-1">
-      <CollapsibleTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
-          <BrainCircuit className="size-3.5 text-violet-500" />
-          <span>思考过程 ({steps.length} 步)</span>
-          <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} />
-        </button>
+      <CollapsibleTrigger className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
+        <BrainCircuit className="size-3.5 text-violet-500" />
+        <span>思考过程 ({steps.length} 步)</span>
+        <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="ml-2 mt-1 border-l-2 border-violet-500/30 pl-3">

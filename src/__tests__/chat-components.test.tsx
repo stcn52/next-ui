@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import {
   Bubble,
@@ -262,51 +262,71 @@ describe("ChatConversations", () => {
     { key: "3", label: "Chat C", description: "Last msg C", time: "Yesterday", group: "Yesterday" },
   ]
 
-  it("renders with data-slot and title", () => {
+  it("renders with data-slot and title", async () => {
     const { container } = render(<ChatConversations items={items} />)
-    expect(container.querySelector('[data-slot="chat-conversations"]')).toBeTruthy()
-    expect(screen.getByText("会话列表")).toBeTruthy()
+    await waitFor(() => {
+      expect(container.querySelector('[data-slot="chat-conversations"]')).toBeTruthy()
+      expect(screen.getByText("会话列表")).toBeTruthy()
+    })
   })
 
-  it("renders grouped conversations", () => {
+  it("renders grouped conversations", async () => {
     render(<ChatConversations items={items} />)
-    expect(screen.getByText("Today")).toBeTruthy()
-    // "Yesterday" appears both as group header and item time
-    expect(screen.getAllByText("Yesterday").length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText("Chat A")).toBeTruthy()
-    expect(screen.getByText("Chat C")).toBeTruthy()
+    await waitFor(() => {
+      expect(screen.getByText("Today")).toBeTruthy()
+      // "Yesterday" appears both as group header and item time
+      expect(screen.getAllByText("Yesterday").length).toBeGreaterThanOrEqual(1)
+      expect(screen.getByText("Chat A")).toBeTruthy()
+      expect(screen.getByText("Chat C")).toBeTruthy()
+    })
   })
 
-  it("shows unread badge", () => {
+  it("shows unread badge", async () => {
     render(<ChatConversations items={items} />)
-    expect(screen.getByText("3")).toBeTruthy()
+    await waitFor(() => {
+      expect(screen.getByText("3")).toBeTruthy()
+    })
   })
 
-  it("calls onChange on item click", () => {
+  it("calls onChange on item click", async () => {
     const spy = vi.fn()
     render(<ChatConversations items={items} onChange={spy} />)
-    fireEvent.click(screen.getByText("Chat B"))
-    expect(spy).toHaveBeenCalledWith("2", items[1])
+    await waitFor(() => {
+      fireEvent.click(screen.getByText("Chat B"))
+    })
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith("2", items[1])
+    })
   })
 
-  it("renders new chat button when onNewChat provided", () => {
+  it("renders new chat button when onNewChat provided", async () => {
     const spy = vi.fn()
     render(<ChatConversations items={items} onNewChat={spy} />)
-    const btn = screen.getByRole("button", { name: "新建会话" })
-    fireEvent.click(btn)
-    expect(spy).toHaveBeenCalledOnce()
+    await waitFor(() => {
+      const btn = screen.getByRole("button", { name: "新建会话" })
+      fireEvent.click(btn)
+    })
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledOnce()
+    })
   })
 
-  it("filters items by search query", () => {
+  it("filters items by search query", async () => {
     render(<ChatConversations items={items} />)
     const searchInput = screen.getByPlaceholderText("搜索会话…")
-    fireEvent.change(searchInput, { target: { value: "Chat C" } })
-    expect(screen.getByText("Chat C")).toBeTruthy()
-    expect(screen.queryByText("Chat A")).toBeNull()
+    await waitFor(() => {
+      fireEvent.change(searchInput, { target: { value: "Chat C" } })
+    })
+    await waitFor(() => {
+      expect(screen.getByText("Chat C")).toBeTruthy()
+      expect(screen.queryByText("Chat A")).toBeNull()
+    })
   })
 
-  it("supports custom title", () => {
+  it("supports custom title", async () => {
     render(<ChatConversations items={items} title="My Chats" />)
-    expect(screen.getByText("My Chats")).toBeTruthy()
+    await waitFor(() => {
+      expect(screen.getByText("My Chats")).toBeTruthy()
+    })
   })
 })
