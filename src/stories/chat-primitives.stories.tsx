@@ -1,8 +1,12 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { ConversationHeader } from "@/components/ui/conversation-header"
+import { ChatInputToolbar } from "@/components/ui/chat-input-toolbar"
+import { ChatThread } from "@/components/ui/chat-thread"
 import { MessageActions } from "@/components/ui/message-actions"
 import { MessageComposer } from "@/components/ui/message-composer"
+import { MessageReactions } from "@/components/ui/message-reactions"
+import { MessageThreadReply } from "@/components/ui/message-thread-reply"
 import { Button } from "@/components/ui/button"
 
 const meta: Meta = {
@@ -29,6 +33,17 @@ export const Default: Story = {
         <div className="px-4 py-3 text-sm text-muted-foreground">这里可以放消息列表区域…</div>
 
         <div className="px-4 pb-3">
+          <ChatInputToolbar onVoiceInput={() => {}} onQuickCommand={() => {}} />
+        </div>
+
+        <div className="h-40 px-4 pb-3">
+          <ChatThread showUnreadDivider>
+            <MessageThreadReply author="Chen" content="这个方案可以，先做最小可用版本。" time="10:20" />
+            <MessageThreadReply author="AI" content="收到，我先实现基础版本并补测试。" time="10:21" />
+          </ChatThread>
+        </div>
+
+        <div className="px-4 pb-3">
           <MessageActions
             onCopy={() => {}}
             onEdit={() => {}}
@@ -36,6 +51,15 @@ export const Default: Story = {
             onThumbsDown={() => {}}
             onRegenerate={() => {}}
           />
+          <div className="mt-2">
+            <MessageReactions
+              reactions={[
+                { emoji: "👍", count: 4, active: true },
+                { emoji: "🔥", count: 2 },
+                { emoji: "🎯", count: 1 },
+              ]}
+            />
+          </div>
         </div>
 
         <MessageComposer
