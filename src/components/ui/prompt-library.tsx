@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 
 interface PromptVariable {
@@ -215,7 +214,7 @@ function PromptLibrary({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-dashed px-3 py-6 text-sm text-muted-foreground">
+                <div className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">
                   这个模板没有变量，可直接应用。
                 </div>
               )}
@@ -227,7 +226,6 @@ function PromptLibrary({
               <div className="text-sm font-medium">模板内容</div>
               <Textarea value={selectedItem?.content ?? ""} readOnly className="min-h-32" />
             </div>
-            <Separator />
             <div className="space-y-1.5">
               <div className="text-sm font-medium">渲染预览</div>
               <Textarea value={rendered} readOnly className="min-h-32" />
