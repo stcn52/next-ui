@@ -37,7 +37,7 @@ function TimelineItem({ className, isLast, ...props }: TimelineItemProps) {
   return (
     <div
       data-slot="timeline-item"
-      className={cn("relative flex gap-4 pb-8", isLast && "pb-0", className)}
+      className={cn("relative flex gap-4 pb-6", isLast && "pb-0", className)}
       {...props}
     />
   )
