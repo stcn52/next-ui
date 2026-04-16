@@ -57,6 +57,12 @@ function VirtualDataTable<TData, TValue>({
     overscan: 20,
   })
 
+  const virtualItems = virtualizer.getVirtualItems()
+  const totalSize = virtualizer.getTotalSize()
+  const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0
+  const paddingBottom =
+    virtualItems.length > 0 ? totalSize - virtualItems[virtualItems.length - 1].end : 0
+
   return (
     <div
       ref={parentRef}
@@ -64,6 +70,7 @@ function VirtualDataTable<TData, TValue>({
       role="region"
       aria-label="Scrollable data table"
       className={className ?? "h-[500px] overflow-auto rounded-md border"}
+      style={{ willChange: "scroll-position" }}
     >
       <Table aria-rowcount={rows.length} aria-colcount={columns.length}>
         <TableHeader className="sticky top-0 z-10 bg-background">
@@ -94,6 +101,15 @@ function VirtualDataTable<TData, TValue>({
             </TableRow>
           ) : (
             <>
+              {/* Top spacer — fills the height of rows above the visible window */}
+              {paddingTop > 0 && (
+                <TableRow aria-hidden>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ height: paddingTop, padding: 0, border: "none" }}
+                  />
+                </TableRow>
+              )}
               {virtualizer.getVirtualItems().map((virtualRow) => {
                 const row = rows[virtualRow.index]
                 return (
@@ -115,6 +131,15 @@ function VirtualDataTable<TData, TValue>({
                   </TableRow>
                 )
               })}
+              {/* Bottom spacer — fills the height of rows below the visible window */}
+              {paddingBottom > 0 && (
+                <TableRow aria-hidden>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ height: paddingBottom, padding: 0, border: "none" }}
+                  />
+                </TableRow>
+              )}
             </>
           )}
         </TableBody>
