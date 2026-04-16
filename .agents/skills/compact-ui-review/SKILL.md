@@ -179,3 +179,86 @@ When in doubt: **compress the chrome (outer containers), not the content.**
 - Section header (icon + title + subtitle): `py-4` sufficient for non-hero
 - Empty state: `py-8` + single line/icon is enough
 - Single-group command palette heading: hide with `Object.keys(groups).length > 1 ? heading : undefined`
+
+---
+
+## §9 — Spatial Design Principles (Apple HIG-aligned)
+
+The following principles are adapted from Apple's Human Interface Guidelines (Layout + Spatial Layout) and translated to React/Tailwind web context.
+
+### 9.1 Minimum Sufficient Immersion
+
+> "Find the minimum level of immersion that suits each key moment — don't assume every moment needs to be fully immersive."
+> — Apple HIG, Designing for visionOS
+
+**Web translation:** Use the minimum amount of UI decoration (borders, cards, separators, padding) that communicates the required hierarchy. Every `<Card>`, `<Separator />`, or nested container must justify its presence.
+
+**Check list:**
+- Is this `Card` wrapping a single plain paragraph? → Replace with `div` + padding.
+- Is this `<Separator />` between two sections that are already visually distinct by heading? → Remove it.
+- Is this `p-6` on a container that already has a border? → Reduce to `p-3` or `p-4`.
+
+### 9.2 Elevation Over Margin
+
+> "Use depth to communicate hierarchy... you don't need to use it everywhere."
+> — Apple HIG, Spatial Layout
+
+**Web translation:** Before adding `mb-4`, `py-6`, or `<Separator />` to separate two sections, ask if a visual elevation signal can do the same job with less space:
+
+| Separation method | Space cost | Recommended when |
+|---|---|---|
+| `space-y-*` / `gap-*` | medium | Flow items in a list |
+| `<Separator />` | low (1px) + high (margin) | True content boundary with `my-2` |
+| Background tint `bg-muted/30` | zero | Group related form fields |
+| Shadow `shadow-sm` | zero | Elevate action card from content |
+| Border `rounded-lg border` | zero | Distinguish items without gap |
+
+**Rule:** If the only way you're separating two sections is with margin/padding, first ask if a border, background tint, or card elevation would do it with less space.
+
+### 9.3 Space as Signal, Not Filler
+
+> "Make essential information easy to find by giving it sufficient space. Don't obscure it by crowding it with nonessential details."
+> — Apple HIG, Layout
+
+**Web translation:** Whitespace should **explain relationships**, not fill empty area by default. This has two sides:
+
+- ✓ **Preserve** space between dissimilar items (form field group → submit button: keep `space-y-4`)
+- ✗ **Remove** space between similar items that are already distinguished by border or icon (nav items: `py-1` not `py-1.5`; conversation items: `py-1.5` not `py-2`)
+
+### 9.4 Cognitive Refocus Cost
+
+> "People need to refocus their eyes to perceive each difference in depth, and doing so too often or quickly can be tiring."
+> — Apple HIG, Spatial Layout (Depth)
+
+**Web translation:** Multiple distinct spacing levels within a small area increase cognitive load. Aim for **≤2 spacing scales** within any single component:
+
+| Anti-pattern | Better |
+|---|---|
+| `p-6 → CardHeader (pb-6) → space-y-4 → space-y-2` | `p-4 → CardHeader (pb-4) → space-y-3 → space-y-2` |
+| `py-8 section + py-4 card + py-3 item + py-2 sub-item` | Flatten to 2 levels max |
+
+### 9.5 Constrained-Width Efficiency (watchOS principle)
+
+> "To avoid wasting valuable space, consider minimizing the padding between elements."
+> — Apple HIG, Layout (watchOS)
+
+**Web translation:** In narrow contexts (sidebar ≤240px, chat panel ≤320px, mobile), padding is proportionally more expensive. Apply stricter compression:
+
+| Context | Outer padding | Item padding |
+|---|---|---|
+| Full-page (`max-w-4xl`) | `p-6` acceptable | `p-4` acceptable |
+| Panel / drawer (`w-64`–`w-80`) | `px-3 py-2` | `py-1` |
+| Sidebar nav (`w-56`–`w-64`) | `px-2 py-1` | `py-1` |
+| Chat input / composer | `p-2` or `p-3` | dense mode only |
+
+### 9.6 Controls Must Have Visual Affordance
+
+> "Differentiate controls from content."
+> — Apple HIG, Layout (Visual hierarchy)
+
+**Web translation:** If an interactive element is only separated from content by whitespace (no border, no background, no shadow), the whitespace is carrying the entire affordance burden. This is fragile. Instead:
+- Use `border` or `bg-accent` on toggle row items → reduces need for `py-3` gap
+- Use `rounded-md` with `hover:bg-accent` on nav items → reduces need for `py-2`
+- Use `shadow-sm` on action cards → reduces need for large `space-y-*` separation
+
+When visual affordance is strong, spacing can be reduced safely.
