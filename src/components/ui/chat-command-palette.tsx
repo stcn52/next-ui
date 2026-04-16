@@ -159,7 +159,7 @@ function ChatCommandPalette({
             <CommandEmpty>{emptyText}</CommandEmpty>
           ) : (
             Object.entries(groupedItems).map(([group, groupItems]) => (
-              <CommandGroup key={group} heading={group}>
+              <CommandGroup key={group} heading={Object.keys(groupedItems).length > 1 ? group : undefined}>
                 {groupItems.map((item) => {
                   const itemIndex = filteredItems.findIndex((candidate) => candidate.key === item.key)
                   return (

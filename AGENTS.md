@@ -6,10 +6,10 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current published version: `0.2.1`
-- Current latest git release: `v0.2.1`
-- Backfilled releases now exist for `v0.1.0`, `v0.2.0`, and `v0.2.1`
-- Main branch has one post-release commit that only fixes E2E assertions for the new ChatSender suggestions overlay
+- Current published version: `0.2.2`
+- Current latest git release: `v0.2.2`
+- Backfilled releases now exist for `v0.1.0`, `v0.2.0`, `v0.2.1`, and `v0.2.2`
+- Main branch has one post-release commit that includes compact-ui-review refactors for ChatSender, ChatBubble, Sidebar, and ChatConversations
 
 ## Workflow Map
 
