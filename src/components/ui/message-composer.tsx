@@ -2,7 +2,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat-sender"
 
-interface MessageComposerProps extends React.ComponentProps<"div"> {
+interface MessageComposerProps
+  extends Omit<React.ComponentProps<"div">, "defaultValue" | "onChange" | "onSubmit"> {
   value?: string
   onChange?: (value: string) => void
   onSubmit?: (message: string, attachments?: Attachment[]) => void

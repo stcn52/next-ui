@@ -8,7 +8,7 @@ interface ReactionItem {
   active?: boolean
 }
 
-interface MessageReactionsProps extends React.ComponentProps<"div"> {
+interface MessageReactionsProps extends Omit<React.ComponentProps<"div">, "onToggle"> {
   reactions: ReactionItem[]
   onToggle?: (emoji: string) => void
 }

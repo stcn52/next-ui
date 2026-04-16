@@ -72,11 +72,29 @@ export const WithSuggestions: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("解释一下")).toBeInTheDocument()
-    await expect(canvas.getByText("生成测试")).toBeInTheDocument()
-    // Click suggestion fills the input
-    await userEvent.click(canvas.getByText("解释一下"))
+    await expect(canvas.getByRole("button", { name: "打开快捷提示" })).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: "打开快捷提示" }))
+    await expect(canvas.getByLabelText("应用提示 解释一下")).toBeInTheDocument()
+    await expect(canvas.getByLabelText("应用提示 生成测试")).toBeInTheDocument()
+    await userEvent.click(canvas.getByLabelText("应用提示 解释一下"))
     await expect(canvas.getByRole("textbox")).toHaveValue("解释一下")
+  },
+}
+
+export const InlineSuggestions: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          suggestions={["继续写完", "补测试", "提炼 API"]}
+          suggestionsVariant="inline"
+          onSuggestionClick={(suggestion) => setValue(suggestion)}
+        />
+      </div>
+    )
   },
 }
 
@@ -139,7 +157,7 @@ export const CustomSlots: Story = {
         <ChatSender
           value={value}
           onChange={setValue}
-          prefix={
+          leadingActions={
             <div className="flex gap-1">
               <Button variant="ghost" size="icon" className="size-8 shrink-0">
                 <Image className="size-4" />
@@ -149,6 +167,8 @@ export const CustomSlots: Story = {
               </Button>
             </div>
           }
+          showDefaultAttachmentButton
+          statusActions={<span className="text-[10px] text-muted-foreground">上下文: 12k</span>}
           footerText="支持发送图片和语音"
         />
       </div>
@@ -244,6 +264,37 @@ export const WithAttachments: Story = {
     await expect(canvas.getByText("photo.jpg")).toBeInTheDocument()
     // Verify remove button exists
     await expect(canvas.getByLabelText("移除 screenshot.png")).toBeInTheDocument()
+  },
+}
+
+export const DenseSummaryMode: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    return (
+      <div className="w-[480px]">
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          density="dense"
+          attachmentDisplay="summary"
+          attachments={SAMPLE_ATTACHMENTS}
+          suggestions={["继续处理", "补充边界", "输出结论"]}
+          footerText="Dense 模式会优先保留输入区空间"
+          statusActions={<span className="text-[9px] text-muted-foreground">模型: GPT-4o</span>}
+          leadingActions={
+            <Button variant="ghost" size="icon-sm" className="shrink-0">
+              <Mic className="size-3.5" />
+            </Button>
+          }
+          trailingActions={
+            <Button variant="ghost" size="icon-sm" className="shrink-0">
+              <Image className="size-3.5" />
+            </Button>
+          }
+          showDefaultAttachmentButton
+        />
+      </div>
+    )
   },
 }
 

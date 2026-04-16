@@ -8,6 +8,7 @@ interface ConversationHeaderProps extends React.ComponentProps<"div"> {
   status?: "online" | "offline" | "busy"
   avatarFallback?: string
   actions?: React.ReactNode
+  presence?: React.ReactNode
 }
 
 function ConversationHeader({
@@ -16,6 +17,7 @@ function ConversationHeader({
   status = "online",
   avatarFallback = "AI",
   actions,
+  presence,
   className,
   ...props
 }: ConversationHeaderProps) {
@@ -34,12 +36,12 @@ function ConversationHeader({
         </Avatar>
         <div>
           <div className="text-sm font-semibold">{title}</div>
-          {subtitle && (
+          {presence ?? (subtitle && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className={cn("size-1.5 rounded-full", statusClass)} />
               <span>{subtitle}</span>
             </div>
-          )}
+          ))}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}

@@ -26,7 +26,12 @@ function ChatInputToolbar({
   return (
     <div data-slot="chat-input-toolbar" className={cn("flex items-center justify-between gap-2", className)} {...props}>
       <div className="flex items-center gap-2">
-        <Select value={model} onValueChange={onModelChange}>
+        <Select
+          value={model}
+          onValueChange={(value) => {
+            if (value) onModelChange?.(value)
+          }}
+        >
           <SelectTrigger className="h-8 w-32 text-xs" aria-label="选择模型">
             <SelectValue />
           </SelectTrigger>
@@ -37,7 +42,12 @@ function ChatInputToolbar({
           </SelectContent>
         </Select>
 
-        <Select value={temperature} onValueChange={onTemperatureChange}>
+        <Select
+          value={temperature}
+          onValueChange={(value) => {
+            if (value) onTemperatureChange?.(value)
+          }}
+        >
           <SelectTrigger className="h-8 w-24 text-xs" aria-label="选择温度">
             <SelectValue />
           </SelectTrigger>

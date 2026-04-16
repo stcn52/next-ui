@@ -8,8 +8,11 @@ import {
   ThoughtChain,
   TypingIndicator,
 } from "@/components/ui/chat-bubble"
+import { ChatCommandPalette } from "@/components/ui/chat-command-palette"
+import { ChatPresence } from "@/components/ui/chat-presence"
 import { ChatSender } from "@/components/ui/chat-sender"
 import { ChatConversations } from "@/components/ui/chat-conversations"
+import { PromptLibrary, renderPromptTemplate } from "@/components/ui/prompt-library"
 
 /* ================================================================== */
 /*  Bubble                                                             */
@@ -221,9 +224,18 @@ describe("ChatSender", () => {
     render(
       <ChatSender suggestions={["Option A", "Option B"]} onSuggestionClick={spy} />,
     )
-    expect(screen.getByText("Option A")).toBeTruthy()
-    fireEvent.click(screen.getByText("Option A"))
+    fireEvent.click(screen.getByRole("button", { name: "打开快捷提示" }))
+    expect(screen.getByLabelText("应用提示 Option A")).toBeTruthy()
+    fireEvent.click(screen.getByLabelText("应用提示 Option A"))
     expect(spy).toHaveBeenCalledWith("Option A")
+  })
+
+  it("supports inline suggestions when requested", () => {
+    render(
+      <ChatSender suggestions={["Option A"]} suggestionsVariant="inline" />,
+    )
+    expect(screen.getByText("Option A")).toBeTruthy()
+    expect(screen.queryByRole("button", { name: "打开快捷提示" })).toBeNull()
   })
 
   it("shows stop button when loading", () => {
@@ -245,9 +257,167 @@ describe("ChatSender", () => {
     expect(screen.getByTestId("custom-prefix")).toBeTruthy()
   })
 
+  it("can keep the default attachment button alongside custom actions", () => {
+    render(
+      <ChatSender
+        leadingActions={<span data-testid="leading-action">L</span>}
+        showDefaultAttachmentButton
+      />,
+    )
+    expect(screen.getByTestId("leading-action")).toBeTruthy()
+    expect(screen.getByRole("button", { name: "添加附件" })).toBeTruthy()
+  })
+
+  it("supports attachment summary mode", () => {
+    render(
+      <ChatSender
+        attachments={[
+          { id: "1", name: "design.png", type: "image", status: "done" },
+          { id: "2", name: "logs.txt", type: "file", status: "uploading" },
+        ]}
+        attachmentDisplay="summary"
+      />,
+    )
+    expect(screen.getByText("2 个附件")).toBeTruthy()
+    expect(screen.getByText("上传中 1")).toBeTruthy()
+    expect(screen.queryByText("design.png")).toBeNull()
+  })
+
+  it("supports keyboard mention selection without submitting", () => {
+    const onChange = vi.fn()
+    const onSubmit = vi.fn()
+    render(
+      <ChatSender
+        value="@"
+        mentions={[
+          { key: "file", label: "file", description: "File reference" },
+          { key: "folder", label: "folder", description: "Folder reference" },
+        ]}
+        onChange={onChange}
+        onSubmit={onSubmit}
+      />,
+    )
+    const textarea = screen.getByRole("textbox")
+    fireEvent.keyDown(textarea, { key: "ArrowDown" })
+    fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false })
+    expect(onChange).toHaveBeenCalledWith("@folder ")
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it("disables send when empty", () => {
     render(<ChatSender value="" />)
     expect(screen.getByRole("button", { name: "发送" })).toBeDisabled()
+  })
+
+  it("renders status actions in the utility row", () => {
+    render(<ChatSender statusActions={<span>模型: GPT-4o</span>} />)
+    expect(screen.getByText("模型: GPT-4o")).toBeTruthy()
+  })
+})
+
+describe("ChatPresence", () => {
+  it("renders typing and read states inline", () => {
+    render(<ChatPresence typing readState="read" />)
+    expect(screen.getByText("输入中")).toBeTruthy()
+    expect(screen.getByText("已读")).toBeTruthy()
+  })
+
+  it("renders participant stack in badge mode", () => {
+    render(
+      <ChatPresence
+        variant="badge"
+        participants={[
+          { key: "a", label: "Alice" },
+          { key: "b", label: "Bob" },
+          { key: "c", label: "Chen" },
+          { key: "d", label: "Dana" },
+        ]}
+      />,
+    )
+    expect(screen.getByLabelText("Alice")).toBeTruthy()
+    expect(screen.getByText("+1")).toBeTruthy()
+  })
+})
+
+describe("ChatCommandPalette", () => {
+  const items = [
+    { key: "model", label: "切换模型", description: "选择新的模型", group: "模型" },
+    { key: "context", label: "注入上下文", description: "添加上下文", group: "上下文" },
+  ]
+
+  it("filters by slash query", () => {
+    render(<ChatCommandPalette open query="/模型" items={items} />)
+    expect(screen.getByText("切换模型")).toBeTruthy()
+    expect(screen.queryByText("注入上下文")).toBeNull()
+  })
+
+  it("calls onSelect when clicking an item", () => {
+    const onSelect = vi.fn()
+    render(<ChatCommandPalette open items={items} onSelect={onSelect} />)
+    fireEvent.click(screen.getByText("注入上下文"))
+    expect(onSelect).toHaveBeenCalledWith(items[1])
+  })
+
+  it("supports standalone search input", () => {
+    render(<ChatCommandPalette defaultOpen items={items} />)
+    fireEvent.change(screen.getByPlaceholderText("搜索命令…"), {
+      target: { value: "上下文" },
+    })
+    expect(screen.getByText("注入上下文")).toBeTruthy()
+    expect(screen.queryByText("切换模型")).toBeNull()
+  })
+})
+
+describe("PromptLibrary", () => {
+  const items = [
+    {
+      key: "bug",
+      title: "排查问题",
+      description: "定位问题根因",
+      category: "研发",
+      content: "请分析 {{module}} 的 {{issue}}。",
+      variables: [
+        { key: "module", label: "模块" },
+        { key: "issue", label: "问题" },
+      ],
+    },
+    {
+      key: "copy",
+      title: "润色文案",
+      description: "优化表达",
+      category: "内容",
+      content: "请优化：{{text}}",
+      variables: [{ key: "text", label: "原文" }],
+    },
+  ]
+
+  it("renders filtered templates by search", () => {
+    render(<PromptLibrary items={items} />)
+    fireEvent.change(screen.getByPlaceholderText("搜索提示词…"), {
+      target: { value: "文案" },
+    })
+    expect(screen.getByText("润色文案")).toBeTruthy()
+    expect(screen.getByPlaceholderText("搜索提示词…")).toHaveValue("文案")
+  })
+
+  it("applies rendered prompt with variable values", () => {
+    const onApply = vi.fn()
+    render(<PromptLibrary items={items} onApply={onApply} />)
+    fireEvent.change(screen.getByPlaceholderText("模块"), { target: { value: "ChatSender" } })
+    fireEvent.change(screen.getByPlaceholderText("问题"), { target: { value: "高度过高" } })
+    fireEvent.click(screen.getByRole("button", { name: "应用模板" }))
+    expect(onApply).toHaveBeenCalledWith(
+      {
+        raw: "请分析 {{module}} 的 {{issue}}。",
+        rendered: "请分析 ChatSender 的 高度过高。",
+        values: { module: "ChatSender", issue: "高度过高" },
+      },
+      items[0],
+    )
+  })
+
+  it("renders templates with helper function", () => {
+    expect(renderPromptTemplate("Hello {{name}}", { name: "World" })).toBe("Hello World")
   })
 })
 

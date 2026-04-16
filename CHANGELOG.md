@@ -12,16 +12,23 @@
   - `ThoughtChain` — collapsible AI reasoning steps
   - `TypingIndicator` — animated "thinking" indicator
   - `RichContent` — markdown code block rendering
+- **ChatPresence** — online/offline/away/busy presence, typing/thinking, sent/delivered/read states
+- **ChatCommandPalette** — slash-command palette with filtering, grouping, keyboard navigation, and sender attachment mode
+- **PromptLibrary** — prompt template library with variable slots, rendered preview, and apply callback
 
 ### Improvements
 
 - **React warning fixes** — resolved nested button issue in ThoughtChain and DropdownMenuTrigger
 - **Test enhancements** — async state handling with `waitFor` in ChatConversations tests
 - **E2E coverage** — 4 new Chat-specific E2E tests (sender, mentions, bubble variants, conversations)
+- **ChatSender layout density** — `default` / `compact` / `dense` modes to preserve the input as the primary area
+- **ChatSender space usage** — mentions and suggestions moved into overlays instead of pushing the composer downward
+- **ChatSender toolbar controls** — `leadingActions`, `trailingActions`, `statusActions`, and attachment summary mode for tighter layouts
+- **Test environment stability** — added jsdom polyfills for `ResizeObserver`, `scrollIntoView`, and `getAnimations`
 
 ### Tests
 
-- Unit tests: 88 passing (49 base + 39 Chat-related)
+- Unit tests: 108 passing
 - E2E tests: 22 passing (18 Page compositions + 4 Chat-specific)
 - All React warnings addressed
 
