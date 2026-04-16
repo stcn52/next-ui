@@ -29,7 +29,10 @@
   },
   "datePicker": {
     "pickADate": "日付を選択",
-    "selectedDate": "選択した日付：{date}"
+    "selectedDate": "選択した日付：{date}",
+    "pickDateRange": "日付範囲を選択",
+    "pickStartDate": "開始日",
+    "pickEndDate": "終了日"
   },
   "combobox": {
     "selectOption": "選択してください…"

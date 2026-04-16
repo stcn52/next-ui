@@ -48,6 +48,10 @@ interface LocaleStrings {
   // DatePicker
   pickADate: string
   selectedDate: string
+  // DateRangePicker
+  pickDateRange: string
+  pickStartDate: string
+  pickEndDate: string
   // Combobox / Select
   selectOption: string
   // Command

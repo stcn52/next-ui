@@ -29,7 +29,10 @@
   },
   "datePicker": {
     "pickADate": "选择日期",
-    "selectedDate": "已选日期：{date}"
+    "selectedDate": "已选日期：{date}",
+    "pickDateRange": "选择日期范围",
+    "pickStartDate": "开始日期",
+    "pickEndDate": "结束日期"
   },
   "combobox": {
     "selectOption": "请选择…"

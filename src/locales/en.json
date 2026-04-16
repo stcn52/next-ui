@@ -29,7 +29,10 @@
   },
   "datePicker": {
     "pickADate": "Pick a date",
-    "selectedDate": "Selected date: {date}"
+    "selectedDate": "Selected date: {date}",
+    "pickDateRange": "Pick a date range",
+    "pickStartDate": "Start date",
+    "pickEndDate": "End date"
   },
   "combobox": {
     "selectOption": "Select option..."
