@@ -153,7 +153,7 @@ function ChangelogPage() {
           ))}
         </Timeline>
 
-        <Separator className="my-8" />
+        <Separator className="my-6" />
 
         <p className="text-center text-xs text-muted-foreground">
           查看完整日志请访问{" "}

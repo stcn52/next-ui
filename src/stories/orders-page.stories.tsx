@@ -106,14 +106,14 @@ function OrdersPage() {
   return (
     <div className="min-h-175 bg-background text-foreground">
       {/* Header */}
-      <div className="border-b px-6 py-5">
+      <div className="border-b px-6 py-4">
         <h1 className="text-xl font-semibold">订单管理</h1>
         <p className="mt-1 text-sm text-muted-foreground">管理您的全部订单与发货状态</p>
       </div>
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-5 p-5">
         {/* KPI */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {KPI.map((k) => (
             <Card key={k.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">

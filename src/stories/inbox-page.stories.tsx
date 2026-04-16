@@ -316,7 +316,7 @@ function InboxPage() {
               {/* Preview body */}
               <div className="flex-1 overflow-y-auto px-6 py-4">
                 <h2 className="text-lg font-semibold">{selected.subject}</h2>
-                <Separator className="my-4" />
+                <Separator className="my-3" />
                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
                   {selected.body}
                 </div>

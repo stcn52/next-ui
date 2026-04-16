@@ -27,7 +27,7 @@ function CalendarPage() {
   ]
 
   return (
-    <div className="grid w-full max-w-4xl grid-cols-1 gap-4 p-4 md:grid-cols-[360px_1fr]">
+    <div className="grid w-full max-w-4xl grid-cols-1 gap-3 p-4 md:grid-cols-[360px_1fr]">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">团队日历</CardTitle>

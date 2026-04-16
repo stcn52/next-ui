@@ -159,7 +159,7 @@ function FaqPage() {
       </div>
 
       {/* FAQ list */}
-      <div className="mx-auto max-w-3xl px-6 py-6">
+      <div className="mx-auto max-w-3xl px-6 py-4">
         {filtered.length > 0 ? (
           <Accordion type="single" collapsible className="space-y-2">
             {filtered.map((faq) => (
