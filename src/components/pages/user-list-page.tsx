@@ -155,10 +155,8 @@ export function UserListPage() {
                   <TableCell className="text-sm text-muted-foreground">{user.lastLogin}</TableCell>
                   <TableCell>
                     <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <button className="inline-flex items-center justify-center rounded-md hover:bg-muted size-8 p-0">
-                          <MoreHorizontal className="size-4" />
-                        </button>
+                      <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md hover:bg-muted">
+                        <MoreHorizontal className="size-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>{t("editUser")}</DropdownMenuItem>

@@ -16,6 +16,7 @@ A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**,
 - Shared layout animations (Motion)
 - Full Storybook documentation with interaction play tests
 - Dark mode support via next-themes
+- Chat-ready UI primitives: Bubble, BubbleList, ChatSender, ChatConversations, ThoughtChain
 
 ## Installation
 
@@ -172,9 +173,21 @@ const { setTokens, resetTokens, applyPreset, resolvedTheme } = useTheme()
 pnpm test         # Run Vitest unit tests (40 tests)
 pnpm test:watch   # Watch mode
 pnpm test:e2e     # Run Playwright E2E tests
+pnpm perf:chat    # Run chat E2E benchmark (default 3 runs)
 ```
 
 Unit tests cover Sidebar, KanbanBoard, drag interactions, and useKanbanStorage hook. E2E tests validate the Kanban page in a real Storybook environment.
+
+## Release Checklist
+
+```bash
+pnpm lint
+pnpm test
+pnpm test:e2e
+pnpm publish:check
+```
+
+`publish:check` runs library build and npm dry-run packaging.
 
 ## Internationalization
 

@@ -13,6 +13,7 @@
 - 集成 dnd-kit，支持拖拽排序和看板交互
 - 支持 `react-hook-form` + `zod` 表单校验
 - 支持深色模式、Storybook 文档和可访问性
+- 提供对话场景组件：Bubble、BubbleList、ChatSender、ChatConversations、ThoughtChain
 
 ## 安装
 
@@ -127,8 +128,21 @@ pnpm storybook
 pnpm build
 pnpm build:lib
 pnpm test
+pnpm test:e2e
+pnpm perf:chat
 pnpm analyze
 ```
+
+## 发布检查
+
+```bash
+pnpm lint
+pnpm test
+pnpm test:e2e
+pnpm publish:check
+```
+
+`publish:check` 会执行组件库构建和 npm 打包 dry-run 校验。
 
 ## License
 

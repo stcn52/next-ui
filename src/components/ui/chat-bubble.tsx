@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Bot,
   BrainCircuit,
@@ -326,10 +326,11 @@ function Bubble({
             <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
               {onCopy && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-6" onClick={() => onCopy(content)}>
-                      <Copy className="size-3" />
-                    </Button>
+                  <TooltipTrigger
+                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    onClick={() => onCopy(content)}
+                  >
+                    <Copy className="size-3" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>复制</p></TooltipContent>
                 </Tooltip>
@@ -337,10 +338,11 @@ function Bubble({
 
               {isUser && onEdit && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-6" onClick={() => setEditing(true)}>
-                      <Pencil className="size-3" />
-                    </Button>
+                  <TooltipTrigger
+                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    onClick={() => setEditing(true)}
+                  >
+                    <Pencil className="size-3" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
                 </Tooltip>
@@ -349,28 +351,20 @@ function Bubble({
               {!isUser && onFeedback && (
                 <>
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn("size-6", liked === "up" && "text-green-500")}
-                        onClick={() => handleFeedback("up")}
-                      >
-                        <ThumbsUp className="size-3" />
-                      </Button>
+                    <TooltipTrigger
+                      className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "up" && "text-green-500")}
+                      onClick={() => handleFeedback("up")}
+                    >
+                      <ThumbsUp className="size-3" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
                   </Tooltip>
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn("size-6", liked === "down" && "text-red-500")}
-                        onClick={() => handleFeedback("down")}
-                      >
-                        <ThumbsDown className="size-3" />
-                      </Button>
+                    <TooltipTrigger
+                      className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "down" && "text-red-500")}
+                      onClick={() => handleFeedback("down")}
+                    >
+                      <ThumbsDown className="size-3" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
                   </Tooltip>
@@ -379,10 +373,11 @@ function Bubble({
 
               {!isUser && onRegenerate && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-6" onClick={onRegenerate}>
-                      <RefreshCcw className="size-3" />
-                    </Button>
+                  <TooltipTrigger
+                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    onClick={onRegenerate}
+                  >
+                    <RefreshCcw className="size-3" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
                 </Tooltip>

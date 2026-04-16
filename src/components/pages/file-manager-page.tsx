@@ -143,10 +143,8 @@ export function FileManagerPage() {
                       <TableCell className="text-sm text-muted-foreground">{file.modified}</TableCell>
                       <TableCell>
                         <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <Button variant="ghost" size="icon" className="size-8">
-                              <MoreHorizontal className="size-4" />
-                            </Button>
+                          <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md hover:bg-muted">
+                            <MoreHorizontal className="size-4" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>{t("open")}</DropdownMenuItem>

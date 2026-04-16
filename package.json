@@ -47,6 +47,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "perf:chat": "node scripts/perf-chat-e2e.mjs",
     "publish:check": "pnpm build:lib && pnpm pack --dry-run",
     "prepublishOnly": "pnpm build:lib"
   },
