@@ -359,3 +359,87 @@ bg-gray-\|text-gray-\|border-gray-   →  semantic token audit
 dark:bg-gray\|dark:text-gray         →  dark: raw color audit
 bg-zinc-\|text-zinc-                 →  intentional only if code block
 ```
+
+---
+
+## §12 — Motion & Animation Audit Rules
+
+### 12.1 Transition Duration
+
+All interactive transitions should be **purposeful and brief**. Overly long transitions add perceived latency.
+
+| Pattern | Target duration | Reason |
+|---|---|---|
+| Hover background / text color | `duration-100` to `duration-150` | Immediate feedback |
+| Popover / tooltip open/close | `duration-100` to `duration-200` | Responsive to intent |
+| Navigation menu slide (complex) | `duration-300` to `duration-350` | Spatial orientation |
+| Page routing / full-screen | `duration-200` to `duration-300` | Context switch signal |
+
+**Audit flags:**
+- `duration-500` or above on hover → reduce to `duration-150`
+- `duration-1000` on any interactive element → **must fix**
+- Missing `transition-*` on interactive element with visible state change → add `transition-colors` or `transition-all`
+
+### 12.2 Easing
+
+| Use case | Recommended easing |
+|---|---|
+| Open / enter from off-screen | `ease-[cubic-bezier(0.22,1,0.36,1)]` (spring-like) |
+| Close / fade out | `ease-in` or `duration-150 ease-in` |
+| Hover color change | `ease-in-out` (default Tailwind `transition`) |
+| Bounce or spring emphasis | `[cubic-bezier(0.34,1.56,0.64,1)]` |
+
+### 12.3 Animations Guardrail
+
+- **Do not add** `animate-spin` / `animate-bounce` to decorative elements — motion without meaning increases cognitive load
+- **Preserve** `animate-in / animate-out` on shadcn overlay components (popover, dialog, sheet) — these are intentional UX affordances
+- **Respect** `prefers-reduced-motion` via Tailwind's `motion-reduce:` prefix on any new animation
+
+### 12.4 Animation Audit Grep
+
+```
+duration-[5-9][0-9][0-9]\|duration-1[0-9]{3}  →  flag overly long transitions
+animate-spin\|animate-bounce                    →  verify decorative use
+transition-all                                  →  consider replacing with transition-colors or transition-transform (more specific)
+```
+
+---
+
+## §13 — Responsive Design Spacing Rules
+
+### 13.1 Mobile-First Principle
+
+All spacing in this codebase uses Tailwind's **mobile-first** breakpoints (`sm:`, `md:`, `lg:`). Default (no prefix) = mobile.
+
+| Context | Mobile (default) | Tablet (`md:`) | Desktop (`lg:`) |
+|---|---|---|---|
+| Page outer padding | `px-4 py-3` | `px-6 py-4` | `px-6 py-5` |
+| KPI / stat grid | `grid-cols-1 gap-2` | `grid-cols-2 gap-3` | `grid-cols-4 gap-3` |
+| Two-panel layout | `grid-cols-1 gap-3` | — | `grid-cols-[280px_1fr] gap-3` |
+| Card inner padding | `p-3` | `p-3` | `p-4` |
+| Sidebar width | full-screen or drawer | — | `w-64` fixed |
+
+### 13.2 Audit for Non-Responsive Spacing
+
+Flag these patterns when they appear **without breakpoint prefix** in a full-page component:
+
+```
+p-6       →  should be sm:p-5 or p-4 sm:p-5 lg:p-6
+gap-4     →  should be gap-3 sm:gap-4 (in wide grids)
+space-y-6 →  should be space-y-4 sm:space-y-6 (in full page layouts)
+```
+
+### 13.3 Touch-Specific Rules (Mobile)
+
+- Minimum touch target: **44×44px** on mobile (Apple HIG / WCAG 2.5.5)
+- On mobile, `py-1` sidebar items are acceptable if the sidebar is a full-screen drawer (hits target via full-width)
+- `gap-2` between tappable items is acceptable if items have their own internal padding
+- Avoid `gap-1` between icon-only buttons on mobile — merge into a toolbar or add explicit `min-w-11`
+
+### 13.4 Responsive Spacing Grep
+
+```
+<main className="p-6   →  check if mobile has sufficient padding
+grid-cols-4            →  verify if grid collapses on mobile
+w-64 flex-row          →  sidebar fixed width, may need drawer on mobile
+```
