@@ -243,7 +243,7 @@ function KanbanColumnHeader({ column }: { column: KanbanCol<Task> }) {
 
 function EmptyColumn() {
   return (
-    <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+    <div className="flex flex-col items-center gap-2 py-6 text-muted-foreground">
       <ListTodo className="size-8 opacity-40" />
       <p className="text-xs">暂无任务</p>
       <Button variant="outline" size="xs">
@@ -682,7 +682,7 @@ export const TaskCards: Story = {
 export const States: Story = {
   name: "Loading / Error / Empty States",
   render: () => (
-    <div className="flex flex-col gap-8 p-6 max-w-3xl">
+    <div className="flex flex-col gap-5 p-5 max-w-3xl">
       <div>
         <h3 className="text-sm font-medium mb-2">Loading State</h3>
         <LoadingState />
