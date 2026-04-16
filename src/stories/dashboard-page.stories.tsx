@@ -265,21 +265,21 @@ function DashboardPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
+        <div className="p-5">
           <div className="mb-6">
             <h1 className="text-xl font-semibold">总览</h1>
             <p className="text-sm text-muted-foreground">项目进展与团队动态一览</p>
           </div>
 
           {/* KPI cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
             {KPI_CARDS.map((kpi) => (
               <KpiCard key={kpi.title} {...kpi} />
             ))}
           </div>
 
           {/* Tabs for content sections */}
-          <Tabs defaultValue="projects" className="space-y-4">
+          <Tabs defaultValue="projects" className="space-y-3">
             <TabsList>
               <TabsTrigger value="projects">项目</TabsTrigger>
               <TabsTrigger value="activity">动态</TabsTrigger>

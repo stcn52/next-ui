@@ -55,7 +55,7 @@ export const Default: Story = {
 /* Grid view preview */
 function GridViewPreview() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-6 max-w-5xl mx-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-5 max-w-5xl mx-auto">
       {FILES.slice(0, 8).map((file) => {
         const Icon = file.type === "folder" ? FolderOpen : FILE_ICONS[file.type]
         return (
@@ -92,12 +92,12 @@ function StorageOverview() {
   ]
 
   return (
-    <div className="p-6 max-w-md mx-auto space-y-4">
+    <div className="p-5 max-w-md mx-auto space-y-3">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("storageTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div className="flex h-3 rounded-full overflow-hidden bg-muted">
             {categories.map((c) => (
               <div key={c.label} className={`${c.color}`} style={{ width: `${c.pct}%` }} />

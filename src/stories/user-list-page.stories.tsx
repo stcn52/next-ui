@@ -68,7 +68,7 @@ function UserStats() {
   ]
 
   return (
-    <div className="grid grid-cols-4 gap-4 p-6 max-w-5xl mx-auto">
+    <div className="grid grid-cols-4 gap-3 p-5 max-w-5xl mx-auto">
       {stats.map((s) => (
         <Card key={s.label}>
           <CardContent className="pt-6">

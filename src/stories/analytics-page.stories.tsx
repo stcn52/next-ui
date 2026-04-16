@@ -117,9 +117,9 @@ function AnalyticsPage() {
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
+      <main className="p-5 space-y-5">
         {/* KPI Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {KPI_DATA.map((kpi) => (
             <Card key={kpi.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -151,7 +151,7 @@ function AnalyticsPage() {
           </TabsList>
 
           <TabsContent value="overview" className="mt-4">
-            <div className="grid gap-6 lg:grid-cols-7">
+            <div className="grid gap-5 lg:grid-cols-7">
               {/* Traffic chart placeholder */}
               <Card className="lg:col-span-4">
                 <CardHeader>
@@ -259,7 +259,7 @@ function AnalyticsPage() {
                     />
                   ))}
                 </div>
-                <Separator className="my-4" />
+                <Separator className="my-3" />
                 <div className="space-y-3">
                   {CHANNEL_DATA.map((ch) => (
                     <div key={ch.name} className="flex items-center justify-between text-sm">
