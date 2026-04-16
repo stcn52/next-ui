@@ -144,7 +144,7 @@ export function UserListPage() {
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`size-2 rounded-full ${
-                          user.status === "active" ? "bg-green-500" : "bg-gray-300"
+                          user.status === "active" ? "bg-green-500" : "bg-border"
                         }`}
                       />
                       <span className="text-sm">
