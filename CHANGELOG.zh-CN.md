@@ -1,5 +1,30 @@
 # 更新日志
 
+## Unreleased
+
+### 优化
+
+- **ChatSender 紧凑化重构** — 按 compact-ui-review（O1–O5）完成实施：
+  - `Card > CardContent` 双层包裹改为单层 `div`（外观不变，减少一层 DOM）
+  - 拖拽提示文字改为卡片内 `absolute` 遮罩；根容器不再因拖入而撑大
+  - 附件卡片内边距加入 `densityStyles` 映射，compact/dense 模式下附件芯片真正变小
+  - 删除 overlay 建议面板冗余标题行（"快捷提示 / N 条"——点击按钮后再看一次无信息增益）
+  - 快捷提示（Lightbulb）按钮从 meta 行上移到输入行 leading 区域；meta 行去掉 `border-t`
+  - 清理三处无引用的 `metaButtonSize` 字段
+- **ChatBubble 紧凑化重构**：
+  - 气泡内边距 `px-3.5 py-2.5` → `px-3 py-2`，对齐业界标准（iMessage、Claude web）
+  - 助手消息宽度 `max-w-[75%]` → `max-w-[85%]`，减少代码块横向溢出
+  - 编辑模式 textarea `min-h-20` → `min-h-16`，高度跳动感降低
+  - 状态/动作行加空保卫——`timestamp`、sent 状态和所有 action 均缺席时不渲染该行
+- **Sidebar 紧凑化重构**：
+  - `SidebarHeader` / `SidebarFooter` 垂直内边距 `py-3` → `py-2`
+  - `SidebarGroup` 垂直内边距 `py-2` → `py-1`，组间空白从约 44px 降至约 20px
+  - `SidebarGroupLabel` 内边距 `py-1.5` → `py-1`；移除 `uppercase`（保留 `tracking-wider` 维持层级感）
+  - `SidebarItem` 内边距 `py-1.5` → `py-1`，32px 触控目标，满足 WCAG 2.5.5 最低要求
+- **compact-ui-review skill** 已写入 `.agents/skills/`，项目级可直接调用
+
+---
+
 ## 0.2.1（2026-04-16）
 
 ### 新增功能

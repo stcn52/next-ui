@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { FileText, Image as ImageIcon, Lightbulb, Paperclip, Send, Square, X } from "lucide-react"
 
@@ -159,12 +158,12 @@ function ChatSender({
       inputRow: "gap-2",
       textarea: "min-h-10",
       attachment: "gap-2 pb-1",
+      attachmentItemPadding: "px-2.5 py-1.5",
       meta: "gap-2 pt-1.5",
       chip: "px-2.5 py-1",
       metaText: "text-[10px]",
       controlButtonSize: "icon" as const,
       stopButtonSize: "sm" as const,
-      metaButtonSize: "sm" as const,
     },
     compact: {
       root: "gap-1.5",
@@ -172,12 +171,12 @@ function ChatSender({
       inputRow: "gap-1.5",
       textarea: "min-h-9",
       attachment: "gap-1.5 pb-0.5",
+      attachmentItemPadding: "px-2 py-1",
       meta: "gap-1.5 pt-1",
       chip: "px-2 py-0.5",
       metaText: "text-[10px]",
       controlButtonSize: "icon-sm" as const,
       stopButtonSize: "xs" as const,
-      metaButtonSize: "xs" as const,
     },
     dense: {
       root: "gap-1",
@@ -185,12 +184,12 @@ function ChatSender({
       inputRow: "gap-1",
       textarea: "min-h-8",
       attachment: "gap-1 pb-0.5",
+      attachmentItemPadding: "px-1.5 py-0.5",
       meta: "gap-1 pt-1",
       chip: "px-2 py-0.5",
       metaText: "text-[9px]",
       controlButtonSize: "icon-sm" as const,
       stopButtonSize: "xs" as const,
-      metaButtonSize: "xs" as const,
     },
   }[density]
   const attachmentCount = attachments?.length ?? 0
@@ -383,7 +382,6 @@ function ChatSender({
     ) : null
 
   const hasMetaRow =
-    hasOverlaySuggestions ||
     Boolean(footerText) ||
     Boolean(statusActions) ||
     (attachmentDisplay === "summary" && attachmentCount > 0)
@@ -395,7 +393,7 @@ function ChatSender({
       className={cn(
         "flex flex-col",
         densityStyles.root,
-        isDragOver && "rounded-lg border-2 border-dashed border-primary/60 p-2",
+        isDragOver && "rounded-lg border-2 border-dashed border-primary/60",
         className,
       )}
       onDragOver={(event) => {
@@ -463,10 +461,6 @@ function ChatSender({
             aria-label="快捷提示"
             className="absolute inset-x-0 bottom-full z-20 mb-2 rounded-lg border bg-popover p-2 shadow-md"
           >
-            <div className="mb-2 flex items-center justify-between px-1">
-              <p className="text-[10px] font-medium text-muted-foreground">快捷提示</p>
-              <p className="text-[10px] text-muted-foreground">{suggestions?.length ?? 0} 条</p>
-            </div>
             <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
               {suggestions?.map((suggestion) => (
                 <button
@@ -483,8 +477,15 @@ function ChatSender({
           </div>
         )}
 
-        <Card className="relative overflow-visible">
-          <CardContent className={cn("flex flex-col", densityStyles.cardContent)}>
+        <div className={cn(
+          "relative overflow-visible rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col",
+          densityStyles.cardContent,
+        )}>
+          {isDragOver && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-primary/5">
+              <p className="text-xs font-medium text-primary">释放文件以上传</p>
+            </div>
+          )}
             {attachmentDisplay === "preview" && attachments && attachments.length > 0 && (
               <div
                 data-slot="attachment-preview"
@@ -499,7 +500,8 @@ function ChatSender({
                   <div
                     key={attachment.id}
                     className={cn(
-                      "group/att relative flex min-w-0 items-center gap-2 rounded-lg border bg-muted/50 px-2.5 py-1.5",
+                      "group/att relative flex min-w-0 items-center gap-2 rounded-lg border bg-muted/50",
+                      densityStyles.attachmentItemPadding,
                       attachmentLayout === "scroll" && "max-w-60 shrink-0",
                     )}
                   >
@@ -577,6 +579,23 @@ function ChatSender({
                   <Paperclip className="size-4" />
                 </Button>
               )}
+              {hasOverlaySuggestions && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size={densityStyles.controlButtonSize}
+                  className="shrink-0"
+                  aria-label="打开快捷提示"
+                  aria-expanded={showSuggestions}
+                  disabled={disabled}
+                  onClick={() => {
+                    setShowSuggestions((current) => !current)
+                    setShowMentions(false)
+                  }}
+                >
+                  <Lightbulb className="size-3.5" />
+                </Button>
+              )}
               {prefix}
               {leadingActions}
               <Textarea
@@ -621,27 +640,9 @@ function ChatSender({
             </div>
 
             {hasMetaRow && (
-              <div className={cn("flex items-center border-t", densityStyles.meta)}>
+              <div className={cn("flex items-center", densityStyles.meta)}>
                 <div className="flex min-w-0 flex-1 items-center gap-1.5">
                   {attachmentDisplay === "summary" && attachmentSummaryNode}
-                  {hasOverlaySuggestions && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size={densityStyles.metaButtonSize}
-                      className={densityStyles.metaText}
-                      aria-label="打开快捷提示"
-                      aria-expanded={showSuggestions}
-                      disabled={disabled}
-                      onClick={() => {
-                        setShowSuggestions((current) => !current)
-                        setShowMentions(false)
-                      }}
-                    >
-                      <Lightbulb className="size-3" />
-                      快捷提示
-                    </Button>
-                  )}
                   {footerText && (
                     <p className={cn("truncate text-muted-foreground", densityStyles.metaText)}>
                       {footerText}
@@ -655,11 +656,8 @@ function ChatSender({
                 )}
               </div>
             )}
-          </CardContent>
-        </Card>
+        </div>
       </div>
-
-      {isDragOver && <p className="text-center text-xs text-primary">释放文件以上传</p>}
     </div>
   )
 }

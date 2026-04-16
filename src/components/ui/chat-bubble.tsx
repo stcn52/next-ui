@@ -240,6 +240,7 @@ function Bubble({
   const [liked, setLiked] = React.useState<"up" | "down" | null>(null)
   const [editing, setEditing] = React.useState(false)
   const [editText, setEditText] = React.useState(content)
+  const hasActions = !!(onCopy || (isUser && onEdit) || (!isUser && onFeedback) || (!isUser && onRegenerate))
 
   if (isSystem) {
     return (
@@ -290,14 +291,14 @@ function Bubble({
     >
       {avatar ?? defaultAvatar}
 
-      <div className={cn("flex max-w-[75%] flex-col gap-1", isUser ? "items-end" : "items-start")}>
+      <div className={cn("flex flex-col gap-1", isUser ? "max-w-[75%] items-end" : "max-w-[85%] items-start")}>
         {header}
 
         {!isUser && thinking && thinking.length > 0 && <ThoughtChain steps={thinking} />}
 
         {editing ? (
           <div className="flex w-full flex-col gap-2">
-            <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="min-h-20 text-sm" autoFocus />
+            <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="min-h-16 text-sm" autoFocus />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleEditSubmit}>保存并重发</Button>
               <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditText(content) }}>
@@ -306,7 +307,7 @@ function Bubble({
             </div>
           </div>
         ) : (
-          <div className={cn("px-3.5 py-2.5 text-sm leading-relaxed", variantCls, shapeCls)}>
+          <div className={cn("px-3 py-2 text-sm leading-relaxed", variantCls, shapeCls)}>
             {streaming ? (
               <>
                 <StreamingText content={content} />
@@ -318,7 +319,7 @@ function Bubble({
           </div>
         )}
 
-        {!editing && (
+        {!editing && (timestamp || (status === "sent" && isUser) || hasActions) && (
           <div className={cn("flex items-center gap-1.5", isUser ? "flex-row-reverse" : "flex-row")}>
             {timestamp && <span className="text-[10px] text-muted-foreground/60">{timestamp}</span>}
             {status === "sent" && isUser && <Check className="size-3 text-muted-foreground/60" />}

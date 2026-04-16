@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- **ChatSender compact refactor** — applied compact-ui-review (O1–O5):
+  - `Card > CardContent` two-level wrapper replaced with a single `div` (same visual, one less DOM level)
+  - Drag-over feedback text moved inside the card as an absolute overlay; root layout no longer expands on drag
+  - Attachment item padding added to `densityStyles` map — compact/dense modes now correctly shrink attachment chips
+  - Overlay suggestion panel title row ("快捷提示 / N 条") removed — redundant after clicking the trigger button
+  - Lightbulb "快捷提示" button promoted from meta row to input row leading area; meta row `border-t` separator removed
+  - Dead `metaButtonSize` key removed from all three density objects
+- **ChatBubble compact refactor**:
+  - Bubble padding `px-3.5 py-2.5` → `px-3 py-2` — matches industry standard (iMessage, Claude web)
+  - Assistant messages widen from `max-w-[75%]` → `max-w-[85%]` to reduce code block overflow
+  - Edit mode textarea `min-h-20` → `min-h-16` — less jarring height jump
+  - Status/action row now skipped entirely when `timestamp`, sent status, and all actions are absent
+- **Sidebar compact refactor**:
+  - `SidebarHeader` / `SidebarFooter` vertical padding `py-3` → `py-2`
+  - `SidebarGroup` vertical padding `py-2` → `py-1` — cuts ~44 px of inter-group dead space
+  - `SidebarGroupLabel` padding `py-1.5` → `py-1`; `uppercase` removed (keeps `tracking-wider` for hierarchy)
+  - `SidebarItem` padding `py-1.5` → `py-1` — 32 px touch target, meets WCAG 2.5.5 minimum
+- **compact-ui-review skill** added to `.agents/skills/` for project-level reuse
+
+---
+
 ## 0.2.1 (2026-04-16)
 
 ### New Features

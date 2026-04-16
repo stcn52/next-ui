@@ -40,7 +40,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-header"
-      className={cn("flex flex-col gap-1 px-3 py-3", className)}
+      className={cn("flex flex-col gap-1 px-3 py-2", className)}
       {...props}
     />
   )
@@ -62,7 +62,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-group"
-      className={cn("flex flex-col gap-0.5 py-2", className)}
+      className={cn("flex flex-col gap-0.5 py-1", className)}
       {...props}
     />
   )
@@ -74,7 +74,7 @@ function SidebarGroupLabel({ className, ...props }: React.ComponentProps<"div">)
     <div
       data-slot="sidebar-group-label"
       className={cn(
-        "px-2 py-1.5 text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider",
+        "px-2 py-1 text-xs font-medium text-sidebar-foreground/60 tracking-wider",
         className,
       )}
       {...props}
@@ -94,7 +94,7 @@ function SidebarItem({
       data-active={active || undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-foreground/80 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+        "flex w-full items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-sidebar-foreground/80 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring",
         active && "bg-sidebar-accent text-sidebar-accent-foreground",
         className,
       )}
@@ -108,7 +108,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-footer"
-      className={cn("mt-auto border-t px-3 py-3", className)}
+      className={cn("mt-auto border-t px-3 py-2", className)}
       {...props}
     />
   )
