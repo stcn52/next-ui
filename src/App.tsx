@@ -48,7 +48,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mb-12">
       <h2 className="text-2xl font-semibold mb-6 text-foreground border-b pb-2">{title}</h2>
-      <div className="flex flex-wrap gap-4 items-start">{children}</div>
+      <div className="flex flex-wrap gap-3 items-start">{children}</div>
     </section>
   )
 }

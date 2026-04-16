@@ -1,6 +1,48 @@
 # Changelog
 
-## 0.2.2 (2026-04-16)
+## 0.2.3 (2026-05-04)
+
+### Improvements
+
+**compact-ui-review audit sweep** — systematic spacing and color reduction across all page templates and composite components:
+
+#### Page templates (story-level audits)
+- **Notifications page** — replaced conditional `<Separator />` in 3 tabs with `divide-y divide-border` container (§9.2)
+- **Projects page** — Separator between tags and footer → `border-t pt-2`; `space-y-4 → space-y-3` (§9.2)
+- **Team page** — removed Separator before bordered invite section; `p-6 → p-4` invite; `py-5 → py-4` header (§9.2)
+- **Orders page** — `py-5 → py-4` header; `space-y-6 p-6 → space-y-5 p-5`; `gap-4 → gap-3` KPI grid
+- **Inbox page** — Separator `my-4 → my-3` (email subject/body divider)
+- **FAQ page** — `py-6 → py-4` outer padding
+- **Calendar page** — `gap-4 → gap-3` layout grid
+- **Changelog page** — Separator `my-8 → my-6` (Timeline/footer gap)
+- **Analytics page** — `p-6 → p-5 space-y-6 → space-y-5`; KPI `gap-4 → gap-3`; chart grid `gap-6 → gap-5`; Separator `my-4 → my-3`
+- **Dashboard page** — `p-6 → p-5`; KPI `gap-4 → gap-3 mb-6 → mb-5`; Tabs `space-y-4 → space-y-3`
+- **FileManager story** — `p-6 → p-5`; `gap/space-y-4 → gap/space-y-3`
+- **UserList story** — `p-6 → p-5`; `gap-4 → gap-3`
+- **Settings page** — subtitle `mb-6 → mb-4`; CardContent `space-y-4 → space-y-3` ×3; grid `gap-4 → gap-3`
+- **Profile page** — Separator `my-6 → my-4`; CardContent `space-y-4 → space-y-3` ×2
+- **Auth pages** — `space-y-4 → space-y-3`; grid `gap-4 → gap-3`
+- **Blog page** — header `py-6 → py-4`; empty state `py-16 → py-8`
+- **Pricing page** — section header `mb-8 → mb-6`
+- **ThemeImport story** — `space-y-4 → space-y-3`; `gap-6 → gap-5` in preview grids
+
+#### UI components (composite)
+- **ChatBubble** `BubbleList` — `gap-4 → gap-3`
+- **PromptLibrary** — root/content grid `gap-4 → gap-3`; variables `space-y-4 → space-y-3`
+- **DataTable / VirtualDataTable / EditableDataTable** — empty cell `h-24 → h-16`; root `gap-4 → gap-3`
+- **ChatCommandPalette / PromptLibrary** — various compact-ui-review O1–O3 improvements
+
+#### Page components
+- **FileManagerPage** (component) — `p-6 → p-5`; `gap-4 → gap-3`; empty cell `h-24 → h-16`
+- **UserListPage** (component) — inactive status dot `bg-gray-300 → bg-border` (§11.4 dark mode fix)
+
+#### SKILL.md updates (compact-ui-review)
+- **v4** — §9 Spatial Design Principles (Apple HIG adaptation: 6 sub-principles)
+- **v5** — §8 component-level spacing rules (MessageList, DataDisplay, PromptLibrary, Timeline, Kanban, Page chrome)
+- **v6** — §10 Atomic Primitives guardrail (button/input/badge/card/alert/form all locked)
+- **v7** — §11 Color & Dark Mode audit rules (semantic tokens, `dark:` patterns, story canvas exemption, grep patterns)
+
+
 
 ### Improvements
 
