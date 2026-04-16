@@ -104,7 +104,7 @@ function TokenPreview({ tokens, title }: { tokens: ThemeTokens; title: string })
 
 function ComponentPreview() {
   return (
-    <div className="rounded-lg border bg-background p-4 space-y-4">
+    <div className="rounded-lg border bg-background p-4 space-y-3">
       <h4 className="font-semibold text-foreground">组件预览</h4>
       <div className="flex flex-wrap gap-2">
         <Button>Primary</Button>
@@ -194,7 +194,7 @@ function ThemeImportPlayground() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Input panel */}
         <div className="space-y-3">
           <label className="text-sm font-medium">粘贴主题 CSS</label>
@@ -221,7 +221,7 @@ function ThemeImportPlayground() {
         </div>
 
         {/* Preview panel */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <ComponentPreview />
         </div>
       </div>
@@ -230,7 +230,7 @@ function ThemeImportPlayground() {
       {preset && (
         <>
           <Separator />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <TokenPreview tokens={preset.light} title="Light 模式" />
             <TokenPreview tokens={preset.dark} title="Dark 模式" />
           </div>

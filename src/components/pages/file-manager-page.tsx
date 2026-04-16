@@ -50,7 +50,7 @@ export function FileManagerPage() {
   const filtered = FILES.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
-    <div className="p-6 max-w-5xl mx-auto flex flex-col gap-4">
+    <div className="p-5 max-w-5xl mx-auto flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{t("fileManagerTitle")}</h1>
@@ -161,7 +161,7 @@ export function FileManagerPage() {
                 })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="h-16 text-center text-muted-foreground">
                       {t("noMatchingFiles")}
                     </TableCell>
                   </TableRow>
