@@ -6,11 +6,10 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current release target in this workspace: `0.2.1`
-- Published npm latest before this release push: `0.2.0`
-- Existing git tag before this release push: `v0.2.0`
-- GitHub release status before this release push:
-  `v0.1.0` release exists, `v0.2.0` tag exists but GitHub Release was missing
+- Current published version: `0.2.1`
+- Current latest git release: `v0.2.1`
+- Backfilled releases now exist for `v0.1.0`, `v0.2.0`, and `v0.2.1`
+- Main branch has one post-release commit that only fixes E2E assertions for the new ChatSender suggestions overlay
 
 ## Workflow Map
 
@@ -22,6 +21,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
   builds the library and publishes to npm using `NPM_TOKEN`
 - Push to `main` also triggers `.github/workflows/storybook.yml`
   builds Storybook and deploys to GitHub Pages when Pages is enabled
+- All repo workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
+  to opt JavaScript actions into the Node 24 runtime ahead of GitHub's default switch
 
 ## One-Step Release Rule
 
@@ -42,11 +43,13 @@ If the user asks to "push and publish together", do all of the following as one 
 
 ## Recent CI Signal
 
-Latest known remote runs before this release prep:
+Latest known remote status after the `0.2.1` release lane:
 
-- Some earlier chat feature commits had failing `CI` runs on `main`
-- Later release/docs-related commits had successful `CI` and `Deploy Storybook` runs
-- Do not assume `main` is green until you re-check `gh run list` after pushing
+- `Publish to npm` for `v0.2.1`: success
+- `Deploy Storybook to GitHub Pages`: success
+- `CI` for the release commit first failed on an outdated E2E assertion
+- A follow-up `main` commit fixed that E2E assertion, and `CI` is green again
+- Do not assume `main` is green after future pushes; always re-check `gh run list`
 
 ## Release Notes Guidance
 
