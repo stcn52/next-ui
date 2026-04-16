@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -102,7 +101,7 @@ function TeamPage() {
   return (
     <div className="min-h-175 bg-background text-foreground">
       {/* Header */}
-      <div className="border-b px-6 py-5">
+      <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -236,10 +235,8 @@ function TeamPage() {
           </Table>
         </Card>
 
-        <Separator />
-
         {/* Invite section */}
-        <div className="rounded-lg border bg-muted/30 p-6">
+        <div className="rounded-lg border bg-muted/30 p-4">
           <h3 className="text-sm font-semibold">邀请新成员</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             输入邮箱地址邀请新成员加入团队

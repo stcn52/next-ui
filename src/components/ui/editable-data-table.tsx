@@ -183,7 +183,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
   })
 
   return (
-    <div data-slot="editable-data-table" className="flex flex-col gap-4">
+    <div data-slot="editable-data-table" className="flex flex-col gap-3">
       {filterColumn && (
         <div className="flex items-center">
           <Input
@@ -232,7 +232,7 @@ function EditableDataTable<TData extends Record<string, unknown>>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-16 text-center"
                 >
                   {locale.noResults}
                 </TableCell>
