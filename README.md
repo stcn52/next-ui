@@ -17,6 +17,7 @@ A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**,
 - Full Storybook documentation with interaction play tests
 - Dark mode support via next-themes
 - Chat-ready UI primitives: Bubble, BubbleList, ChatSender, ChatConversations, ThoughtChain
+- Monaco-backed code workspace: file explorer, resizable editor, and sandbox preview in one compact shell
 
 ## Installation
 
@@ -96,7 +97,7 @@ function MyComponent() {
 | **Feedback** | Alert, AlertDialog, Dialog, Drawer, Sheet, Sonner, Tooltip, Progress, Skeleton |
 | **Navigation** | Breadcrumb, Tabs, NavigationMenu, Menubar, ContextMenu, DropdownMenu, Command |
 | **Display** | Badge, Avatar, Carousel, HoverCard, Accordion, Collapsible, Toggle, ToggleGroup |
-| **Advanced** | KanbanBoard, SortableList, DatePicker, Combobox, Shortcuts, AnimatedCard |
+| **Advanced** | KanbanBoard, SortableList, DatePicker, Combobox, Shortcuts, AnimatedCard, CodeWorkspace |
 | **Config** | ConfigProvider, ThemeProvider |
 | **Hooks** | useKanbanStorage |
 

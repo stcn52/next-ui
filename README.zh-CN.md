@@ -14,6 +14,7 @@
 - 支持 `react-hook-form` + `zod` 表单校验
 - 支持深色模式、Storybook 文档和可访问性
 - 提供对话场景组件：Bubble、BubbleList、ChatSender、ChatConversations、ThoughtChain
+- Monaco 驱动的代码工作台：文件树、可拖拽编辑区和沙箱预览整合在一个紧凑容器中
 
 ## 安装
 
@@ -91,7 +92,7 @@ function MyComponent() {
 | 反馈 | Alert、AlertDialog、Dialog、Drawer、Sheet、Sonner、Tooltip、Progress、Skeleton |
 | 导航 | Breadcrumb、Tabs、NavigationMenu、Menubar、ContextMenu、DropdownMenu、Command |
 | 展示 | Badge、Avatar、Carousel、HoverCard、Accordion、Collapsible、Toggle、ToggleGroup |
-| 高级 | KanbanBoard、SortableList、DatePicker、Combobox、Shortcuts、AnimatedCard |
+| 高级 | KanbanBoard、SortableList、DatePicker、Combobox、Shortcuts、AnimatedCard、CodeWorkspace |
 
 ## 页面模板说明
 
