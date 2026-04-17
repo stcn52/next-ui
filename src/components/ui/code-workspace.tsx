@@ -9,10 +9,13 @@ import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker"
 import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker"
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import {
+  ArrowLeft,
   Code2,
   Copy,
   FileText,
   FolderTree,
+  Maximize2,
+  Minimize2,
   Sparkles,
 } from "lucide-react"
 
@@ -56,6 +59,9 @@ interface CodeWorkspaceProps extends React.ComponentProps<"div"> {
   activeFileId?: string
   onActiveFileChange?: (item: CodeWorkspaceItem) => void
   onCodeChange?: (value: string, item: CodeWorkspaceItem) => void
+  onBack?: () => void
+  onToggleFullscreen?: () => void
+  isFullscreen?: boolean
   sandbox?: React.ReactNode
   title?: string
   subtitle?: string
@@ -179,6 +185,9 @@ function CodeWorkspace({
   activeFileId,
   onActiveFileChange,
   onCodeChange,
+  onBack,
+  onToggleFullscreen,
+  isFullscreen = false,
   sandbox,
   title = "Code Explorer",
   subtitle = "Interactive Sandbox",
@@ -244,16 +253,27 @@ function CodeWorkspace({
       {...props}
     >
       <Tabs defaultValue="explorer" className="gap-0">
-        <div className="flex items-center justify-between border-b px-3 py-2">
-          <TabsList variant="line" className="w-fit justify-start p-0">
-            <TabsTrigger value="explorer" className="px-2.5 py-1.5">
-              <Code2 className="size-4" />
-              {title}
-            </TabsTrigger>
-            <TabsTrigger value="sandbox" className="px-2.5 py-1.5">
-              {subtitle}
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex items-center justify-between gap-3 border-b px-3 py-2">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="返回"
+              onClick={onBack}
+              disabled={!onBack}
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+            <TabsList variant="line" className="w-fit justify-start p-0">
+              <TabsTrigger value="explorer" className="px-2.5 py-1.5">
+                <Code2 className="size-4" />
+                {title}
+              </TabsTrigger>
+              <TabsTrigger value="sandbox" className="px-2.5 py-1.5">
+                {subtitle}
+              </TabsTrigger>
+            </TabsList>
+          </div>
           <div className="flex items-center gap-1.5">
             <Badge variant="secondary" className="text-[10px]">
               Monaco
@@ -267,6 +287,15 @@ function CodeWorkspace({
               }}
             >
               <Copy className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={isFullscreen ? "退出全屏" : "进入全屏"}
+              onClick={onToggleFullscreen}
+              disabled={!onToggleFullscreen}
+            >
+              {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
             </Button>
           </div>
         </div>

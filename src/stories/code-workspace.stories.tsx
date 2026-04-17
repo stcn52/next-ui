@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
 
@@ -84,21 +85,34 @@ export default meta
 type Story = StoryObj<typeof CodeWorkspace>
 
 export const Default: Story = {
-  render: () => (
-    <div className="h-[860px] p-4">
-      <CodeWorkspace
-        files={WORKSPACE_FILES}
-        defaultActiveFileId="index"
-        title="Code Explorer"
-        subtitle="Interactive Sandbox"
-      />
-    </div>
-  ),
+  render: () => {
+    function Demo() {
+      const [isFullscreen, setIsFullscreen] = useState(false)
+
+      return (
+        <div className={isFullscreen ? "h-screen p-0" : "h-[860px] p-4"}>
+          <CodeWorkspace
+            files={WORKSPACE_FILES}
+            defaultActiveFileId="index"
+            title="Code Explorer"
+            subtitle="Interactive Sandbox"
+            isFullscreen={isFullscreen}
+            onBack={() => setIsFullscreen(false)}
+            onToggleFullscreen={() => setIsFullscreen((current) => !current)}
+          />
+        </div>
+      )
+    }
+
+    return <Demo />
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("Code Explorer")).toBeInTheDocument()
     await expect(canvas.getByText("Interactive Sandbox")).toBeInTheDocument()
     await expect(canvas.getByText("index.tsx")).toBeInTheDocument()
+    await expect(canvas.getByLabelText("返回")).toBeInTheDocument()
+    await expect(canvas.getByLabelText("进入全屏")).toBeInTheDocument()
     await userEvent.click(canvas.getByText("Interactive Sandbox"))
     await expect(canvas.getByText("Live Preview")).toBeInTheDocument()
     await userEvent.click(canvas.getByText("Code Explorer"))
