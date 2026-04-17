@@ -12,11 +12,11 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/forms/form"
+import { Input } from "@/components/ui/inputs/input"
+import { Textarea } from "@/components/ui/inputs/textarea"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
 
 const meta: Meta = {
   title: "Forms/Form",

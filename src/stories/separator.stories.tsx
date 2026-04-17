@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/display/separator"
 
 const meta: Meta<typeof Separator> = {
   title: "UI/Separator",

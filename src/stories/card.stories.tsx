@@ -7,9 +7,9 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@/components/ui/card"
+} from "@/components/ui/display/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta<typeof Card> = {
   title: "UI/Card",

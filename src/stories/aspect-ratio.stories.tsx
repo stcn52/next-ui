@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { AspectRatio } from "@/components/ui/display/aspect-ratio"
 
 const meta: Meta<typeof AspectRatio> = {
   title: "UI/AspectRatio",

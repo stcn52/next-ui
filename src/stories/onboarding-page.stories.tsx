@@ -4,12 +4,12 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { CheckCircle2Icon, RocketIcon, UserIcon, SettingsIcon, SparklesIcon } from "lucide-react"
-import { Stepper, Step } from "@/components/ui/stepper"
+import { Stepper, Step } from "@/components/ui/display/stepper"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Textarea } from "@/components/ui/inputs/textarea"
+import { Switch } from "@/components/ui/inputs/switch"
 import {
   Card,
   CardContent,
@@ -17,9 +17,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/display/card"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta = {
   title: "Pages/OnboardingPage",

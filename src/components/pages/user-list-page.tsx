@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useTranslation } from "@/components/config-provider"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -9,16 +9,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/display/card"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/overlays/dropdown-menu"
+import { Input } from "@/components/ui/inputs/input"
 import {
   Table,
   TableBody,
@@ -26,7 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/display/table"
 import { MoreHorizontal, Search, UserPlus } from "lucide-react"
 import { USERS, type UserItem } from "./user-list-page.data"
 

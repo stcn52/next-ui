@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
 import type { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table"
+import { DataTable } from "@/components/ui/data/data-table"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Badge } from "@/components/ui/display/badge"
 import { ArrowUpDown } from "lucide-react"
 
 type Payment = {

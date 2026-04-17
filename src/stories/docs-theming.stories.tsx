@@ -2,8 +2,8 @@
  * Theming Guide — ThemeProvider, presets, dynamic color generation documentation.
  */
 import type { Meta, StoryObj } from "@storybook/react"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/display/badge"
+import { Separator } from "@/components/ui/display/separator"
 
 const meta: Meta = {
   title: "Docs/Theming",

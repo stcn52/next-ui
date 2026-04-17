@@ -3,7 +3,7 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { useState } from "react"
-import { MultiSelect } from "@/components/ui/multi-select"
+import { MultiSelect } from "@/components/ui/inputs/multi-select"
 
 const TECHS = [
   { value: "react", label: "React", description: "UI 库" },

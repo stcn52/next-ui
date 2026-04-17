@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/inputs/switch"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof Switch> = {
   title: "UI/Switch",

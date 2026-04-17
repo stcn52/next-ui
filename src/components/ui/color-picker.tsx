@@ -2,10 +2,9 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -76,6 +75,8 @@ interface ColorPickerProps {
   onChange?: (hex: string) => void
   /** Whether to show preset swatches */
   showPresets?: boolean
+  /** Max recent colors to remember (0 = disabled). Default 8. */
+  maxRecent?: number
   /** Disabled state */
   disabled?: boolean
   className?: string
@@ -98,6 +99,7 @@ function ColorPicker({
   defaultValue = "#3b82f6",
   onChange,
   showPresets = true,
+  maxRecent = 8,
   disabled = false,
   className,
 }: ColorPickerProps) {
@@ -105,6 +107,8 @@ function ColorPicker({
   const [internalHex, setInternalHex] = React.useState(defaultValue)
   const [hexInput, setHexInput] = React.useState(defaultValue)
   const [open, setOpen] = React.useState(false)
+  const [recent, setRecent] = React.useState<string[]>([])
+  const lastCommittedHexRef = React.useRef((controlledValue ?? defaultValue).toLowerCase())
 
   const hex = isControlled ? (controlledValue ?? defaultValue) : internalHex
   const [h, s, l] = hexToHsl(hex)
@@ -113,24 +117,44 @@ function ColorPicker({
     (next: string) => {
       if (!isControlled) setInternalHex(next)
       setHexInput(next)
+      lastCommittedHexRef.current = next.toLowerCase()
       onChange?.(next)
+      if (maxRecent > 0) {
+        setRecent((prev) => {
+          const deduped = [next, ...prev.filter((c) => c.toLowerCase() !== next.toLowerCase())]
+          return deduped.slice(0, maxRecent)
+        })
+      }
     },
-    [isControlled, onChange],
+    [isControlled, onChange, maxRecent],
   )
 
   // Sync hex input when controlled value changes
   React.useEffect(() => {
-    if (isControlled && controlledValue) setHexInput(controlledValue)
+    if (isControlled && controlledValue) {
+      setHexInput(controlledValue)
+      lastCommittedHexRef.current = controlledValue.toLowerCase()
+    }
   }, [isControlled, controlledValue])
 
   const handleHSL = (nh: number, ns: number, nl: number) => {
     apply(hslToHex(nh, ns, nl))
   }
 
+  const handleHexChange = (nextValue: string) => {
+    setHexInput(nextValue)
+    const trimmed = nextValue.startsWith("#") ? nextValue : `#${nextValue}`
+    if (isValidHex(trimmed) && trimmed.toLowerCase() !== lastCommittedHexRef.current) {
+      apply(trimmed)
+    }
+  }
+
   const handleHexBlur = () => {
     const trimmed = hexInput.startsWith("#") ? hexInput : `#${hexInput}`
     if (isValidHex(trimmed)) {
-      apply(trimmed)
+      if (trimmed.toLowerCase() !== lastCommittedHexRef.current) {
+        apply(trimmed)
+      }
     } else {
       setHexInput(hex) // revert
     }
@@ -139,19 +163,19 @@ function ColorPicker({
   return (
     <div data-slot="color-picker" className={cn("inline-flex items-center gap-2", className)}>
       <Popover open={!disabled && open} onOpenChange={!disabled ? setOpen : undefined}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-9 rounded-lg p-0.5"
-            disabled={disabled}
-            aria-label="打开颜色选择器"
-          >
-            <span
-              className="block size-full rounded"
-              style={{ backgroundColor: hex }}
-            />
-          </Button>
+        <PopoverTrigger
+          className={cn(
+            "inline-flex items-center justify-center size-9 rounded-lg border border-input p-0.5",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            disabled && "opacity-50 cursor-not-allowed",
+          )}
+          disabled={disabled}
+          aria-label="打开颜色选择器"
+        >
+          <span
+            className="block size-full rounded"
+            style={{ backgroundColor: hex }}
+          />
         </PopoverTrigger>
 
         <PopoverContent className="w-64 p-4 space-y-4" align="start" sideOffset={6}>
@@ -221,7 +245,7 @@ function ColorPicker({
             />
             <Input
               value={hexInput}
-              onChange={(e) => setHexInput(e.target.value)}
+              onChange={(e) => handleHexChange(e.target.value)}
               onBlur={handleHexBlur}
               onKeyDown={(e) => e.key === "Enter" && handleHexBlur()}
               placeholder="#000000"
@@ -240,12 +264,34 @@ function ColorPicker({
                     key={preset}
                     type="button"
                     onClick={() => apply(preset)}
-                    aria-label={preset}
+                    aria-label={preset.toUpperCase()}
                     className={cn(
                       "size-7 rounded border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring",
                       hex.toLowerCase() === preset.toLowerCase() && "ring-2 ring-ring scale-110",
                     )}
                     style={{ backgroundColor: preset }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent colors */}
+          {maxRecent > 0 && recent.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs">最近使用</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {recent.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => apply(c)}
+                    aria-label={c.toUpperCase()}
+                    className={cn(
+                      "size-7 rounded border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring",
+                      hex.toLowerCase() === c.toLowerCase() && "ring-2 ring-ring scale-110",
+                    )}
+                    style={{ backgroundColor: c }}
                   />
                 ))}
               </div>

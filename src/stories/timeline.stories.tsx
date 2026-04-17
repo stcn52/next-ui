@@ -11,7 +11,7 @@ import {
   TimelineContent,
   TimelineTitle,
   TimelineDescription,
-} from "@/components/ui/timeline"
+} from "@/components/ui/display/timeline"
 import {
   Check,
   GitCommit,

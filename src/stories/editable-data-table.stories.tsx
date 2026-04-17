@@ -3,7 +3,7 @@ import { expect, within, userEvent } from "storybook/test"
 import {
   EditableDataTable,
   createEditableColumn,
-} from "@/components/ui/editable-data-table"
+} from "@/components/ui/data/editable-data-table"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useState } from "react"
 

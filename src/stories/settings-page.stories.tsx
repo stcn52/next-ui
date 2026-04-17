@@ -5,6 +5,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
+import { SettingsPage as NewSettingsPageComponent } from "@/components/pages/settings-page"
 import {
   Sidebar,
   SidebarHeader,
@@ -12,16 +13,16 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarItem,
-} from "@/components/ui/sidebar"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/navigation/sidebar"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
+import { Input } from "@/components/ui/inputs/input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/inputs/switch"
+import { Label } from "@/components/ui/inputs/label"
+import { Separator } from "@/components/ui/display/separator"
+import { Badge } from "@/components/ui/display/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
 import {
   User,
   Bell,
@@ -280,11 +281,11 @@ function SettingsPage() {
           </Tabs>
         </div>
 
-        <div className="max-w-2xl mx-auto p-6">
-          <h1 className="text-xl font-semibold mb-1 hidden md:block">
+        <div className="max-w-2xl mx-auto p-5">
+          <h1 className="hidden mb-1 text-xl font-semibold md:block">
             {SECTIONS.find((s) => s.id === activeSection)?.label}
           </h1>
-          <p className="text-sm text-muted-foreground mb-4 hidden md:block">
+          <p className="hidden mb-3 text-sm text-muted-foreground md:block">
             管理你的账户设置和偏好
           </p>
           {sectionComponents[activeSection]}
@@ -322,4 +323,10 @@ export const Security: Story = {
     await expect(canvas.getByText("安全设置")).toBeInTheDocument()
     await expect(canvas.getByText("两步验证")).toBeInTheDocument()
   },
+}
+
+/** 新版设置页 — 多 Tab 侧边栏导航 + 表单 + 危险操作区 */
+export const NewSettingsPage: Story = {
+  name: "New Settings Page",
+  render: () => <NewSettingsPageComponent />,
 }

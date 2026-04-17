@@ -5,9 +5,9 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect, userEvent } from "storybook/test"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/display/badge"
+import { Input } from "@/components/ui/inputs/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
 import {
   Accordion,
   AccordionContent,

@@ -7,11 +7,11 @@ import {
   RichContent,
   ThoughtChain,
   TypingIndicator,
-} from "@/components/ui/chat-bubble"
-import { ChatCommandPalette } from "@/components/ui/chat-command-palette"
-import { ChatPresence } from "@/components/ui/chat-presence"
-import { ChatSender } from "@/components/ui/chat-sender"
-import { ChatConversations } from "@/components/ui/chat-conversations"
+} from "@/components/ui/chat/chat-bubble"
+import { ChatCommandPalette } from "@/components/ui/chat/chat-command-palette"
+import { ChatPresence } from "@/components/ui/chat/chat-presence"
+import { ChatSender } from "@/components/ui/chat/chat-sender"
+import { ChatConversations } from "@/components/ui/chat/chat-conversations"
 import { PromptLibrary, renderPromptTemplate } from "@/components/ui/prompt-library"
 
 /* ================================================================== */

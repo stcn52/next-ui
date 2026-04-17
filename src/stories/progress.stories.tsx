@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/display/progress"
 import { useEffect, useState } from "react"
 
 const meta: Meta<typeof Progress> = {

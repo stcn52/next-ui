@@ -5,7 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 import { useTheme } from "@/components/theme-provider"
 
 export function ThemeToggle() {

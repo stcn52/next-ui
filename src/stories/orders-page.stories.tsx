@@ -6,9 +6,9 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect, userEvent } from "storybook/test"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/display/table"
 import {
   DollarSign,
   Download,

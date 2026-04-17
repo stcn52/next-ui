@@ -2,9 +2,9 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar } from "@/components/ui/date/calendar"
+import { Badge } from "@/components/ui/display/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
 
 const meta: Meta = {
   title: "Pages/Calendar",

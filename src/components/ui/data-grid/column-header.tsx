@@ -3,7 +3,7 @@
 /**
  * ColumnHeader — 可排序 + 可调宽 + 可固定的列头单元格
  */
-import { type Column } from "@tanstack/react-table"
+import { type Column, type Header } from "@tanstack/react-table"
 import {
   ArrowUpIcon,
   ArrowDownIcon,
@@ -11,10 +11,12 @@ import {
   PinIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/config-provider"
 import { cn } from "@/lib/utils"
 
 interface ColumnHeaderProps<TData, TValue> {
   column: Column<TData, TValue>
+  header: Header<TData, TValue>
   title: string
   enablePinning?: boolean
   enableResizing?: boolean
@@ -22,12 +24,14 @@ interface ColumnHeaderProps<TData, TValue> {
 
 export function ColumnHeader<TData, TValue>({
   column,
+  header,
   title,
   enablePinning = false,
   enableResizing = false,
 }: ColumnHeaderProps<TData, TValue>) {
   const sorted = column.getIsSorted()
   const pinned = column.getIsPinned()
+  const locale = useLocale()
 
   return (
     <div className="group relative flex items-center gap-1 select-none h-full pr-3">
@@ -37,7 +41,7 @@ export function ColumnHeader<TData, TValue>({
           type="button"
           className="flex flex-1 items-center gap-1 text-left font-medium text-xs hover:text-foreground"
           onClick={() => column.toggleSorting(sorted === "asc")}
-          aria-label={`按 ${title} 排序`}
+          aria-label={(locale.sortByColumn ?? "Sort by {title}").replace("{title}", title)}
         >
           <span className="truncate">{title}</span>
           {sorted === "asc" ? (
@@ -61,7 +65,7 @@ export function ColumnHeader<TData, TValue>({
             "size-5 opacity-0 group-hover:opacity-100 shrink-0",
             pinned && "opacity-100 text-primary",
           )}
-          aria-label={pinned ? "取消固定列" : "固定列到左侧"}
+          aria-label={pinned ? (locale.unpinColumn ?? "Unpin column") : (locale.pinColumn ?? "Pin column to left")}
           onClick={() => column.pin(pinned ? false : "left")}
         >
           <PinIcon className="size-3" style={{ transform: pinned ? "none" : "rotate(45deg)" }} />
@@ -71,8 +75,8 @@ export function ColumnHeader<TData, TValue>({
       {/* Resize handle */}
       {enableResizing && column.getCanResize() && (
         <div
-          onMouseDown={column.getResizeHandler()}
-          onTouchStart={column.getResizeHandler()}
+          onMouseDown={header.getResizeHandler()}
+          onTouchStart={header.getResizeHandler()}
           className={cn(
             "absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none select-none",
             "opacity-0 group-hover:opacity-100 hover:bg-primary/40",

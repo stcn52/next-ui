@@ -4,9 +4,9 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect, userEvent } from "storybook/test"
-import { Stepper, Step } from "@/components/ui/stepper"
+import { Stepper, Step } from "@/components/ui/display/stepper"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/display/card"
 
 const meta: Meta = {
   title: "Components/Stepper",

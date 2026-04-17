@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar } from "@/components/ui/date/calendar"
 
 const meta: Meta<typeof Calendar> = {
   title: "UI/Calendar",

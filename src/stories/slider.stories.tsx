@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { Slider } from "@/components/ui/slider"
+import { Slider } from "@/components/ui/inputs/slider"
 
 const meta: Meta<typeof Slider> = {
   title: "UI/Slider",

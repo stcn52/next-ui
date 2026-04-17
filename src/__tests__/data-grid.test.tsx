@@ -6,6 +6,7 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataGrid } from "@/components/ui/data-grid"
+import { ConfigProvider } from "@/components/config-provider"
 
 // ─── Test data ────────────────────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ describe("DataGrid — data mode", () => {
 
   it("renders empty state when no data", () => {
     render(<DataGrid columns={COLS} data={[]} />)
-    expect(screen.getByText("暂无数据")).toBeInTheDocument()
+    expect(screen.getByRole("table")).toHaveAttribute("aria-rowcount", "0")
   })
 
   it("shows filter input when filterColumn is set", () => {
@@ -61,13 +62,21 @@ describe("DataGrid — data mode", () => {
 
   it("shows pagination controls by default", () => {
     render(<DataGrid columns={COLS} data={ROWS} />)
-    expect(screen.getByLabelText("下一页")).toBeInTheDocument()
-    expect(screen.getByLabelText("上一页")).toBeInTheDocument()
+    expect(screen.getByLabelText("Go to next page")).toBeInTheDocument()
+    expect(screen.getByLabelText("Go to previous page")).toBeInTheDocument()
+  })
+
+  it("navigates pagination when enabled", () => {
+    render(<DataGrid columns={COLS} data={ROWS} pageSize={2} />)
+    expect(screen.getByText("陈宇")).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText("Go to next page"))
+    expect(screen.queryByText("陈宇")).not.toBeInTheDocument()
+    expect(screen.getByText("张文")).toBeInTheDocument()
   })
 
   it("hides pagination when enablePagination=false", () => {
     render(<DataGrid columns={COLS} data={ROWS} enablePagination={false} />)
-    expect(screen.queryByLabelText("下一页")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Go to next page")).not.toBeInTheDocument()
   })
 
   it("shows row selection checkboxes when enabled", () => {
@@ -80,13 +89,13 @@ describe("DataGrid — data mode", () => {
   it("shows column visibility button", () => {
     render(<DataGrid columns={COLS} data={ROWS} />)
     // Toolbar provides a "列" button (may match multiple due to nested DOM) — verify at least one
-    const btns = screen.getAllByRole("button", { name: /列/ })
+    const btns = screen.getAllByRole("button", { name: /Columns/ })
     expect(btns.length).toBeGreaterThan(0)
   })
 
   it("hides column visibility when disabled", () => {
     render(<DataGrid columns={COLS} data={ROWS} enableColumnVisibility={false} filterColumn="name" />)
-    expect(screen.queryByRole("button", { name: /列/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Columns/ })).not.toBeInTheDocument()
   })
 
   it("calls onRowSelectionChange when row selected", () => {
@@ -102,12 +111,12 @@ describe("DataGrid — data mode", () => {
 describe("DataGrid — spreadsheet mode", () => {
   it("renders formula bar in spreadsheet mode", () => {
     render(<DataGrid columns={COLS} data={ROWS} spreadsheet />)
-    expect(screen.getByLabelText("公式栏")).toBeInTheDocument()
+    expect(screen.getByLabelText("Formula bar")).toBeInTheDocument()
   })
 
   it("hides formula bar in data mode", () => {
     render(<DataGrid columns={COLS} data={ROWS} />)
-    expect(screen.queryByLabelText("公式栏")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Formula bar")).not.toBeInTheDocument()
   })
 
   it("renders row numbers in spreadsheet mode", () => {
@@ -122,7 +131,7 @@ describe("DataGrid — spreadsheet mode", () => {
     const cell = screen.getByText("陈宇")
     fireEvent.click(cell)
     // The formula bar address should show a column letter + row number
-    const formulaBar = screen.getByLabelText("公式栏") as HTMLInputElement
+    const formulaBar = screen.getByRole("textbox", { name: "Formula bar" }) as HTMLInputElement
     expect(formulaBar.value).toBe("陈宇")
   })
 
@@ -147,6 +156,18 @@ describe("DataGrid — spreadsheet mode", () => {
       fireEvent.keyDown(cellInput, { key: "Enter" })
       expect(onEdit).toHaveBeenCalledWith(0, "name", "陈XYZ")
     }
+  })
+
+  it("commits spreadsheet edits only once when Enter is followed by blur", () => {
+    const onEdit = vi.fn()
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={onEdit} />)
+    fireEvent.dblClick(screen.getByText("陈宇"))
+    const cellInput = screen.getByLabelText("Edit cell")
+    fireEvent.change(cellInput, { target: { value: "陈XYZ" } })
+    fireEvent.keyDown(cellInput, { key: "Enter" })
+    fireEvent.blur(cellInput)
+    expect(onEdit).toHaveBeenCalledTimes(1)
+    expect(onEdit).toHaveBeenCalledWith(0, "name", "陈XYZ")
   })
 })
 
@@ -198,5 +219,20 @@ describe("DataGrid — virtualized mode", () => {
     // Header should always render regardless of virtualization
     expect(screen.getByText("姓名")).toBeInTheDocument()
     expect(screen.getByText("部门")).toBeInTheDocument()
+  })
+})
+
+describe("DataGrid — locale integration", () => {
+  it("uses localized labels from ConfigProvider", () => {
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DataGrid columns={COLS} data={ROWS} enableRowSelection />
+      </ConfigProvider>,
+    )
+
+    expect(screen.getAllByLabelText("列").length).toBeGreaterThan(0)
+    expect(screen.getByLabelText("前往上一页")).toBeInTheDocument()
+    expect(screen.getByLabelText("前往下一页")).toBeInTheDocument()
+    expect(screen.getByLabelText("全选当前页")).toBeInTheDocument()
   })
 })

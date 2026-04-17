@@ -20,7 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarItem,
   SidebarFooter,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/navigation/sidebar"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -28,20 +28,20 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/navigation/breadcrumb"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Input } from "@/components/ui/inputs/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
+import { Separator } from "@/components/ui/display/separator"
+import { Skeleton } from "@/components/ui/display/skeleton"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 import {
   Search,
   Plus,

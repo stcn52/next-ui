@@ -1,8 +1,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import type { DateRange } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from "@/components/ui/date/date-range-picker"
+import type { DateRange } from "@/components/ui/date/date-range-picker"
 
 const meta: Meta<typeof DateRangePicker> = {
   title: "UI/DateRangePicker",

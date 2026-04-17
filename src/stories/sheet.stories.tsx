@@ -9,10 +9,10 @@ import {
   SheetDescription,
   SheetFooter,
   SheetClose,
-} from "@/components/ui/sheet"
+} from "@/components/ui/overlays/sheet"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta = {
   title: "UI/Sheet",

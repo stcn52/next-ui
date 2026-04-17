@@ -4,14 +4,14 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/display/progress"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Switch } from "@/components/ui/inputs/switch"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import {
   Sidebar,
   SidebarHeader,
@@ -20,7 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarItem,
   SidebarFooter,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/navigation/sidebar"
 import {
   LayoutDashboard,
   Settings,

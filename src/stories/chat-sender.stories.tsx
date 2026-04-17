@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat-sender"
+import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat/chat-sender"
 import { Button } from "@/components/ui/button"
 import { Mic, Image } from "lucide-react"
 

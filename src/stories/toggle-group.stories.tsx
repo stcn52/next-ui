@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/inputs/toggle-group"
 
 const meta: Meta<typeof ToggleGroup> = {
   title: "UI/ToggleGroup",

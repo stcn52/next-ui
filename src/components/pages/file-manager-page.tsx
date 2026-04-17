@@ -1,24 +1,24 @@
 import { useState } from "react"
 import { useTranslation } from "@/components/config-provider"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/navigation/breadcrumb"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/display/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/overlays/dropdown-menu"
+import { Input } from "@/components/ui/inputs/input"
+import { Separator } from "@/components/ui/display/separator"
 import {
   Table,
   TableBody,
@@ -26,7 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/display/table"
 import {
   FolderPlus,
   FolderOpen,

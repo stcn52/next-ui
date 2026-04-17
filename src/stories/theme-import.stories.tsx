@@ -5,10 +5,10 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { useState, useCallback, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
+import { Input } from "@/components/ui/inputs/input"
+import { Separator } from "@/components/ui/display/separator"
 import {
   parseThemeCSS,
   applyTokens,

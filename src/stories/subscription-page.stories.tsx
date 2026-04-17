@@ -4,7 +4,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { CheckIcon, ZapIcon, ShieldCheckIcon, SparklesIcon } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -13,16 +13,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/display/card"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/display/separator"
+import { Switch } from "@/components/ui/inputs/switch"
+import { Label } from "@/components/ui/inputs/label"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

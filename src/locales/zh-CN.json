@@ -11,13 +11,25 @@
     "required": "必填",
     "optional": "可选",
     "submit": "提交",
-    "reset": "重置"
+    "reset": "重置",
+    "columns": "列",
+    "editCell": "编辑单元格",
+    "enterValue": "输入值…",
+    "noCellSelected": "（未选中单元格）",
+    "formulaBar": "公式栏",
+    "selectRow": "选择第 {row} 行",
+    "selectAllCurrentPage": "全选当前页",
+    "sortByColumn": "按 {title} 排序",
+    "pinColumn": "固定列到左侧",
+    "unpinColumn": "取消固定列"
   },
   "pagination": {
     "previous": "上一页",
     "next": "下一页",
     "goToPreviousPage": "前往上一页",
     "goToNextPage": "前往下一页",
+    "goToFirstPage": "前往首页",
+    "goToLastPage": "前往末页",
     "page": "页",
     "pageOf": "第 {page} / {total} 页",
     "rowsPerPage": "每页行数"

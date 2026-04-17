@@ -16,12 +16,12 @@ import {
   UserPlusIcon,
   BellIcon,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/display/card"
+import { Separator } from "@/components/ui/display/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
 
 const meta: Meta = {
   title: "Pages/UserProfilePage",

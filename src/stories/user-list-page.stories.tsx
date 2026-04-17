@@ -9,7 +9,7 @@ import {
 } from "@/components/config-provider"
 import { UserListPage } from "@/components/pages/user-list-page"
 import { USERS } from "@/components/pages/user-list-page.data"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/display/card"
 
 const meta: Meta = {
   title: "Pages/UserList",

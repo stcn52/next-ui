@@ -3,13 +3,13 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect } from "storybook/test"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Separator } from "@/components/ui/display/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
+import { Progress } from "@/components/ui/display/progress"
 import {
   Calendar,
   GitFork,

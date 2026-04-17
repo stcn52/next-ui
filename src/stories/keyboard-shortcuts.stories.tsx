@@ -2,7 +2,7 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import { useGlobalShortcut } from "@/components/ui/shortcuts"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import {
   Command,
   CommandDialog,
@@ -12,7 +12,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandShortcut,
-} from "@/components/ui/command"
+} from "@/components/ui/overlays/command"
 import { Settings, User, Search, FileText, Home } from "lucide-react"
 
 const meta: Meta = {

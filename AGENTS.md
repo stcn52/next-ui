@@ -6,8 +6,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current published version: `0.2.4`
-- Current latest git release: `v0.2.4`
+- Current published version: `0.2.5`
+- Current latest git release: `v0.2.5`
 
 ## Workflow Map
 
@@ -63,3 +63,16 @@ Latest known remote status after the `0.2.1` release lane:
 
 - Prefer direct evidence from `gh run list`, `gh release list`, and `npm view` over assumptions.
 - Update this file when the release baseline changes materially.
+
+---
+
+## Codex Turn Boundary Guidance
+
+- 助记标识：`EOT=CHECK_NEXT_STEP`。
+- 当任务已经完成、但对话上下文看起来仍可能继续时，结尾用一句简短确认，邀请用户给出下一步任务。
+- 不要依赖 `AskQuestions`、`#file:` 这类 Copilot 专属语法；Codex 只需要普通自然语言即可。
+- 如果用户已经明确表示停止、取消，或只需要一次性输出，就直接收口，不要强行追加追问。
+- 如果当前任务还没完成，先继续执行，不要为了“收口规则”中断工作。
+- 结尾确认应保持简短，最好直接给出 2 到 3 个可选下一步，外加一个自由输入的邀请。
+- 当下一步存在明显分叉且会影响实现路径时，先澄清再动手。
+- 对于翻译、总结、改写这类一次性请求，不额外追加追问，除非用户明确希望继续协作。

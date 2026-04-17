@@ -4,7 +4,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { useState } from "react"
 import { FileTree, type FileTreeItem } from "@/components/ui/file-tree"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta<typeof FileTree> = {
   title: "Components/FileTree",

@@ -8,7 +8,7 @@ import {
   RichContent,
   ThoughtChain,
   TypingIndicator,
-} from "@/components/ui/chat-bubble"
+} from "@/components/ui/chat/chat-bubble"
 
 const meta: Meta = {
   title: "Chat/Bubble",

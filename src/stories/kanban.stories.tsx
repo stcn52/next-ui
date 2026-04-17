@@ -2,7 +2,7 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import { KanbanBoard, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta = {
   title: "Patterns/Kanban Board",

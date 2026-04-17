@@ -7,10 +7,10 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverDescription,
-} from "@/components/ui/popover"
+} from "@/components/ui/overlays/popover"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta = {
   title: "UI/Popover",

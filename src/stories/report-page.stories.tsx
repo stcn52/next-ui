@@ -14,7 +14,7 @@ import {
   BarChart3Icon,
   FilterIcon,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,7 +22,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/display/card"
 import {
   Table,
   TableBody,
@@ -30,11 +30,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import type { DateRange } from "@/components/ui/date-range-picker"
+} from "@/components/ui/display/table"
+import { Progress } from "@/components/ui/display/progress"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/navigation/tabs"
+import { DateRangePicker } from "@/components/ui/date/date-range-picker"
+import type { DateRange } from "@/components/ui/date/date-range-picker"
 
 const meta: Meta = {
   title: "Pages/ReportPage",

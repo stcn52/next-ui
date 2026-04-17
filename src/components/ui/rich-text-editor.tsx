@@ -32,8 +32,8 @@ import {
   EditIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Toggle } from "@/components/ui/toggle"
+import { Separator } from "@/components/ui/display/separator"
+import { Toggle } from "@/components/ui/inputs/toggle"
 import { cn } from "@/lib/utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────────

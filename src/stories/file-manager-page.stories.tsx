@@ -15,7 +15,7 @@ import {
   FILE_ICONS,
   FILES,
 } from "@/components/pages/file-manager-page.data"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
 import {
   FolderOpen,
 } from "lucide-react"

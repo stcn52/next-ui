@@ -1,3 +1,4 @@
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -48,6 +49,10 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonSlotChildProps = {
+  className?: string
+} & Record<string, unknown>
+
 /**
  * Button component with multiple visual variants and sizes.
  * Integrates with ConfigProvider for global size control.
@@ -59,16 +64,33 @@ function Button({
   className,
   variant = "default",
   size,
+  asChild = false,
+  children,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & {
+  asChild?: boolean
+}) {
   const globalSize = useSize()
   const resolvedSize = size ?? sizeMap[globalSize]
+  const classNames = cn(buttonVariants({ variant, size: resolvedSize, className }))
+
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<ButtonSlotChildProps>
+    return React.cloneElement(child, {
+      "data-slot": "button",
+      className: cn(classNames, child.props.className),
+      ...props,
+    })
+  }
+
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size: resolvedSize, className }))}
+      className={classNames}
       {...props}
-    />
+    >
+      {children}
+    </ButtonPrimitive>
   )
 }
 

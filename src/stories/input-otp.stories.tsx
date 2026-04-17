@@ -5,7 +5,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
   InputOTPSeparator,
-} from "@/components/ui/input-otp"
+} from "@/components/ui/inputs/input-otp"
 
 const meta: Meta<typeof InputOTP> = {
   title: "UI/InputOTP",

@@ -15,11 +15,11 @@ import {
   PhoneIcon,
   MailIcon,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent } from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
+import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

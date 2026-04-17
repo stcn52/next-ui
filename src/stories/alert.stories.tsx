@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/display/alert"
 import { Info, AlertTriangle } from "lucide-react"
 
 const meta: Meta<typeof Alert> = {

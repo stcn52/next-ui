@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/inputs/label"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
 import { useState } from "react"
 
 function LoginPage() {

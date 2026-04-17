@@ -11,9 +11,9 @@ import {
   AlertCircleIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/display/badge"
+import { Progress } from "@/components/ui/display/progress"
+import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

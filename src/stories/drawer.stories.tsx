@@ -9,10 +9,10 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerClose,
-} from "@/components/ui/drawer"
+} from "@/components/ui/overlays/drawer"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta = {
   title: "UI/Drawer",

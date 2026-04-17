@@ -9,6 +9,7 @@
 import * as React from "react"
 import { CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/config-provider"
 import { cn } from "@/lib/utils"
 
 /** 将列索引（0-based）转为列字母：0→A, 25→Z, 26→AA */
@@ -47,6 +48,7 @@ export function FormulaBar({
   className,
 }: FormulaBarProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const locale = useLocale()
 
   React.useEffect(() => {
     if (editing) inputRef.current?.focus()
@@ -74,12 +76,12 @@ export function FormulaBar({
           if (e.key === "Enter") { e.preventDefault(); onCommit() }
           if (e.key === "Escape") { e.preventDefault(); onCancel() }
         }}
-        placeholder={editing ? "输入值…" : "（未选中单元格）"}
+        placeholder={editing ? (locale.enterValue ?? "Enter value…") : (locale.noCellSelected ?? "No cell selected")}
         className={cn(
           "flex-1 px-2.5 py-1.5 text-sm outline-none bg-transparent",
           !editing && "text-muted-foreground cursor-default",
         )}
-        aria-label="公式栏"
+        aria-label={locale.formulaBar ?? "Formula bar"}
       />
 
       {/* Confirm / cancel buttons — only in editing state */}
@@ -90,7 +92,7 @@ export function FormulaBar({
             size="icon"
             className="size-8 rounded-none text-destructive hover:text-destructive"
             onClick={onCancel}
-            aria-label="取消编辑"
+            aria-label={locale.cancel}
           >
             <XIcon className="size-4" />
           </Button>
@@ -99,7 +101,7 @@ export function FormulaBar({
             size="icon"
             className="size-8 rounded-none text-primary"
             onClick={onCommit}
-            aria-label="确认编辑"
+            aria-label={locale.confirm}
           >
             <CheckIcon className="size-4" />
           </Button>

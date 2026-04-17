@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
 import type { ColumnDef } from "@tanstack/react-table"
-import { VirtualDataTable } from "@/components/ui/virtual-data-table"
+import { VirtualDataTable } from "@/components/ui/data/virtual-data-table"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
 

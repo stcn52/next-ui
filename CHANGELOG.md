@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.5 (2026-04-17)
+
+### Structural Improvements
+
+- Components regrouped by domain under `src/components/ui` with updated barrel exports
+- Root UI export now points at grouped barrels instead of the old flat file layout
+
+### Fixes
+
+- `Button` now supports `asChild`-style composition used by overlay triggers
+- DataGrid column resize handling now uses the correct TanStack header API
+- Date/time picker and multi-select trigger composition now matches Base UI typing
+- `NumberInput` no longer collides with native input `size`
+- `ColorPicker` submit and ARIA behavior was tightened for test and accessibility stability
+
+### Tests
+
+- Added and updated coverage for the refactor, including ColorPicker, SettingsPage, and DataGrid/FileTree flows
+
 ## 0.2.4 (2026-04-17)
 
 ### New Components

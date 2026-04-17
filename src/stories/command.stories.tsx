@@ -11,7 +11,7 @@ import {
   CommandItem,
   CommandSeparator,
   CommandShortcut,
-} from "@/components/ui/command"
+} from "@/components/ui/overlays/command"
 import { Calculator, Calendar, CreditCard, Settings, Smile, User } from "lucide-react"
 
 const meta: Meta = {

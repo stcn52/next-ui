@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { User, Settings, LogOut, CreditCard } from "lucide-react"
 

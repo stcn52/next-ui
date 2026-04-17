@@ -11,13 +11,25 @@
     "required": "Required",
     "optional": "Optional",
     "submit": "Submit",
-    "reset": "Reset"
+    "reset": "Reset",
+    "columns": "Columns",
+    "editCell": "Edit cell",
+    "enterValue": "Enter value…",
+    "noCellSelected": "No cell selected",
+    "formulaBar": "Formula bar",
+    "selectRow": "Select row {row}",
+    "selectAllCurrentPage": "Select all current page",
+    "sortByColumn": "Sort by {title}",
+    "pinColumn": "Pin column to left",
+    "unpinColumn": "Unpin column"
   },
   "pagination": {
     "previous": "Previous",
     "next": "Next",
     "goToPreviousPage": "Go to previous page",
     "goToNextPage": "Go to next page",
+    "goToFirstPage": "Go to first page",
+    "goToLastPage": "Go to last page",
     "page": "Page",
     "pageOf": "Page {page} of {total}",
     "rowsPerPage": "Rows per page"

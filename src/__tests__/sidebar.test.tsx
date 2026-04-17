@@ -9,7 +9,7 @@ import {
   SidebarGroupLabel,
   SidebarItem,
   SidebarFooter,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/navigation/sidebar"
 
 describe("Sidebar", () => {
   it("renders with default expanded width", () => {

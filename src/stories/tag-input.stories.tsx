@@ -4,8 +4,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { TagInput } from "@/components/ui/tag-input"
-import { Label } from "@/components/ui/label"
+import { TagInput } from "@/components/ui/inputs/tag-input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof TagInput> = {
   title: "UI/TagInput",

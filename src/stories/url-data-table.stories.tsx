@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import type { ColumnDef } from "@tanstack/react-table"
-import { UrlDataTable } from "@/components/ui/url-data-table"
+import { UrlDataTable } from "@/components/ui/data/url-data-table"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
 

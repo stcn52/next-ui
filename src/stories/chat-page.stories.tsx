@@ -1,16 +1,16 @@
 import { useCallback, useRef, useState, useEffect } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Bubble,
   type BubbleProps,
   TypingIndicator,
-} from "@/components/ui/chat-bubble"
-import { ChatConversations, type ConversationItem } from "@/components/ui/chat-conversations"
-import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat-sender"
+} from "@/components/ui/chat/chat-bubble"
+import { ChatConversations, type ConversationItem } from "@/components/ui/chat/chat-conversations"
+import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat/chat-sender"
 import {
   Dialog,
   DialogContent,
@@ -18,14 +18,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/overlays/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/inputs/select"
 import { Bot, FileText, FileUp, Image, Search, Sparkles, X } from "lucide-react"
 
 /* ------------------------------------------------------------------ */

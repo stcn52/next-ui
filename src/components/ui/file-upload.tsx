@@ -5,7 +5,7 @@ import { UploadIcon, XIcon, FileIcon, ImageIcon, FileTextIcon } from "lucide-rea
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { Progress } from "@/components/ui/display/progress"
 
 // ---------------------------------------------------------------------------
 // Types

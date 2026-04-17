@@ -3,10 +3,10 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { PrinterIcon, DownloadIcon, CheckCircle2Icon } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent } from "@/components/ui/display/card"
+import { Separator } from "@/components/ui/display/separator"
 
 const meta: Meta = {
   title: "Pages/InvoicePage",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/display/skeleton"
 
 const meta: Meta<typeof Skeleton> = {
   title: "UI/Skeleton",

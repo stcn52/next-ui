@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/navigation/breadcrumb"
 
 const meta: Meta<typeof Breadcrumb> = {
   title: "UI/Breadcrumb",

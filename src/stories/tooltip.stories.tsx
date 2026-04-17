@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/overlays/tooltip"
 import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
 

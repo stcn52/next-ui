@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/inputs/textarea"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof Textarea> = {
   title: "UI/Textarea",

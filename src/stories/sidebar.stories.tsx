@@ -9,10 +9,10 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarItem,
-} from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+} from "@/components/ui/navigation/sidebar"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/inputs/input"
 import { BarChart3, Home, Search, Settings, Users } from "lucide-react"
 
 const meta: Meta<typeof Sidebar> = {

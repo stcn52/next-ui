@@ -5,10 +5,10 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Progress } from "@/components/ui/progress"
+import { Input } from "@/components/ui/inputs/input"
+import { Textarea } from "@/components/ui/inputs/textarea"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Progress } from "@/components/ui/display/progress"
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/display/card"
 import {
   Field,
   FieldContent,
@@ -24,7 +24,7 @@ import {
   FieldError,
   FieldGroup,
   FieldTitle,
-} from "@/components/ui/field"
+} from "@/components/ui/forms/field"
 
 const step1Schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),

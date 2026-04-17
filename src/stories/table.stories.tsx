@@ -9,7 +9,7 @@ import {
   TableRow,
   TableCell,
   TableCaption,
-} from "@/components/ui/table"
+} from "@/components/ui/display/table"
 
 const meta: Meta<typeof Table> = {
   title: "UI/Table",

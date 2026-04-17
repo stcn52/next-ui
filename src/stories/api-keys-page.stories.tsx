@@ -13,9 +13,9 @@ import {
   RefreshCwIcon,
   ShieldAlertIcon,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
 import {
   Dialog,
   DialogContent,
@@ -24,10 +24,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/overlays/dialog"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

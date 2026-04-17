@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { ChatInputToolbar } from "@/components/ui/chat-input-toolbar"
-import { ChatThread } from "@/components/ui/chat-thread"
-import { MessageReactions } from "@/components/ui/message-reactions"
-import { MessageThreadReply } from "@/components/ui/message-thread-reply"
+import { ChatInputToolbar } from "@/components/ui/chat/chat-input-toolbar"
+import { ChatThread } from "@/components/ui/chat/chat-thread"
+import { MessageReactions } from "@/components/ui/chat/message-reactions"
+import { MessageThreadReply } from "@/components/ui/chat/message-thread-reply"
 
 describe("Chat advanced components", () => {
   it("renders unread divider in ChatThread", async () => {

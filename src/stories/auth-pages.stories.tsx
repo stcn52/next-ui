@@ -5,12 +5,12 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
+import { Label } from "@/components/ui/inputs/label"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Separator } from "@/components/ui/display/separator"
 
 const meta: Meta = {
   title: "Pages/Auth",

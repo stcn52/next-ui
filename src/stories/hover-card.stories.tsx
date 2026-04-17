@@ -4,8 +4,8 @@ import {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
-} from "@/components/ui/hover-card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+} from "@/components/ui/overlays/hover-card"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/display/avatar"
 import { Button } from "@/components/ui/button"
 import { CalendarDays } from "lucide-react"
 

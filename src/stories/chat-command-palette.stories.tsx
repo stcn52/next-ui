@@ -2,8 +2,8 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
 import { Bot, Eraser, FileText, Sparkles } from "lucide-react"
-import { ChatCommandPalette, type ChatCommandItem } from "@/components/ui/chat-command-palette"
-import { ChatSender } from "@/components/ui/chat-sender"
+import { ChatCommandPalette, type ChatCommandItem } from "@/components/ui/chat/chat-command-palette"
+import { ChatSender } from "@/components/ui/chat/chat-sender"
 
 const COMMANDS: ChatCommandItem[] = [
   {

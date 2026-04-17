@@ -11,10 +11,10 @@ import {
   FieldSeparator,
   FieldSet,
   FieldTitle,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/forms/field"
+import { Input } from "@/components/ui/inputs/input"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Switch } from "@/components/ui/inputs/switch"
 
 const meta: Meta = {
   title: "UI/Field",

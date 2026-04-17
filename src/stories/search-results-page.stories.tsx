@@ -15,12 +15,12 @@ import {
   ChevronRightIcon,
   SlidersHorizontalIcon,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/inputs/input"
+import { Separator } from "@/components/ui/display/separator"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Label } from "@/components/ui/inputs/label"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

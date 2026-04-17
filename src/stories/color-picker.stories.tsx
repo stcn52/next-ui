@@ -4,8 +4,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { ColorPicker } from "@/components/ui/color-picker"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/inputs/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
 
 const meta: Meta<typeof ColorPicker> = {
   title: "UI/ColorPicker",

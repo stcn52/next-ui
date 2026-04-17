@@ -3,7 +3,7 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { useState } from "react"
-import { RangeSlider } from "@/components/ui/range-slider"
+import { RangeSlider } from "@/components/ui/inputs/range-slider"
 
 const meta: Meta<typeof RangeSlider> = {
   title: "UI/RangeSlider",

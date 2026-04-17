@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { DatePicker } from "@/components/ui/date-picker"
+import { DatePicker } from "@/components/ui/date/date-picker"
 
 const meta: Meta<typeof DatePicker> = {
   title: "UI/DatePicker",

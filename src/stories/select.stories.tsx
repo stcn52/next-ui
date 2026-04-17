@@ -9,7 +9,7 @@ import {
   SelectGroup,
   SelectLabel,
   SelectSeparator,
-} from "@/components/ui/select"
+} from "@/components/ui/inputs/select"
 
 const meta: Meta = {
   title: "UI/Select",

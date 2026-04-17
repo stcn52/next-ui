@@ -4,8 +4,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { NumberInput } from "@/components/ui/number-input"
-import { Label } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/inputs/number-input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof NumberInput> = {
   title: "UI/NumberInput",

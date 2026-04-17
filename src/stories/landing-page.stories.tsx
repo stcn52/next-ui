@@ -4,11 +4,11 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect } from "storybook/test"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Separator } from "@/components/ui/display/separator"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import {
   ArrowRight,
   CheckCircle2,

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { ChatPresence } from "@/components/ui/chat-presence"
+import { ChatPresence } from "@/components/ui/chat/chat-presence"
 
 const meta: Meta<typeof ChatPresence> = {
   title: "Chat/Presence",

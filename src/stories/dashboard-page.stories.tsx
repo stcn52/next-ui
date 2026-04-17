@@ -4,11 +4,11 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
+import { Progress } from "@/components/ui/display/progress"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/display/table"
 import {
   Sidebar,
   SidebarHeader,
@@ -26,8 +26,8 @@ import {
   SidebarGroupLabel,
   SidebarItem,
   SidebarFooter,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/navigation/sidebar"
+import { Separator } from "@/components/ui/display/separator"
 import {
   LayoutDashboard,
   TrendingUp,

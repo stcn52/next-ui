@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import { SortableList, useSortableList } from "@/components/ui/sortable"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta = {
   title: "UI/Sortable",

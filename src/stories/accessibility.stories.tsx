@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
-import { Slider } from "@/components/ui/slider"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Input } from "@/components/ui/inputs/input"
+import { Switch } from "@/components/ui/inputs/switch"
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/display/progress"
+import { Slider } from "@/components/ui/inputs/slider"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/inputs/select"
 import {
   Dialog,
   DialogTrigger,
@@ -15,10 +15,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-} from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field"
+} from "@/components/ui/overlays/dialog"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/forms/field"
 
 const meta: Meta = {
   title: "Theme/Accessibility",

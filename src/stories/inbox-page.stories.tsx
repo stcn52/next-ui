@@ -5,12 +5,12 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect, userEvent } from "storybook/test"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/inputs/input"
+import { Separator } from "@/components/ui/display/separator"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import {
   Archive,
   Forward,

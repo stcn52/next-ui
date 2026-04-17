@@ -57,8 +57,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/display/table"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { useLocale } from "@/components/config-provider"
 import { ColumnHeader } from "./column-header"
 import { Toolbar } from "./toolbar"
 import { FormulaBar, cellAddress } from "./formula-bar"
@@ -114,7 +115,7 @@ function rowNumberColumn<TData>(): ColumnDef<TData, unknown> {
 
 // ─── Helper: row-selection column def ────────────────────────────────────────
 
-function selectionColumn<TData>(): ColumnDef<TData, unknown> {
+function selectionColumn<TData>(labels: { selectAllCurrentPage: string; selectRow: (row: number) => string }): ColumnDef<TData, unknown> {
   return {
     id: "__select__",
     enableSorting: false,
@@ -126,7 +127,7 @@ function selectionColumn<TData>(): ColumnDef<TData, unknown> {
         checked={table.getIsAllPageRowsSelected() || undefined}
         indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
         onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-        aria-label="全选当前页"
+        aria-label={labels.selectAllCurrentPage}
         className="mx-auto block"
       />
     ),
@@ -134,7 +135,7 @@ function selectionColumn<TData>(): ColumnDef<TData, unknown> {
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(v) => row.toggleSelected(!!v)}
-        aria-label={`选择第 ${row.index + 1} 行`}
+        aria-label={labels.selectRow(row.index + 1)}
         className="mx-auto block"
       />
     ),
@@ -171,6 +172,7 @@ export function DataGrid<TData, TValue = unknown>({
   className,
   onRowSelectionChange,
 }: DataGridProps<TData, TValue>) {
+  const locale = useLocale()
   // ── Table state ────────────────────────────────────────────────────────────
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -178,6 +180,10 @@ export function DataGrid<TData, TValue = unknown>({
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({})
   const [columnSizing, setColumnSizing] = React.useState<ColumnSizingState>({})
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: initialPageSize,
+  })
 
   // ── Spreadsheet state ──────────────────────────────────────────────────────
   const [activeCell, setActiveCell] = React.useState<ActiveCell | null>(null)
@@ -188,10 +194,19 @@ export function DataGrid<TData, TValue = unknown>({
   const columns = React.useMemo(() => {
     const cols: ColumnDef<TData, unknown>[] = []
     if (spreadsheet) cols.push(rowNumberColumn<TData>())
-    if (enableRowSelection) cols.push(selectionColumn<TData>())
+    if (enableRowSelection) {
+      cols.push(
+        selectionColumn<TData>({
+          selectAllCurrentPage:
+            locale.selectAllCurrentPage ?? "Select all current page",
+          selectRow:
+            (row) => (locale.selectRow ?? "Select row {row}").replace("{row}", String(row)),
+        }),
+      )
+    }
     cols.push(...(userColumns as ColumnDef<TData, unknown>[]))
     return cols
-  }, [userColumns, spreadsheet, enableRowSelection])
+  }, [enableRowSelection, locale, spreadsheet, userColumns])
 
   // ── Data columns (excl. __row_num__ / __select__) for CI calculation ───────
   const dataColIds = React.useMemo(
@@ -212,6 +227,7 @@ export function DataGrid<TData, TValue = unknown>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: enablePagination ? setPagination : undefined,
     onRowSelectionChange: (updater) => {
       setRowSelection((prev) => {
         const next = typeof updater === "function" ? updater(prev) : updater
@@ -230,13 +246,21 @@ export function DataGrid<TData, TValue = unknown>({
       rowSelection,
       columnPinning,
       columnSizing,
-      ...(enablePagination ? { pagination: { pageIndex: 0, pageSize: initialPageSize } } : {}),
+      ...(enablePagination ? { pagination } : {}),
     },
     enableSorting,
     enableColumnResizing: enableResizing,
     enablePinning,
     enableRowSelection,
   })
+
+  React.useEffect(() => {
+    setPagination((current) =>
+      current.pageSize === initialPageSize
+        ? current
+        : { pageIndex: 0, pageSize: initialPageSize },
+    )
+  }, [initialPageSize])
 
   // ── Spreadsheet helpers ────────────────────────────────────────────────────
 
@@ -311,7 +335,7 @@ export function DataGrid<TData, TValue = unknown>({
   const totalVirtualSize = virtualized ? virtualizer.getTotalSize() : 0
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  const rows = virtualized ? allRows : allRows
+  const rows = allRows
 
   return (
     <div className={cn("flex flex-col gap-0", className)}>
@@ -372,6 +396,7 @@ export function DataGrid<TData, TValue = unknown>({
                       ) : (
                         <ColumnHeader
                           column={header.column}
+                          header={header}
                           title={flexRender(header.column.columnDef.header, header.getContext()) as string}
                           enablePinning={enablePinning}
                           enableResizing={enableResizing}
@@ -391,7 +416,7 @@ export function DataGrid<TData, TValue = unknown>({
                   colSpan={columns.length}
                   className="h-20 text-center text-sm text-muted-foreground"
                 >
-                  暂无数据
+                  {locale.noResults}
                 </TableCell>
               </TableRow>
             ) : virtualized && virtualItems ? (

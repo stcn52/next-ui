@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { TagInput } from "@/components/ui/tag-input"
-import { RatingInput } from "@/components/ui/rating-input"
+import { TagInput } from "@/components/ui/inputs/tag-input"
+import { RatingInput } from "@/components/ui/inputs/rating-input"
 
 // ---------------------------------------------------------------------------
 // TagInput

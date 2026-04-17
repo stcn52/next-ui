@@ -4,10 +4,10 @@ import { expect, within, userEvent } from "storybook/test"
 import { ThemeProvider, useTheme } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
+import { Input } from "@/components/ui/inputs/input"
+import { Progress } from "@/components/ui/display/progress"
 import {
   themePresets,
   type ThemePreset,

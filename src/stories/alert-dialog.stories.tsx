@@ -10,7 +10,7 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/overlays/alert-dialog"
 import { Button } from "@/components/ui/button"
 
 const meta: Meta = {

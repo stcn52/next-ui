@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { OTPInput } from "@/components/ui/otp-input"
+import { OTPInput } from "@/components/ui/inputs/otp-input"
 import { ColorPicker } from "@/components/ui/color-picker"
 
 // ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ describe("ColorPicker", () => {
     render(<ColorPicker value="#3b82f6" onChange={onChange} />)
     await user.click(screen.getByLabelText("打开颜色选择器"))
     // click the red preset
-    const redSwatch = screen.getByLabelText("#ef4444")
+    const redSwatch = screen.getByLabelText("#EF4444")
     await user.click(redSwatch)
     expect(onChange).toHaveBeenCalledWith("#ef4444")
   })

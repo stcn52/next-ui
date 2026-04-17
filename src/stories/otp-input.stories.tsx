@@ -4,9 +4,9 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { OTPInput } from "@/components/ui/otp-input"
+import { OTPInput } from "@/components/ui/inputs/otp-input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof OTPInput> = {
   title: "UI/OTPInput",

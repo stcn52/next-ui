@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
-import { Combobox, type ComboboxOption } from "@/components/ui/combobox"
+import { Combobox, type ComboboxOption } from "@/components/ui/inputs/combobox"
 
 const frameworks: ComboboxOption[] = [
   { value: "next.js", label: "Next.js" },

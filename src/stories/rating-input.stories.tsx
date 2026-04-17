@@ -4,8 +4,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within, userEvent } from "storybook/test"
-import { RatingInput } from "@/components/ui/rating-input"
-import { Label } from "@/components/ui/label"
+import { RatingInput } from "@/components/ui/inputs/rating-input"
+import { Label } from "@/components/ui/inputs/label"
 
 const meta: Meta<typeof RatingInput> = {
   title: "UI/RatingInput",

@@ -2,10 +2,10 @@ import { useState } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Badge } from "@/components/ui/display/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
 import {
   Card,
   CardContent,
@@ -13,7 +13,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/display/card"
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/overlays/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,18 +30,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/inputs/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/navigation/tabs"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/display/alert"
+import { Separator } from "@/components/ui/display/separator"
+import { Skeleton } from "@/components/ui/display/skeleton"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

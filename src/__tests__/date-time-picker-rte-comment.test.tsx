@@ -3,7 +3,7 @@
  */
 import { render, screen, fireEvent, within } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
-import { DateTimePicker } from "@/components/ui/date-time-picker"
+import { DateTimePicker } from "@/components/ui/date/date-time-picker"
 import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { CommentEditor } from "@/components/ui/comment-editor"
 

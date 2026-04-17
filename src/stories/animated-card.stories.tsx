@@ -9,9 +9,9 @@ import {
   StaggerItem,
   AnimatedListItem,
   ScaleTap,
-} from "@/components/ui/animated-card"
+} from "@/components/ui/display/animated-card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { AnimatePresence } from "motion/react"
 
 const meta: Meta<typeof AnimatedCard> = {

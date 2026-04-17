@@ -14,7 +14,7 @@ import {
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
   ContextMenuLabel,
-} from "@/components/ui/context-menu"
+} from "@/components/ui/overlays/context-menu"
 import { useState } from "react"
 
 const meta: Meta = {

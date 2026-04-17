@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { Bubble } from "@/components/ui/chat-bubble"
-import { ChatSender } from "@/components/ui/chat-sender"
-import { ChatConversations } from "@/components/ui/chat-conversations"
+import { Bubble } from "@/components/ui/chat/chat-bubble"
+import { ChatSender } from "@/components/ui/chat/chat-sender"
+import { ChatConversations } from "@/components/ui/chat/chat-conversations"
 
 describe("Chat a11y", () => {
   it("exposes aria-labels for bubble action triggers", () => {

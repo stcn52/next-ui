@@ -8,10 +8,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Textarea } from "@/components/ui/textarea"
+import { Textarea } from "@/components/ui/inputs/textarea"
 
 interface PromptVariable {
   key: string

@@ -11,20 +11,20 @@ import {
   ShoppingCartIcon,
   HeartIcon,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardFooter,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Slider } from "@/components/ui/slider"
-import { RatingInput } from "@/components/ui/rating-input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/display/card"
+import { Input } from "@/components/ui/inputs/input"
+import { Label } from "@/components/ui/inputs/label"
+import { Checkbox } from "@/components/ui/inputs/checkbox"
+import { Slider } from "@/components/ui/inputs/slider"
+import { RatingInput } from "@/components/ui/inputs/rating-input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/inputs/select"
+import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
 
 const meta: Meta = {

@@ -4,16 +4,16 @@
  */
 import type { Meta, StoryObj } from "@storybook/react"
 import { within, expect } from "storybook/test"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/display/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Separator } from "@/components/ui/display/separator"
 import {
   Timeline,
   TimelineItem,
   TimelineConnector,
   TimelineDot,
   TimelineContent,
-} from "@/components/ui/timeline"
+} from "@/components/ui/display/timeline"
 import {
   GitCommitHorizontal,
   Package,

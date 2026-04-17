@@ -8,8 +8,8 @@ import {
   TimelineContent,
   TimelineTitle,
   TimelineDescription,
-} from "@/components/ui/timeline"
-import { Stepper, Step } from "@/components/ui/stepper"
+} from "@/components/ui/display/timeline"
+import { Stepper, Step } from "@/components/ui/display/stepper"
 
 describe("Timeline", () => {
   it("renders with correct data-slot", () => {

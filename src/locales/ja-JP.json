@@ -11,13 +11,25 @@
     "required": "必須",
     "optional": "任意",
     "submit": "送信",
-    "reset": "リセット"
+    "reset": "リセット",
+    "columns": "列",
+    "editCell": "セルを編集",
+    "enterValue": "値を入力…",
+    "noCellSelected": "（セル未選択）",
+    "formulaBar": "数式バー",
+    "selectRow": "{row}行を選択",
+    "selectAllCurrentPage": "現在のページをすべて選択",
+    "sortByColumn": "{title} で並べ替え",
+    "pinColumn": "左側に固定",
+    "unpinColumn": "固定を解除"
   },
   "pagination": {
     "previous": "前へ",
     "next": "次へ",
     "goToPreviousPage": "前のページへ",
     "goToNextPage": "次のページへ",
+    "goToFirstPage": "最初のページへ",
+    "goToLastPage": "最後のページへ",
     "page": "ページ",
     "pageOf": "{page} / {total} ページ",
     "rowsPerPage": "1ページの行数"

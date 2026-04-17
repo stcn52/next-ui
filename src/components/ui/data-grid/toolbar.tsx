@@ -6,8 +6,9 @@
 import { type Table } from "@tanstack/react-table"
 import { SearchIcon, SlidersHorizontalIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/inputs/input"
+import { Badge } from "@/components/ui/display/badge"
+import { formatMessage, useLocale } from "@/components/config-provider"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 
 interface ToolbarProps<TData> {
   table: Table<TData>
@@ -27,10 +28,14 @@ interface ToolbarProps<TData> {
 export function Toolbar<TData>({
   table,
   filterColumn,
-  filterPlaceholder = "搜索…",
+  filterPlaceholder,
   enableColumnVisibility = true,
 }: ToolbarProps<TData>) {
+  const locale = useLocale()
   const selectedCount = table.getSelectedRowModel().rows.length
+  const selectedTotal = table.getFilteredRowModel().rows.length
+  const filterLabel = filterPlaceholder ?? locale.filter ?? "Filter..."
+  const columnsLabel = locale.columns ?? "Columns"
 
   return (
     <div className="flex items-center gap-2 pb-2">
@@ -39,11 +44,11 @@ export function Toolbar<TData>({
         <div className="relative flex-1 max-w-xs">
           <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder={filterPlaceholder}
+            placeholder={filterLabel}
             value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
             onChange={(e) => table.getColumn(filterColumn)?.setFilterValue(e.target.value)}
-            className="pl-8 h-8 text-sm"
-            aria-label={filterPlaceholder}
+            className="h-8 pl-8 text-sm"
+            aria-label={filterLabel}
           />
         </div>
       )}
@@ -52,21 +57,23 @@ export function Toolbar<TData>({
         {/* Selected rows badge */}
         {selectedCount > 0 && (
           <Badge variant="secondary" className="text-xs h-7">
-            已选 {selectedCount} 行
+            {formatMessage(locale.rowsSelected, { count: selectedCount, total: selectedTotal })}
           </Badge>
         )}
 
         {/* Column visibility */}
         {enableColumnVisibility && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                <SlidersHorizontalIcon className="size-3.5" />
-                列
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" aria-label={columnsLabel}>
+                  <SlidersHorizontalIcon className="size-3.5" />
+                  {columnsLabel}
+                </Button>
+              }
+            />
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuLabel className="text-xs">显示 / 隐藏列</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">{columnsLabel}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {table
                 .getAllColumns()

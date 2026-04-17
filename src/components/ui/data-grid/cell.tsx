@@ -8,6 +8,7 @@
  */
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/config-provider"
 
 export interface GridCellProps {
   /** 显示 / 编辑的值（字符串化后展示） */
@@ -49,6 +50,8 @@ export function GridCell({
   const displayValue = value == null ? "" : String(value)
   const [draft, setDraft] = React.useState(displayValue)
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const ignoreBlurRef = React.useRef(false)
+  const locale = useLocale()
 
   // Sync draft when value changes externally
   React.useEffect(() => {
@@ -75,10 +78,24 @@ export function GridCell({
         ref={inputRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
+        onBlur={() => {
+          if (ignoreBlurRef.current) {
+            ignoreBlurRef.current = false
+            return
+          }
+          commit()
+        }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") { e.preventDefault(); commit() }
-          if (e.key === "Escape") { e.preventDefault(); cancel() }
+          if (e.key === "Enter") {
+            e.preventDefault()
+            ignoreBlurRef.current = true
+            commit()
+          }
+          if (e.key === "Escape") {
+            e.preventDefault()
+            ignoreBlurRef.current = true
+            cancel()
+          }
           onKeyNav?.(e)
         }}
         className={cn(
@@ -86,7 +103,7 @@ export function GridCell({
           "border-2 border-primary ring-2 ring-primary/20",
           className,
         )}
-        aria-label="编辑单元格"
+        aria-label={locale.editCell ?? "Edit cell"}
       />
     )
   }

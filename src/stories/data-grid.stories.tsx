@@ -5,7 +5,7 @@ import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataGrid } from "@/components/ui/data-grid"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/display/badge"
 
 const meta: Meta<typeof DataGrid> = {
   title: "Components/DataGrid",

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
-import { ChatConversations, type ConversationItem } from "@/components/ui/chat-conversations"
+import { ChatConversations, type ConversationItem } from "@/components/ui/chat/chat-conversations"
 import { MessageCircle, Code, Languages, FileSpreadsheet, BookOpen } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 
 const meta: Meta<typeof ChatConversations> = {
   title: "Chat/Conversations",

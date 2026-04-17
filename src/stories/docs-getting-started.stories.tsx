@@ -2,9 +2,9 @@
  * Getting Started — Introduction and documentation for @chenyang/ui.
  */
 import type { Meta, StoryObj } from "@storybook/react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/display/card"
+import { Badge } from "@/components/ui/display/badge"
+import { Separator } from "@/components/ui/display/separator"
 
 const meta: Meta = {
   title: "Docs/Getting Started",

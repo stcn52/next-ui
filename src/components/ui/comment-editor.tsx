@@ -24,7 +24,7 @@
 import * as React from "react"
 import { AtSignIcon, PaperclipIcon, XIcon, ImageIcon, FileIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
 import { cn } from "@/lib/utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────────

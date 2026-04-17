@@ -15,22 +15,22 @@ import {
   TrendingUpIcon,
   HashIcon,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
+import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardHeader,
-} from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/display/card"
+import { Textarea } from "@/components/ui/inputs/textarea"
+import { Separator } from "@/components/ui/display/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/overlays/dropdown-menu"
 
 const meta: Meta = {
   title: "Pages/SocialFeedPage",
@@ -160,11 +160,7 @@ function PostCard({ post }: { post: Post }) {
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="-mr-1 text-muted-foreground">
-                <MoreHorizontalIcon className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" className="-mr-1 text-muted-foreground"><MoreHorizontalIcon className="size-4" /></Button>} />
             <DropdownMenuContent align="end">
               <DropdownMenuItem>复制链接</DropdownMenuItem>
               <DropdownMenuItem>举报</DropdownMenuItem>
