@@ -22,9 +22,11 @@ test.describe("Composite Pages", () => {
     await expect(page.getByText("写测试")).toBeVisible()
     await expect(page.getByText("优化")).toBeVisible()
 
-    // Verify attachments preview
-    await expect(page.getByText("代码截图.png")).toBeVisible()
-    await expect(page.getByText("128KB")).toBeVisible()
+    // Verify the attachment preview container and its visible metadata
+    const attachmentPreview = page.locator('[data-slot="attachment-preview"]')
+    await expect(attachmentPreview).toBeVisible()
+    await expect(attachmentPreview).toContainText("代码截图.png")
+    await expect(attachmentPreview).toContainText("128KB")
 
     // Verify footer text
     await expect(page.getByText("AI 回复仅供参考 · 支持 @提及 和附件")).toBeVisible()
