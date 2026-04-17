@@ -71,7 +71,7 @@ function MentionDropdown({
     <div
       role="listbox"
       aria-label="提及用户"
-      className="absolute z-50 bottom-full mb-1 left-0 w-56 rounded-lg border bg-popover shadow-md overflow-hidden"
+      className="absolute bottom-full left-0 z-50 mb-1 w-56 overflow-hidden rounded-md border bg-popover shadow-sm"
     >
       {filtered.slice(0, 6).map((u) => (
         <button
@@ -199,7 +199,7 @@ export function CommentEditor({
 
   return (
     <div
-      className={cn("rounded-lg border bg-card focus-within:ring-2 focus-within:ring-ring transition-shadow", className)}
+      className={cn("rounded-md border bg-card transition-shadow focus-within:ring-2 focus-within:ring-ring", className)}
       aria-label="评论编辑器"
     >
       {/* Textarea */}

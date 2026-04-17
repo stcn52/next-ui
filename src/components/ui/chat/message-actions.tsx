@@ -23,27 +23,27 @@ function MessageActions({
   return (
     <div data-slot="message-actions" className={cn("flex items-center gap-1", className)} {...props}>
       {onCopy && (
-        <Button variant="ghost" size="icon" className="size-7" aria-label="复制消息" onClick={onCopy}>
+        <Button variant="ghost" size="icon" className="size-8" aria-label="复制消息" onClick={onCopy}>
           <Copy className="size-3.5" />
         </Button>
       )}
       {onEdit && (
-        <Button variant="ghost" size="icon" className="size-7" aria-label="编辑消息" onClick={onEdit}>
+        <Button variant="ghost" size="icon" className="size-8" aria-label="编辑消息" onClick={onEdit}>
           <Pencil className="size-3.5" />
         </Button>
       )}
       {onThumbsUp && (
-        <Button variant="ghost" size="icon" className="size-7" aria-label="点赞" onClick={onThumbsUp}>
+        <Button variant="ghost" size="icon" className="size-8" aria-label="点赞" onClick={onThumbsUp}>
           <ThumbsUp className="size-3.5" />
         </Button>
       )}
       {onThumbsDown && (
-        <Button variant="ghost" size="icon" className="size-7" aria-label="点踩" onClick={onThumbsDown}>
+        <Button variant="ghost" size="icon" className="size-8" aria-label="点踩" onClick={onThumbsDown}>
           <ThumbsDown className="size-3.5" />
         </Button>
       )}
       {onRegenerate && (
-        <Button variant="ghost" size="icon" className="size-7" aria-label="重新生成消息" onClick={onRegenerate}>
+        <Button variant="ghost" size="icon" className="size-8" aria-label="重新生成消息" onClick={onRegenerate}>
           <RefreshCcw className="size-3.5" />
         </Button>
       )}

@@ -76,7 +76,7 @@ function Step({
       role="listitem"
       className={cn(
         "flex",
-        isH ? "flex-1 items-center" : "gap-4",
+        isH ? "flex-1 items-center" : "gap-3",
         className,
       )}
       {...props}
@@ -119,7 +119,7 @@ function Step({
       {isH && !_isLast && (
         <div
           className={cn(
-            "mx-3 h-px flex-1",
+            "mx-2.5 h-px flex-1",
             _status === "completed" ? "bg-primary" : "bg-border",
           )}
         />

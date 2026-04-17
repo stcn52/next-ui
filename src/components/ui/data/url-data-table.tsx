@@ -132,7 +132,7 @@ function UrlDataTable<TData, TValue>({
   }, [sorting, columnFilters, pagination, syncUrl])
 
   return (
-    <div data-slot="url-data-table" className="flex flex-col gap-4">
+    <div data-slot="url-data-table" className="flex flex-col gap-3">
       {filterColumn && (
         <Input
           placeholder={filterPlaceholder ?? locale.filter}
@@ -181,7 +181,7 @@ function UrlDataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-16 text-center"
                 >
                   {locale.noResults}
                 </TableCell>
@@ -190,7 +190,7 @@ function UrlDataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-1">
         <p className="text-sm text-muted-foreground">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}

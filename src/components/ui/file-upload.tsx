@@ -60,7 +60,7 @@ function FileUploadItemRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm",
+        "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
         isError && "border-destructive/50 bg-destructive/5",
         isDone && "border-green-500/30 bg-green-500/5"
       )}
@@ -234,13 +234,13 @@ function FileUpload({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-4 text-center transition-colors",
           dragActive && "border-primary bg-primary/5",
           !dragActive && !disabled && !reachedMax && "border-border hover:border-primary/50 hover:bg-muted/30",
           (disabled || reachedMax) && "cursor-not-allowed opacity-50 border-border"
         )}
       >
-        <UploadIcon className="size-8 text-muted-foreground" />
+        <UploadIcon className="size-7 text-muted-foreground" />
         <p className="text-sm font-medium">{placeholder}</p>
         {description && (
           <p className="text-xs text-muted-foreground">{description}</p>

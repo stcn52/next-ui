@@ -109,7 +109,7 @@ function ChatConversations({
   return (
     <div data-slot="chat-conversations" className={cn("flex flex-col", className)} {...props}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-3 py-3">
+      <div className="flex items-center justify-between border-b px-3 py-2">
         <h2 className="text-sm font-semibold">{title}</h2>
         {onNewChat && (
           <Button variant="ghost" size="icon" className="size-8" aria-label="新建会话" onClick={onNewChat}>
@@ -120,8 +120,8 @@ function ChatConversations({
 
       {/* Search */}
       {searchable && (
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-2.5 py-1.5">
+        <div className="px-3 py-1">
+          <div className="flex items-center gap-2 rounded-md border bg-muted/50 px-2.5 py-1.5">
             <Search className="size-3.5 text-muted-foreground" />
             <input
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
@@ -149,7 +149,7 @@ function ChatConversations({
                   onClick={() => handleSelect(c)}
                   disabled={c.disabled}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-1.5 text-left transition-colors",
+                    "flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors",
                     activeId === c.key ? "bg-accent" : "hover:bg-accent/50",
                     c.disabled && "pointer-events-none opacity-50",
                   )}

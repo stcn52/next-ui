@@ -149,7 +149,7 @@ function PromptLibrary({
           )}
           <ScrollArea className="h-80">
             {filteredItems.length === 0 ? (
-              <div className="rounded-lg border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">
+              <div className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                 {renderEmpty ?? "暂无匹配模板"}
               </div>
             ) : (
@@ -188,7 +188,7 @@ function PromptLibrary({
             <CardDescription>{selectedItem.description}</CardDescription>
           )}
         </CardHeader>
-        <CardContent className="grid gap-3 pt-4 lg:grid-cols-[1fr_1fr]">
+        <CardContent className="grid gap-3 pt-3 lg:grid-cols-[1fr_1fr]">
           <div className="space-y-3">
             <div className="space-y-2">
               <div className="text-sm font-medium">变量</div>
@@ -214,7 +214,7 @@ function PromptLibrary({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">
+                <div className="rounded-md border border-dashed px-3 py-1.5 text-sm text-muted-foreground">
                   这个模板没有变量，可直接应用。
                 </div>
               )}

@@ -18,7 +18,7 @@ function ChatThread({
   return (
     <div data-slot="chat-thread" className={cn("min-h-0 flex-1", className)} {...props}>
       <ScrollArea className="h-full">
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-3 p-3">
           {showUnreadDivider && (
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-border" />

@@ -29,8 +29,8 @@ function ConversationHeader({
       : "bg-zinc-400"
 
   return (
-    <div data-slot="conversation-header" className={cn("flex items-center justify-between border-b px-4 py-3", className)} {...props}>
-      <div className="flex items-center gap-3">
+    <div data-slot="conversation-header" className={cn("flex items-center justify-between border-b px-3 py-2", className)} {...props}>
+      <div className="flex items-center gap-2">
         <Avatar className="size-8">
           <AvatarFallback className="text-xs">{avatarFallback}</AvatarFallback>
         </Avatar>

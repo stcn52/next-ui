@@ -116,7 +116,7 @@ function ChatCommandPalette({
       data-slot="chat-command-palette"
       data-attach-to={attachTo}
       className={cn(
-        "rounded-xl border bg-popover shadow-md",
+        "rounded-lg border bg-popover shadow-sm",
         attachTo === "standalone" ? "w-full max-w-lg" : "w-full",
         className,
       )}

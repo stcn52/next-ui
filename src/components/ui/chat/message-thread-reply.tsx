@@ -9,8 +9,8 @@ interface MessageThreadReplyProps extends React.ComponentProps<"div"> {
 
 function MessageThreadReply({ author, content, time, className, ...props }: MessageThreadReplyProps) {
   return (
-    <div data-slot="message-thread-reply" className={cn("rounded-lg border bg-muted/40 p-2 text-xs", className)} {...props}>
-      <div className="mb-1 flex items-center justify-between">
+    <div data-slot="message-thread-reply" className={cn("rounded-md border bg-muted/40 p-1.5 text-xs", className)} {...props}>
+      <div className="mb-0.5 flex items-center justify-between">
         <span className="font-medium">{author}</span>
         {time && <span className="text-muted-foreground">{time}</span>}
       </div>

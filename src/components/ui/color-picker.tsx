@@ -178,7 +178,7 @@ function ColorPicker({
           />
         </PopoverTrigger>
 
-        <PopoverContent className="w-64 p-4 space-y-4" align="start" sideOffset={6}>
+        <PopoverContent className="w-64 space-y-3 p-3" align="start" sideOffset={6}>
           {/* Hue preview bar */}
           <div
             className="h-6 w-full rounded-md"

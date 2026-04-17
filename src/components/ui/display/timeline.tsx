@@ -37,7 +37,7 @@ function TimelineItem({ className, isLast, ...props }: TimelineItemProps) {
   return (
     <div
       data-slot="timeline-item"
-      className={cn("relative flex gap-4 pb-6", isLast && "pb-0", className)}
+      className={cn("relative flex gap-3 pb-5", isLast && "pb-0", className)}
       {...props}
     />
   )
@@ -52,7 +52,7 @@ function TimelineConnector({ className, ...props }: React.ComponentProps<"div">)
     <div
       data-slot="timeline-connector"
       className={cn(
-        "absolute left-[15px] top-[30px] bottom-0 w-px bg-border",
+        "absolute left-[15px] top-[28px] bottom-0 w-px bg-border",
         className,
       )}
       {...props}
@@ -81,7 +81,7 @@ function TimelineDot({ className, variant = "default", children, ...props }: Tim
     <div
       data-slot="timeline-dot"
       className={cn(
-        "z-10 flex size-[30px] shrink-0 items-center justify-center rounded-full border-2",
+        "z-10 flex size-[28px] shrink-0 items-center justify-center rounded-full border-2",
         DOT_VARIANTS[variant],
         className,
       )}

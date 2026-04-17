@@ -160,9 +160,9 @@ function ChatSender({
   const hasOverlaySuggestions = suggestionsVariant === "overlay" && hasSuggestions
   const densityStyles = {
     default: {
-      root: "gap-2",
-      cardContent: "gap-2 p-2",
-      inputRow: "gap-2",
+      root: "gap-1.5",
+      cardContent: "gap-1.5 p-1.5",
+      inputRow: "gap-1.5",
       textarea: "min-h-10",
       attachment: "gap-2 pb-1",
       attachmentItemPadding: "px-2.5 py-1.5",
@@ -174,7 +174,7 @@ function ChatSender({
     },
     compact: {
       root: "gap-1.5",
-      cardContent: "gap-1.5 p-2",
+      cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "min-h-9",
       attachment: "gap-1.5 pb-0.5",
@@ -187,7 +187,7 @@ function ChatSender({
     },
     dense: {
       root: "gap-1",
-      cardContent: "gap-1.5 p-1.5",
+      cardContent: "gap-1 p-1.5",
       inputRow: "gap-1",
       textarea: "min-h-8",
       attachment: "gap-1 pb-0.5",
@@ -398,7 +398,7 @@ function ChatSender({
       className={cn(
         "flex flex-col",
         densityStyles.root,
-        isDragOver && "rounded-lg border-2 border-dashed border-primary/60",
+        isDragOver && "rounded-md border-2 border-dashed border-primary/60",
         className,
       )}
       onDragOver={(event) => {
@@ -437,7 +437,7 @@ function ChatSender({
             data-slot="mention-list"
             role="listbox"
             aria-label="提及建议"
-            className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-64 overflow-y-auto rounded-lg border bg-popover p-1 shadow-md"
+            className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-64 overflow-y-auto rounded-md border bg-popover p-0.5 shadow-sm"
           >
             {filteredMentions.map((item, index) => (
               <button
@@ -464,7 +464,7 @@ function ChatSender({
           <div
             data-slot="suggestion-list"
             aria-label="快捷提示"
-            className="absolute inset-x-0 bottom-full z-20 mb-2 rounded-lg border bg-popover p-2 shadow-md"
+            className="absolute inset-x-0 bottom-full z-20 mb-2 rounded-md border bg-popover p-1 shadow-sm"
           >
             <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
               {suggestions?.map((suggestion) => (
@@ -483,11 +483,11 @@ function ChatSender({
         )}
 
         <div className={cn(
-          "relative overflow-visible rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col",
+          "relative flex flex-col overflow-visible rounded-lg border bg-card text-card-foreground shadow-sm",
           densityStyles.cardContent,
         )}>
           {isDragOver && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-primary/5">
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-primary/5">
               <p className="text-xs font-medium text-primary">释放文件以上传</p>
             </div>
           )}
@@ -505,7 +505,7 @@ function ChatSender({
                   <div
                     key={attachment.id}
                     className={cn(
-                      "group/att relative flex min-w-0 items-center gap-2 rounded-lg border bg-muted/50",
+                      "group/att relative flex min-w-0 items-center gap-2 rounded-md border bg-muted/50",
                       densityStyles.attachmentItemPadding,
                       attachmentLayout === "scroll" && "max-w-60 shrink-0",
                     )}

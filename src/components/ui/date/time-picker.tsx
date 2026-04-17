@@ -58,7 +58,7 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
 
   return (
     <div className="flex flex-col items-center gap-0.5" role="group" aria-label={label}>
-      <Button variant="ghost" size="icon" className="size-7" onClick={inc} tabIndex={-1} aria-label={`${label} 增加`}>
+      <Button variant="ghost" size="icon" className="size-8 rounded-md" onClick={inc} tabIndex={-1} aria-label={`${label} 增加`}>
         <ChevronUpIcon className="size-3.5" />
       </Button>
       <div
@@ -68,7 +68,7 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
         aria-valuemin={min}
         aria-valuemax={max}
         tabIndex={0}
-        className="w-10 text-center text-lg font-mono font-bold py-1 rounded select-none cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-10 rounded-md py-0.5 text-center font-mono text-lg font-bold select-none cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
         onKeyDown={(e) => {
           if (e.key === "ArrowUp") { e.preventDefault(); inc() }
           if (e.key === "ArrowDown") { e.preventDefault(); dec() }
@@ -76,7 +76,7 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
       >
         {String(value).padStart(2, "0")}
       </div>
-      <Button variant="ghost" size="icon" className="size-7" onClick={dec} tabIndex={-1} aria-label={`${label} 减少`}>
+      <Button variant="ghost" size="icon" className="size-8 rounded-md" onClick={dec} tabIndex={-1} aria-label={`${label} 减少`}>
         <ChevronDownIcon className="size-3.5" />
       </Button>
     </div>
@@ -160,8 +160,8 @@ export function TimePicker({
           </Button>
         }
       />
-      <PopoverContent className="w-auto p-4" align="start">
-        <div className="flex items-center gap-1">
+      <PopoverContent className="w-auto p-3" align="start">
+        <div className="flex items-center gap-1.5">
           <Spinner value={displayH} min={hourCycle === 12 ? 1 : 0} max={maxH} label="小时" onChange={handleHour} />
           <span className="text-xl font-bold text-muted-foreground">:</span>
           <Spinner value={m} min={0} max={59} label="分钟" onChange={handleMinute} />
@@ -171,7 +171,7 @@ export function TimePicker({
             </Button>
           )}
         </div>
-        <div className="mt-3 flex justify-end">
+        <div className="mt-2 flex justify-end">
           <Button size="sm" onClick={() => setOpen(false)}>确定</Button>
         </div>
       </PopoverContent>

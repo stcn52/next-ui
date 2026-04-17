@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.7 (2026-04-17)
+
+### Fixes
+
+- Tightened the compact UI baseline across chat, data, date, overlay, form, and file-upload surfaces to remove oversized chrome and wasted space
+
+### Tests
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build:lib`
+- `pnpm test:e2e`
+
 ## 0.2.6 (2026-04-17)
 
 ### Fixes

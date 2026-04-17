@@ -190,7 +190,7 @@ export function DateTimePicker({
             aria-label={placeholder}
             disabled={disabled}
             className={cn(
-              "justify-start text-left font-normal h-9 min-w-[220px]",
+              "h-8 min-w-[220px] justify-start text-left font-normal",
               !current && "text-muted-foreground",
               className,
             )}
@@ -210,8 +210,8 @@ export function DateTimePicker({
         />
         <Separator />
         {/* Time picker */}
-        <div className="flex items-center gap-1 px-4 py-3">
-          <ClockIcon className="size-4 text-muted-foreground mr-2" />
+        <div className="flex items-center gap-1 px-3 py-2">
+          <ClockIcon className="mr-1.5 size-4 text-muted-foreground" />
           <TimeSpinner value={displayHour} min={hourCycle === 12 ? 1 : 0} max={maxHour} label="小时" onChange={handleHourChange} />
           <span className="text-lg font-mono font-bold text-muted-foreground px-1">:</span>
           <TimeSpinner value={minute} min={0} max={59} label="分钟" onChange={handleMinuteChange} />
@@ -219,7 +219,7 @@ export function DateTimePicker({
             <Button
               variant="outline"
               size="sm"
-              className="ml-2 w-12 text-xs"
+              className="ml-1.5 w-11 text-xs"
               onClick={handlePeriodToggle}
             >
               {period}
@@ -227,7 +227,7 @@ export function DateTimePicker({
           )}
         </div>
         {current && (
-          <div className="border-t px-4 py-2 flex justify-end">
+          <div className="flex justify-end border-t px-3 py-1.5">
             <Button size="sm" onClick={() => setOpen(false)}>确定</Button>
           </div>
         )}

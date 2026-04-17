@@ -208,13 +208,13 @@ export function RichTextEditor({
     <div
       aria-label="富文本编辑器"
       className={cn(
-        "rounded-lg border bg-card text-card-foreground",
+        "rounded-md border bg-card text-card-foreground",
         disabled && "opacity-60 pointer-events-none",
         className,
       )}
     >
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 border-b px-2 py-1.5 flex-wrap">
+      <div className="flex flex-wrap items-center gap-0.5 border-b px-2 py-1.5">
         {TOOLS.map((tool, idx) =>
           tool === null ? (
             <Separator key={`sep-${idx}`} orientation="vertical" className="h-5 mx-1" />
@@ -223,7 +223,7 @@ export function RichTextEditor({
               key={tool.label}
               variant="ghost"
               size="icon"
-              className="size-7 rounded"
+              className="size-7 rounded-md"
               title={tool.label}
               aria-label={tool.label}
               onClick={() => wrap(tool.wrap)}

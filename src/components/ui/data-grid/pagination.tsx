@@ -71,7 +71,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           <Button
             variant="outline"
             size="icon"
-            className="size-7"
+            className="size-8"
             onClick={() => table.firstPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label={locale.goToFirstPage ?? "Go to first page"}
@@ -81,7 +81,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           <Button
             variant="outline"
             size="icon"
-            className="size-7"
+            className="size-8"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label={locale.goToPreviousPage}
@@ -96,7 +96,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           <Button
             variant="outline"
             size="icon"
-            className="size-7"
+            className="size-8"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label={locale.goToNextPage}
@@ -106,7 +106,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           <Button
             variant="outline"
             size="icon"
-            className="size-7"
+            className="size-8"
             onClick={() => table.lastPage()}
             disabled={!table.getCanNextPage()}
             aria-label={locale.goToLastPage ?? "Go to last page"}

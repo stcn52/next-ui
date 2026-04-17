@@ -202,8 +202,8 @@ const VARIANT_CLASSES: Record<BubbleVariant, { user: string; assistant: string }
     assistant: "border bg-background",
   },
   shadow: {
-    user: "bg-primary text-primary-foreground shadow-md",
-    assistant: "bg-background shadow-md",
+    user: "bg-primary text-primary-foreground shadow-sm",
+    assistant: "bg-background shadow-sm",
   },
   borderless: {
     user: "",
@@ -244,7 +244,7 @@ function Bubble({
 
   if (isSystem) {
     return (
-      <div data-slot="chat-bubble" data-role="system" className={cn("flex items-center gap-3 py-2", className)}>
+      <div data-slot="chat-bubble" data-role="system" className={cn("flex items-center gap-2 py-2", className)}>
         <Separator className="flex-1" />
         <span className="shrink-0 text-xs text-muted-foreground">{content}</span>
         <Separator className="flex-1" />
@@ -287,11 +287,11 @@ function Bubble({
     <div
       data-slot="chat-bubble"
       data-role={role}
-      className={cn("group flex items-start gap-2.5", isUser ? "flex-row-reverse" : "flex-row", className)}
+      className={cn("group flex items-start gap-2", isUser ? "flex-row-reverse" : "flex-row", className)}
     >
       {avatar ?? defaultAvatar}
 
-      <div className={cn("flex flex-col gap-1", isUser ? "max-w-[75%] items-end" : "max-w-[85%] items-start")}>
+      <div className={cn("flex flex-col gap-0.5", isUser ? "max-w-[75%] items-end" : "max-w-[85%] items-start")}>
         {header}
 
         {!isUser && thinking && thinking.length > 0 && <ThoughtChain steps={thinking} />}
@@ -307,7 +307,7 @@ function Bubble({
             </div>
           </div>
         ) : (
-          <div className={cn("px-3 py-2 text-sm leading-relaxed", variantCls, shapeCls)}>
+          <div className={cn("px-3 py-1.5 text-sm leading-relaxed", variantCls, shapeCls)}>
             {streaming ? (
               <>
                 <StreamingText content={content} />
@@ -320,7 +320,7 @@ function Bubble({
         )}
 
         {!editing && (timestamp || (status === "sent" && isUser) || hasActions) && (
-          <div className={cn("flex items-center gap-1.5", isUser ? "flex-row-reverse" : "flex-row")}>
+          <div className={cn("flex items-center gap-1", isUser ? "flex-row-reverse" : "flex-row")}>
             {timestamp && <span className="text-[10px] text-muted-foreground/60">{timestamp}</span>}
             {status === "sent" && isUser && <Check className="size-3 text-muted-foreground/60" />}
 
