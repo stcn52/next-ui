@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.6 (2026-04-17)
+
+### Fixes
+
+- Aligned the `data-grid-file-tree` E2E suite with the current Storybook story ids and component DOM structure
+
+### Tests
+
+- `pnpm test:e2e` now passes with the current DataTable and FileManager stories
+
 ## 0.2.5 (2026-04-17)
 
 ### Structural Improvements
