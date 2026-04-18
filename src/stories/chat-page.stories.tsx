@@ -298,7 +298,7 @@ function AttachmentDialog() {
 function ModelSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-7 w-32 text-xs" aria-label="选择模型">
+      <SelectTrigger className="h-7 w-28 text-[11px]" aria-label="选择模型">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -344,42 +344,42 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
   const showInlineCommandPalette = slashDraft.startsWith("/")
   const pageStyles = ultraCompact
     ? {
-        shell: "h-[39rem] max-w-[88rem] rounded-md",
+        shell: "h-[37.5rem] max-w-[84rem] rounded-md",
+        sidebar: "w-56",
+        header: "px-2.5 py-1.5",
+        titleRow: "gap-1.5",
+        subtitle: "hidden",
+        actions: "gap-1",
+        titleMeta: "gap-1",
+        searchBar: "px-2.5 py-1",
+        messages: "gap-1.5 px-2 py-1.5",
+        sender: "px-2 pb-1.5 pt-0.5",
+        senderDensity: "dense" as const,
+        senderFooterText: undefined,
+        showKeyboardHint: false,
+        toolRail: "w-9 gap-0.5 py-1.5",
+        toolPanelDocked: "w-[16.5rem]",
+        toolPanelOverlay: "right-10 top-11 bottom-[4rem] w-[16.5rem]",
+        toolPanelPadding: "p-1.5",
+      }
+    : {
+        shell: "h-[40rem] max-w-[92rem] rounded-lg",
         sidebar: "w-60",
         header: "px-3 py-2",
         titleRow: "gap-2",
-        subtitle: "hidden",
+        subtitle: "text-[11px] text-muted-foreground",
         actions: "gap-1",
         titleMeta: "gap-1",
         searchBar: "px-3 py-1",
         messages: "gap-1.5 px-2.5 py-2",
         sender: "px-2.5 pb-2 pt-1",
-        senderDensity: "dense" as const,
-        senderFooterText: undefined,
-        showKeyboardHint: false,
-        toolRail: "w-10 gap-1 py-2",
-        toolPanelDocked: "w-[18rem]",
-        toolPanelOverlay: "right-11 top-12 bottom-[4.5rem] w-[18rem]",
-        toolPanelPadding: "p-2",
-      }
-    : {
-        shell: "h-[41rem] max-w-[96rem] rounded-lg",
-        sidebar: "w-64",
-        header: "px-4 py-2.5",
-        titleRow: "gap-2.5",
-        subtitle: "text-xs text-muted-foreground",
-        actions: "gap-1.5",
-        titleMeta: "gap-1.5",
-        searchBar: "px-4 py-1.5",
-        messages: "gap-2 px-3 py-2.5",
-        sender: "px-3 pb-2.5 pt-1.5",
         senderDensity: "compact" as const,
         senderFooterText: "仅供参考",
         showKeyboardHint: false,
-        toolRail: "w-11 gap-1.5 py-2.5",
-        toolPanelDocked: "w-[22rem]",
-        toolPanelOverlay: "right-12 top-14 bottom-[5.25rem] w-[19rem]",
-        toolPanelPadding: "p-2.5",
+        toolRail: "w-10 gap-1 py-2",
+        toolPanelDocked: "w-[19rem]",
+        toolPanelOverlay: "right-11 top-13 bottom-[4.75rem] w-[18rem]",
+        toolPanelPadding: "p-2",
       }
 
   const scrollToBottom = useCallback(() => {
@@ -562,16 +562,16 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
   const isStreaming = isTyping || messages.some((m) => m.streaming)
 
   const toolPanel = activeTool ? (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-background/95 shadow-sm backdrop-blur">
-      <div className="flex items-center justify-between border-b px-3 py-2">
+    <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-background/95 shadow-sm backdrop-blur">
+      <div className="flex items-center justify-between border-b px-2.5 py-1.5">
         <div className="min-w-0">
           <p className="truncate text-xs font-medium">
             {activeTool === "prompts" ? "提示词工作台" : "命令工作台"}
           </p>
           <p className="truncate text-[10px] text-muted-foreground">
             {activeTool === "prompts"
-              ? "应用模板后会直接写入输入框"
-              : "可搜索命令，也可在输入框里直接输入 /"}
+              ? "应用后直接写入输入框"
+              : "搜索或输入 / 触发命令"}
           </p>
         </div>
         <Button
@@ -634,7 +634,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           {/* Chat header */}
           <div className={`flex items-center justify-between border-b ${pageStyles.header}`}>
             <div className={`flex items-center ${pageStyles.titleRow}`}>
-              <Avatar className="size-7.5">
+              <Avatar className="size-7">
                 <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
                   <Bot className="size-3.5" />
                 </AvatarFallback>
@@ -647,13 +647,14 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                     thinking={isTyping}
                     readState="read"
                     density={ultraCompact ? "dense" : "compact"}
+                    participantLimit={2}
                     showStatusLabel={isTyping}
                     showReadLabel={false}
                     className="hidden sm:flex"
                   />
                 </div>
                 {pageStyles.subtitle && (
-                  <p className={pageStyles.subtitle}>模板和命令收进右侧工具轨，输入 / 可就地触发命令</p>
+                  <p className={pageStyles.subtitle}>模板与命令收进右侧，输入 / 可就地触发</p>
                 )}
               </div>
             </div>
@@ -683,7 +684,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                 autoFocus
               />
               {searchQuery && (
-                <span className="shrink-0 text-[10px] text-muted-foreground">
+                <span className="hidden shrink-0 text-[10px] text-muted-foreground sm:inline">
                   {filteredMessages.filter((m) => m.role !== "system").length} 条结果
                 </span>
               )}
@@ -785,7 +786,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           </div>
         </div>
 
-        <div className={`flex shrink-0 flex-col items-center border-l bg-muted/20 ${pageStyles.toolRail}`}>
+        <div className={`flex shrink-0 flex-col items-center border-l bg-muted/10 ${pageStyles.toolRail}`}>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -810,7 +811,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         </div>
 
         {!ultraCompact && activeTool && (
-          <div className={`${pageStyles.toolPanelDocked} shrink-0 border-l bg-muted/10 p-2.5`}>
+          <div className={`${pageStyles.toolPanelDocked} shrink-0 border-l bg-muted/5 p-2`}>
             {toolPanel}
           </div>
         )}
