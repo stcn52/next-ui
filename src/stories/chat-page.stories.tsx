@@ -338,11 +338,10 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTool, setActiveTool] = useState<ToolPanel>(ultraCompact ? null : "prompts")
   const [selectedPromptKey, setSelectedPromptKey] = useState(PROMPT_ITEMS[0]?.key ?? "")
-  const [quickCommandOpen, setQuickCommandOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
-  const showInlineCommandPalette = quickCommandOpen || draft.trimStart().startsWith("/")
-  const inlineCommandQuery = draft.trimStart().startsWith("/") ? draft : "/"
+  const slashDraft = draft.trimStart()
+  const showInlineCommandPalette = slashDraft.startsWith("/")
   const pageStyles = ultraCompact
     ? {
         shell: "h-[39rem] max-w-[88rem] rounded-md",
@@ -494,7 +493,6 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
 
   const handlePromptApply = useCallback((result: PromptLibraryApplyResult) => {
     setDraft(result.rendered)
-    setQuickCommandOpen(false)
     setActiveTool(null)
   }, [])
 
@@ -502,14 +500,12 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
     if (item.key === "model-gpt-4o") {
       setModel("gpt-4o")
       setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
-      setQuickCommandOpen(false)
       return
     }
 
     if (item.key === "model-claude-4") {
       setModel("claude-4")
       setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
-      setQuickCommandOpen(false)
       return
     }
 
@@ -534,13 +530,11 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           ? "请结合当前文件继续分析布局问题。"
           : current
       })
-      setQuickCommandOpen(false)
       return
     }
 
     if (item.key === "context-ticket") {
       setDraft("请结合现有工单，继续优化 Chat 布局，重点压缩无效留白并保留高频操作。")
-      setQuickCommandOpen(false)
       return
     }
 
@@ -548,13 +542,11 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
       setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
       setSelectedPromptKey("compact-layout")
       setActiveTool("prompts")
-      setQuickCommandOpen(false)
       return
     }
 
     if (item.key === "prompt-tests") {
       setDraft("请基于当前 Chat 组件补齐回归测试，覆盖紧凑布局、折叠分组和 slash 命令。")
-      setQuickCommandOpen(false)
       return
     }
 
@@ -563,7 +555,6 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
       setAttachments([])
       setDraft("")
       setSearchQuery("")
-      setQuickCommandOpen(false)
       return
     }
   }, [])
@@ -657,7 +648,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                   />
                 </div>
                 {pageStyles.subtitle && (
-                  <p className={pageStyles.subtitle}>命令、模板和上下文都收进右侧工具轨</p>
+                  <p className={pageStyles.subtitle}>模板和命令收进右侧工具轨，输入 / 可就地触发命令</p>
                 )}
               </div>
             </div>
@@ -752,7 +743,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               <div className="mb-1.5">
                 <ChatCommandPalette
                   open
-                  query={inlineCommandQuery}
+                  query={draft}
                   attachTo="chat-sender"
                   items={COMMAND_ITEMS}
                   onSelect={handleCommandSelect}
@@ -782,18 +773,6 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               onRemoveAttachment={handleRemoveAttachment}
               mentions={MENTION_ITEMS}
               prefix={<AttachmentDialog />}
-              trailingActions={(
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="打开快捷命令"
-                  className={quickCommandOpen ? "bg-muted text-foreground" : undefined}
-                  onClick={() => setQuickCommandOpen((open) => !open)}
-                >
-                  <span className="text-[11px] font-semibold">/</span>
-                </Button>
-              )}
               onAttach={handleAddAttachment}
               statusActions={<span className="text-[10px] text-muted-foreground">模型: {model}</span>}
               footerText={pageStyles.senderFooterText}
