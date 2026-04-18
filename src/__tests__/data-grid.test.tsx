@@ -2,8 +2,8 @@
  * Unit tests for DataGrid component
  */
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react"
-import { describe, it, expect, vi } from "vitest"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { beforeEach, describe, it, expect, vi } from "vitest"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataGrid } from "@/components/ui/data-grid"
 import { ConfigProvider } from "@/components/config-provider"
@@ -26,6 +26,15 @@ const ROWS: Row[] = [
   { id: 4, name: "王磊", dept: "工程", salary: 22000 },
   { id: 5, name: "刘芳", dept: "市场", salary: 12000 },
 ]
+
+// ─── Clipboard mock ──────────────────────────────────────────────────────────
+
+const mockClipboard = { writeText: vi.fn().mockResolvedValue(undefined) }
+Object.defineProperty(navigator, "clipboard", { value: mockClipboard, configurable: true })
+
+beforeEach(() => {
+  mockClipboard.writeText.mockClear()
+})
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -106,6 +115,117 @@ describe("DataGrid — data mode", () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith([ROWS[0]])
   })
+
+  it("keeps selection callbacks stable across pagination", () => {
+    const onSelect = vi.fn()
+    render(
+      <DataGrid
+        columns={COLS}
+        data={ROWS}
+        enableRowSelection
+        pageSize={2}
+        onRowSelectionChange={onSelect}
+      />,
+    )
+
+    fireEvent.click(screen.getAllByRole("checkbox")[1])
+    fireEvent.click(screen.getByLabelText("Go to next page"))
+    fireEvent.click(screen.getAllByRole("checkbox")[1])
+
+    expect(onSelect).toHaveBeenLastCalledWith([ROWS[0], ROWS[2]])
+  })
+
+  it("exports the current filtered view as CSV", async () => {
+    const originalCreateObjectURL = URL.createObjectURL
+    const originalRevokeObjectURL = URL.revokeObjectURL
+    const createObjectURL = vi.fn(() => "blob:test")
+    const revokeObjectURL = vi.fn()
+
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: createObjectURL,
+    })
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: revokeObjectURL,
+    })
+
+    try {
+      render(
+        <DataGrid
+          columns={COLS}
+          data={ROWS}
+          filterColumn="name"
+          filterPlaceholder="搜名字"
+          enableCsvExport
+        />,
+      )
+
+      fireEvent.change(screen.getByPlaceholderText("搜名字"), { target: { value: "陈宇" } })
+      fireEvent.click(screen.getByRole("button", { name: "导出 CSV" }))
+
+      expect(createObjectURL).toHaveBeenCalledTimes(1)
+      const blob = createObjectURL.mock.calls[0][0] as Blob
+      const csv = await blob.text()
+      expect(csv).toContain("姓名")
+      expect(csv).toContain("陈宇")
+      expect(csv).not.toContain("李薇")
+      expect(revokeObjectURL).toHaveBeenCalledWith("blob:test")
+    } finally {
+      Object.defineProperty(URL, "createObjectURL", {
+        configurable: true,
+        value: originalCreateObjectURL,
+      })
+      Object.defineProperty(URL, "revokeObjectURL", {
+        configurable: true,
+        value: originalRevokeObjectURL,
+      })
+    }
+  })
+
+  it("resets the grid view state", () => {
+    render(
+      <DataGrid
+        columns={COLS}
+        data={ROWS}
+        filterColumn="name"
+        filterPlaceholder="搜名字"
+        enableRowSelection
+        enableResetView
+      />,
+    )
+
+    fireEvent.change(screen.getByPlaceholderText("搜名字"), { target: { value: "陈宇" } })
+    fireEvent.click(screen.getAllByRole("checkbox")[1])
+    expect(screen.getByPlaceholderText("搜名字")).toHaveValue("陈宇")
+    expect(screen.getByText("陈宇")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }))
+
+    expect(screen.getByPlaceholderText("搜名字")).toHaveValue("")
+    expect(screen.getByText("李薇")).toBeInTheDocument()
+    expect(screen.getAllByRole("checkbox")[1]).not.toBeChecked()
+  })
+
+  it("copies selected rows as tab-separated text", async () => {
+    render(
+      <DataGrid
+        columns={COLS}
+        data={ROWS}
+        enableRowSelection
+      />,
+    )
+
+    fireEvent.click(screen.getAllByRole("checkbox")[1])
+    fireEvent.click(screen.getAllByRole("checkbox")[2])
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }))
+
+    expect(mockClipboard.writeText).toHaveBeenCalledTimes(1)
+    const copied = mockClipboard.writeText.mock.calls[0][0] as string
+    expect(copied.split("\n")[0]).toBe("ID\t姓名\t部门\t薪资")
+    expect(copied).toContain("1\t陈宇\t工程\t25000")
+    expect(copied).toContain("2\t李薇\t产品\t18000")
+  })
 })
 
 describe("DataGrid — spreadsheet mode", () => {
@@ -133,6 +253,19 @@ describe("DataGrid — spreadsheet mode", () => {
     // The formula bar address should show a column letter + row number
     const formulaBar = screen.getByRole("textbox", { name: "Formula bar" }) as HTMLInputElement
     expect(formulaBar.value).toBe("陈宇")
+  })
+
+  it("edits the active cell directly from the formula bar", () => {
+    const onEdit = vi.fn()
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={onEdit} />)
+
+    fireEvent.click(screen.getByText("陈宇"))
+    const formulaBar = screen.getByRole("textbox", { name: "Formula bar" })
+    fireEvent.change(formulaBar, { target: { value: "陈宇-改" } })
+    fireEvent.keyDown(formulaBar, { key: "Enter" })
+
+    expect(onEdit).toHaveBeenCalledWith(0, "name", "陈宇-改")
+    expect(formulaBar).toHaveValue("陈宇-改")
   })
 
   it("double-click cell enters edit mode", () => {
@@ -168,6 +301,86 @@ describe("DataGrid — spreadsheet mode", () => {
     fireEvent.blur(cellInput)
     expect(onEdit).toHaveBeenCalledTimes(1)
     expect(onEdit).toHaveBeenCalledWith(0, "name", "陈XYZ")
+  })
+
+  it("cancels spreadsheet edits and restores the formula bar value", () => {
+    const onEdit = vi.fn()
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={onEdit} />)
+
+    fireEvent.click(screen.getByText("陈宇"))
+    const formulaBar = screen.getByRole("textbox", { name: "Formula bar" }) as HTMLInputElement
+    expect(formulaBar.value).toBe("陈宇")
+
+    fireEvent.dblClick(screen.getByText("陈宇"))
+    const cellInput = screen.getByLabelText("Edit cell")
+    fireEvent.change(cellInput, { target: { value: "陈XYZ" } })
+    fireEvent.keyDown(cellInput, { key: "Escape" })
+
+    expect(onEdit).not.toHaveBeenCalled()
+    expect(screen.getByRole("textbox", { name: "Formula bar" })).toHaveValue("陈宇")
+  })
+
+  it("clears the active cell on Delete", () => {
+    const onEdit = vi.fn()
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={onEdit} />)
+
+    const cell = screen.getByText("陈宇")
+    fireEvent.click(cell)
+    fireEvent.keyDown(cell, { key: "Delete" })
+
+    expect(onEdit).toHaveBeenCalledWith(0, "name", "")
+    expect(screen.getByRole("textbox", { name: "Formula bar" })).toHaveValue("")
+  })
+
+  it("copies the active cell value in spreadsheet mode", () => {
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={vi.fn()} />)
+
+    fireEvent.click(screen.getByText("陈宇"))
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }))
+
+    expect(mockClipboard.writeText).toHaveBeenCalledWith("陈宇")
+  })
+
+  it("copies the active cell with Ctrl/Cmd+C", () => {
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={vi.fn()} />)
+
+    fireEvent.click(screen.getByText("陈宇"))
+    fireEvent.keyDown(screen.getByText("陈宇"), { key: "c", ctrlKey: true })
+
+    expect(mockClipboard.writeText).toHaveBeenCalledWith("陈宇")
+  })
+
+  it("disables copy when nothing is selected", () => {
+    render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={vi.fn()} />)
+
+    const copyButton = screen.getByRole("button", { name: "Copy" })
+    expect(copyButton).toBeDisabled()
+
+    fireEvent.click(copyButton)
+    expect(mockClipboard.writeText).not.toHaveBeenCalled()
+  })
+
+  it("clears the active cell when filtering hides the selected row", async () => {
+    render(
+      <DataGrid
+        columns={COLS}
+        data={ROWS}
+        spreadsheet
+        filterColumn="name"
+        filterPlaceholder="搜名字"
+        onCellEdit={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByText("陈宇"))
+    expect(screen.getByRole("textbox", { name: "Formula bar" })).toHaveValue("陈宇")
+
+    fireEvent.change(screen.getByPlaceholderText("搜名字"), { target: { value: "李薇" } })
+
+    expect(screen.queryByText("陈宇")).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByRole("textbox", { name: "Formula bar" })).toHaveValue("")
+    })
   })
 })
 

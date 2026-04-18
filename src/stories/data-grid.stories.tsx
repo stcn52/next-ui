@@ -91,6 +91,8 @@ export const FullFeatures: Story = {
       enablePinning
       enableResizing
       enableRowSelection
+      enableCsvExport
+      enableResetView
       pageSize={8}
     />
   ),

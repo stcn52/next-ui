@@ -78,9 +78,12 @@ export interface DataGridProps<TData, TValue = unknown> {
   enableRowSelection?: boolean
   enablePagination?: boolean
   enableColumnVisibility?: boolean
+  enableCsvExport?: boolean
+  enableResetView?: boolean
   pageSize?: number
   filterColumn?: string
   filterPlaceholder?: string
+  csvFilename?: string
   // Spreadsheet mode
   spreadsheet?: boolean
   onCellEdit?: (rowIndex: number, columnId: string, value: string) => void
@@ -145,8 +148,9 @@ function selectionColumn<TData>(labels: { selectAllCurrentPage: string; selectRo
 // ─── Active-cell state ────────────────────────────────────────────────────────
 
 interface ActiveCell {
-  ri: number   // row index in page
+  ri: number   // row index in current view
   ci: number   // visual column index (excl. row-num + select cols)
+  rowId: string
   colId: string
 }
 
@@ -161,9 +165,12 @@ export function DataGrid<TData, TValue = unknown>({
   enableRowSelection = false,
   enablePagination = true,
   enableColumnVisibility = true,
+  enableCsvExport = false,
+  enableResetView = false,
   pageSize: initialPageSize = 20,
   filterColumn,
   filterPlaceholder,
+  csvFilename = "data-grid.csv",
   spreadsheet = false,
   onCellEdit,
   virtualized = false,
@@ -232,7 +239,10 @@ export function DataGrid<TData, TValue = unknown>({
       setRowSelection((prev) => {
         const next = typeof updater === "function" ? updater(prev) : updater
         onRowSelectionChange?.(
-          table.getRowModel().rows.filter((r) => next[r.id]).map((r) => r.original),
+          table
+            .getPrePaginationRowModel()
+            .rows.filter((r) => next[r.id])
+            .map((r) => r.original),
         )
         return next
       })
@@ -254,6 +264,115 @@ export function DataGrid<TData, TValue = unknown>({
     enableRowSelection,
   })
 
+  const allRows = table.getRowModel().rows
+
+  const findRowIndexById = React.useCallback((rowId: string) => {
+    return allRows.findIndex((row) => row.id === rowId)
+  }, [allRows])
+
+  const resolveCellValueByRowId = React.useCallback((rowId: string, colId: string) => {
+    const row = allRows.find((item) => item.id === rowId)
+    return row ? String((row.original as Record<string, unknown>)[colId] ?? "") : ""
+  }, [allRows])
+
+  const escapeCsvValue = React.useCallback((value: unknown) => {
+    const text = value == null ? "" : String(value)
+    return `"${text.replace(/"/g, '""')}"`
+  }, [])
+
+  const exportCsv = React.useCallback(() => {
+    const exportColumns = table
+      .getVisibleLeafColumns()
+      .filter((col) => col.id !== "__row_num__" && col.id !== "__select__")
+
+    const headers = exportColumns.map((col) => {
+      const header = col.columnDef.header
+      return typeof header === "string" ? header : col.id
+    })
+
+    const rowsForExport = table.getPrePaginationRowModel().rows
+    const lines = [
+      headers.map(escapeCsvValue).join(","),
+      ...rowsForExport.map((row) =>
+        exportColumns
+          .map((col) => escapeCsvValue(row.getValue(col.id)))
+          .join(","),
+      ),
+    ]
+
+    const csv = `\ufeff${lines.join("\n")}`
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    })
+    const url = typeof URL.createObjectURL === "function"
+      ? URL.createObjectURL(blob)
+      : `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`
+    const link = document.createElement("a")
+    link.href = url
+    link.download = csvFilename
+    link.click()
+    if (typeof URL.revokeObjectURL === "function" && url.startsWith("blob:")) {
+      URL.revokeObjectURL(url)
+    }
+  }, [csvFilename, escapeCsvValue, table])
+
+  const clipboardText = React.useMemo(() => {
+    const clipboardCellValue = (value: unknown) =>
+      String(value ?? "").replace(/\r?\n|\r/g, " ").replace(/\t/g, " ")
+
+    const visibleDataColumns = table
+      .getVisibleLeafColumns()
+      .filter((col) => col.id !== "__row_num__" && col.id !== "__select__")
+
+    if (visibleDataColumns.length === 0) return null
+
+    if (enableRowSelection) {
+      const selectedRows = table
+        .getPrePaginationRowModel()
+        .rows.filter((row) => rowSelection[row.id])
+
+      if (selectedRows.length > 0) {
+        const headers = visibleDataColumns.map((col) => {
+          const header = col.columnDef.header
+          return typeof header === "string" ? header : col.id
+        })
+        const lines = [
+          headers.map(clipboardCellValue).join("\t"),
+          ...selectedRows.map((row) =>
+            visibleDataColumns
+              .map((col) => clipboardCellValue(row.getValue(col.id)))
+              .join("\t"),
+          ),
+        ]
+        return lines.join("\n")
+      }
+    }
+
+    if (!spreadsheet || !activeCell) return null
+
+    const row = table.getRowModel().rows.find((item) => item.id === activeCell.rowId)
+    if (!row) return null
+
+    const value = editingCell && editingCell.rowId === activeCell.rowId && editingCell.colId === activeCell.colId
+      ? formulaDraft
+      : row.getValue(activeCell.colId)
+    return clipboardCellValue(value)
+  }, [
+    activeCell,
+    editingCell,
+    enableRowSelection,
+    formulaDraft,
+    rowSelection,
+    spreadsheet,
+    table,
+  ])
+
+  const copyClipboard = React.useCallback(() => {
+    if (clipboardText === null) return false
+    void navigator.clipboard?.writeText(clipboardText)?.catch(() => {})
+    return true
+  }, [clipboardText])
+
   React.useEffect(() => {
     setPagination((current) =>
       current.pageSize === initialPageSize
@@ -265,29 +384,75 @@ export function DataGrid<TData, TValue = unknown>({
   // ── Spreadsheet helpers ────────────────────────────────────────────────────
 
   const activateCell = React.useCallback((ri: number, colId: string) => {
-    const ci = dataColIds.indexOf(colId)
-    setActiveCell({ ri, ci, colId })
-    setEditingCell(null)
-    // Sync formula bar with row data
     const row = table.getRowModel().rows[ri]
-    setFormulaDraft(row ? String((row.original as Record<string, unknown>)[colId] ?? "") : "")
-  }, [dataColIds, table])
+    if (!row) return
+    const ci = dataColIds.indexOf(colId)
+    setActiveCell({ ri, ci, rowId: row.id, colId })
+    setEditingCell(null)
+    setFormulaDraft(resolveCellValueByRowId(row.id, colId))
+  }, [dataColIds, resolveCellValueByRowId, table])
 
   const startEdit = React.useCallback((ri: number, colId: string) => {
+    const row = table.getRowModel().rows[ri]
+    if (!row) return
     const ci = dataColIds.indexOf(colId)
-    setEditingCell({ ri, ci, colId })
-    setActiveCell({ ri, ci, colId })
-  }, [dataColIds])
+    setEditingCell({ ri, ci, rowId: row.id, colId })
+    setActiveCell({ ri, ci, rowId: row.id, colId })
+  }, [dataColIds, table])
 
-  const commitEdit = React.useCallback((ri: number, colId: string, value: string) => {
-    onCellEdit?.(ri, colId, value)
+  const commitEdit = React.useCallback((cell: ActiveCell, value: string) => {
+    const currentRi = findRowIndexById(cell.rowId)
+    if (currentRi < 0) {
+      setEditingCell(null)
+      setActiveCell(null)
+      setFormulaDraft("")
+      return
+    }
+    onCellEdit?.(currentRi, cell.colId, value)
     setEditingCell(null)
     setFormulaDraft(value)
-  }, [onCellEdit])
+  }, [findRowIndexById, onCellEdit])
 
   const cancelEdit = React.useCallback(() => {
     setEditingCell(null)
-  }, [])
+    if (activeCell) {
+      setFormulaDraft(resolveCellValueByRowId(activeCell.rowId, activeCell.colId))
+    }
+  }, [activeCell, resolveCellValueByRowId])
+
+  const resetView = React.useCallback(() => {
+    setSorting([])
+    setColumnFilters([])
+    setColumnVisibility({})
+    setRowSelection({})
+    setColumnPinning({})
+    setColumnSizing({})
+    setPagination({ pageIndex: 0, pageSize: initialPageSize })
+    setActiveCell(null)
+    setEditingCell(null)
+    setFormulaDraft("")
+    onRowSelectionChange?.([])
+  }, [initialPageSize, onRowSelectionChange])
+
+  const commitActiveCell = React.useCallback((value: string) => {
+    if (!activeCell) return
+    commitEdit(activeCell, value)
+  }, [activeCell, commitEdit])
+
+  React.useEffect(() => {
+    if (!activeCell) return
+
+    const visibleRi = findRowIndexById(activeCell.rowId)
+    if (visibleRi < 0) {
+      setActiveCell(null)
+      setEditingCell(null)
+      setFormulaDraft("")
+      return
+    }
+
+    if (editingCell) return
+    setFormulaDraft(resolveCellValueByRowId(activeCell.rowId, activeCell.colId))
+  }, [activeCell, editingCell, findRowIndexById, resolveCellValueByRowId])
 
   // Arrow-key navigation in spreadsheet mode
   const handleKeyNav = React.useCallback((e: React.KeyboardEvent, ri: number, colId: string) => {
@@ -295,15 +460,42 @@ export function DataGrid<TData, TValue = unknown>({
     const ci = dataColIds.indexOf(colId)
     const rowCount = table.getRowModel().rows.length
     const colCount = dataColIds.length
+    if ((e.key === "Delete" || e.key === "Backspace") && ci >= 0) {
+      e.preventDefault()
+      const row = table.getRowModel().rows[ri]
+      if (row) {
+        commitEdit({ ri, ci, rowId: row.id, colId }, "")
+      }
+      return
+    }
     if (e.key === "ArrowDown" && ri < rowCount - 1) activateCell(ri + 1, dataColIds[ci])
     if (e.key === "ArrowUp" && ri > 0) activateCell(ri - 1, dataColIds[ci])
     if (e.key === "ArrowRight" && ci < colCount - 1) activateCell(ri, dataColIds[ci + 1])
     if (e.key === "ArrowLeft" && ci > 0) activateCell(ri, dataColIds[ci - 1])
     if (e.key === "Tab") { e.preventDefault(); if (ci < colCount - 1) activateCell(ri, dataColIds[ci + 1]) }
-  }, [spreadsheet, editingCell, dataColIds, table, activateCell])
+  }, [spreadsheet, editingCell, dataColIds, table, activateCell, commitEdit])
 
   // ── Computed address string ────────────────────────────────────────────────
-  const address = activeCell ? cellAddress(activeCell.ci, activeCell.ri) : ""
+  const activeVisibleRi = activeCell ? findRowIndexById(activeCell.rowId) : -1
+  const address = activeCell && activeVisibleRi >= 0 ? cellAddress(activeCell.ci, activeVisibleRi) : ""
+  const formulaBarEditable = spreadsheet && activeCell !== null && editingCell === null
+  const clipboardCopyEnabled = spreadsheet || enableRowSelection
+
+  const handleRootKeyDownCapture = React.useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null
+    if (
+      target &&
+      (target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target.isContentEditable)
+    ) {
+      return
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "c" && copyClipboard()) {
+      e.preventDefault()
+    }
+  }, [copyClipboard])
 
   // ── Sticky pinning style helper ───────────────────────────────────────────
   const getPinStyle = (col: ReturnType<typeof table.getAllLeafColumns>[0]): React.CSSProperties => {
@@ -321,7 +513,6 @@ export function DataGrid<TData, TValue = unknown>({
 
   // ── Virtualization ────────────────────────────────────────────────────────
   const scrollRef = React.useRef<HTMLDivElement>(null)
-  const allRows = table.getRowModel().rows
 
   const virtualizer = useVirtualizer({
     count: allRows.length,
@@ -338,14 +529,21 @@ export function DataGrid<TData, TValue = unknown>({
   const rows = allRows
 
   return (
-    <div className={cn("flex flex-col gap-0", className)}>
+    <div className={cn("flex flex-col gap-0", className)} onKeyDownCapture={handleRootKeyDownCapture}>
       {/* Toolbar */}
-      {(filterColumn || enableColumnVisibility) && (
+      {(filterColumn || enableColumnVisibility || enableCsvExport || enableResetView || clipboardCopyEnabled) && (
         <Toolbar
           table={table}
           filterColumn={filterColumn}
           filterPlaceholder={filterPlaceholder}
           enableColumnVisibility={enableColumnVisibility}
+          enableClipboardCopy={clipboardCopyEnabled}
+          canCopyClipboard={clipboardText !== null}
+          enableCsvExport={enableCsvExport}
+          enableResetView={enableResetView}
+          onCopyClipboard={copyClipboard}
+          onExportCsv={enableCsvExport ? exportCsv : undefined}
+          onResetView={enableResetView ? resetView : undefined}
         />
       )}
 
@@ -354,9 +552,10 @@ export function DataGrid<TData, TValue = unknown>({
         <FormulaBar
           address={address}
           value={formulaDraft}
-          editing={editingCell !== null}
+          editing={formulaBarEditable}
+          autoFocus={false}
           onChange={setFormulaDraft}
-          onCommit={() => editingCell && commitEdit(editingCell.ri, editingCell.colId, formulaDraft)}
+          onCommit={() => commitActiveCell(formulaDraft)}
           onCancel={cancelEdit}
         />
       )}
@@ -438,8 +637,8 @@ export function DataGrid<TData, TValue = unknown>({
                         const colId = cell.column.id
                         const isSpecial = colId === "__row_num__" || colId === "__select__"
                         const isDataCol = !isSpecial
-                        const isActive = activeCell?.ri === ri && activeCell?.colId === colId
-                        const isEditing = editingCell?.ri === ri && editingCell?.colId === colId
+                        const isActive = activeCell?.rowId === row.id && activeCell?.colId === colId
+                        const isEditing = editingCell?.rowId === row.id && editingCell?.colId === colId
                         const editable = spreadsheet && isDataCol && !!onCellEdit
                         return (
                           <TableCell
@@ -456,7 +655,7 @@ export function DataGrid<TData, TValue = unknown>({
                                 rowSelected={row.getIsSelected()}
                                 onActivate={() => activateCell(ri, colId)}
                                 onStartEdit={() => startEdit(ri, colId)}
-                                onCommit={(v) => commitEdit(ri, colId, v)}
+                                onCommit={(v) => commitEdit({ ri, ci: dataColIds.indexOf(colId), rowId: row.id, colId }, v)}
                                 onCancel={cancelEdit}
                                 onKeyNav={(e) => handleKeyNav(e, ri, colId)}
                               />
@@ -485,8 +684,8 @@ export function DataGrid<TData, TValue = unknown>({
                     const colId = cell.column.id
                     const isSpecial = colId === "__row_num__" || colId === "__select__"
                     const isDataCol = !isSpecial
-                    const isActive = activeCell?.ri === ri && activeCell?.colId === colId
-                    const isEditing = editingCell?.ri === ri && editingCell?.colId === colId
+                    const isActive = activeCell?.rowId === row.id && activeCell?.colId === colId
+                    const isEditing = editingCell?.rowId === row.id && editingCell?.colId === colId
                     const editable = spreadsheet && isDataCol && !!onCellEdit
 
                     return (
@@ -504,7 +703,7 @@ export function DataGrid<TData, TValue = unknown>({
                             rowSelected={row.getIsSelected()}
                             onActivate={() => activateCell(ri, colId)}
                             onStartEdit={() => startEdit(ri, colId)}
-                            onCommit={(v) => commitEdit(ri, colId, v)}
+                            onCommit={(v) => commitEdit({ ri, ci: dataColIds.indexOf(colId), rowId: row.id, colId }, v)}
                             onCancel={cancelEdit}
                             onKeyNav={(e) => handleKeyNav(e, ri, colId)}
                           />

@@ -1,10 +1,10 @@
 "use client"
 
 /**
- * DataGrid Toolbar — 全局搜索 + 列可见性切换 + 已选行计数
+ * DataGrid Toolbar — 全局搜索 + 列可见性切换 + 导出/重置 + 已选行计数
  */
 import { type Table } from "@tanstack/react-table"
-import { SearchIcon, SlidersHorizontalIcon } from "lucide-react"
+import { CopyIcon, DownloadIcon, SearchIcon, RotateCcwIcon, SlidersHorizontalIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/inputs/input"
 import { Badge } from "@/components/ui/display/badge"
@@ -23,6 +23,13 @@ interface ToolbarProps<TData> {
   filterColumn?: string
   filterPlaceholder?: string
   enableColumnVisibility?: boolean
+  enableClipboardCopy?: boolean
+  canCopyClipboard?: boolean
+  enableCsvExport?: boolean
+  enableResetView?: boolean
+  onCopyClipboard?: () => void
+  onExportCsv?: () => void
+  onResetView?: () => void
 }
 
 export function Toolbar<TData>({
@@ -30,12 +37,21 @@ export function Toolbar<TData>({
   filterColumn,
   filterPlaceholder,
   enableColumnVisibility = true,
+  enableClipboardCopy = false,
+  canCopyClipboard = false,
+  enableCsvExport = false,
+  enableResetView = false,
+  onCopyClipboard,
+  onExportCsv,
+  onResetView,
 }: ToolbarProps<TData>) {
   const locale = useLocale()
   const selectedCount = table.getSelectedRowModel().rows.length
   const selectedTotal = table.getFilteredRowModel().rows.length
   const filterLabel = filterPlaceholder ?? locale.filter ?? "Filter..."
+  const copyLabel = locale.copy ?? "Copy"
   const columnsLabel = locale.columns ?? "Columns"
+  const resetLabel = locale.reset ?? "Reset"
 
   return (
     <div className="flex items-center gap-2 pb-2">
@@ -59,6 +75,46 @@ export function Toolbar<TData>({
           <Badge variant="secondary" className="text-xs h-7">
             {formatMessage(locale.rowsSelected, { count: selectedCount, total: selectedTotal })}
           </Badge>
+        )}
+
+        {enableClipboardCopy && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={onCopyClipboard}
+            disabled={!canCopyClipboard}
+            aria-label={copyLabel}
+          >
+            <CopyIcon className="size-3.5" />
+            {copyLabel}
+          </Button>
+        )}
+
+        {enableCsvExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={onExportCsv}
+            aria-label="导出 CSV"
+          >
+            <DownloadIcon className="size-3.5" />
+            CSV
+          </Button>
+        )}
+
+        {enableResetView && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={onResetView}
+            aria-label={resetLabel}
+          >
+            <RotateCcwIcon className="size-3.5" />
+            {resetLabel}
+          </Button>
         )}
 
         {/* Column visibility */}

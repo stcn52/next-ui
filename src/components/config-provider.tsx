@@ -33,6 +33,7 @@ interface LocaleStrings {
   optional: string
   submit: string
   reset: string
+  copy: string
   // Pagination
   previous: string
   next: string

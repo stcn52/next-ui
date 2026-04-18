@@ -32,6 +32,7 @@ interface FormulaBarProps {
   address: string       // e.g. "A1"
   value: string
   editing: boolean
+  autoFocus?: boolean
   onChange: (v: string) => void
   onCommit: () => void
   onCancel: () => void
@@ -42,6 +43,7 @@ export function FormulaBar({
   address,
   value,
   editing,
+  autoFocus = false,
   onChange,
   onCommit,
   onCancel,
@@ -51,8 +53,8 @@ export function FormulaBar({
   const locale = useLocale()
 
   React.useEffect(() => {
-    if (editing) inputRef.current?.focus()
-  }, [editing])
+    if (editing && autoFocus) inputRef.current?.focus()
+  }, [autoFocus, editing])
 
   return (
     <div
