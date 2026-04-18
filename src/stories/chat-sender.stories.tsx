@@ -269,6 +269,38 @@ export const WithAttachments: Story = {
   },
 }
 
+export const CompactAttachmentPreview: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("")
+    return (
+      <div className="w-[460px] space-y-2">
+        <div className="rounded-lg border bg-muted/30 p-2 text-[11px] text-muted-foreground">
+          只保留前两个附件卡片，其余附件折叠成摘要，避免 preview 模式把 sender 撑高。
+        </div>
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          attachmentDisplay="preview"
+          maxVisibleAttachments={2}
+          attachments={SAMPLE_ATTACHMENTS}
+          leadingActionsVisibility="auto"
+          trailingActionsVisibility="auto"
+          leadingActions={
+            <Button variant="ghost" size="icon-sm" className="shrink-0">
+              <Mic className="size-3.5" />
+            </Button>
+          }
+          trailingActions={
+            <Button variant="ghost" size="icon-sm" className="shrink-0">
+              <Image className="size-3.5" />
+            </Button>
+          }
+        />
+      </div>
+    )
+  },
+}
+
 export const DenseSummaryMode: Story = {
   render: function Render() {
     const [value, setValue] = useState("")

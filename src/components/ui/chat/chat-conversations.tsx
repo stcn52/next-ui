@@ -11,6 +11,7 @@ import { Bot, ChevronDown, MessageSquarePlus, Search } from "lucide-react"
 /* ------------------------------------------------------------------ */
 
 type ChatConversationsDensity = "default" | "compact" | "dense"
+type ChatConversationsSearchMode = "bar" | "trigger"
 
 interface ConversationItem {
   /** Unique key */
@@ -46,8 +47,18 @@ interface ChatConversationsProps extends Omit<React.ComponentProps<"div">, "onCh
   onNewChat?: () => void
   /** Sidebar title */
   title?: string
+  /** Whether to render the header chrome */
+  showHeader?: boolean
+  /** Whether to render the title text inside the header */
+  showTitle?: boolean
+  /** Whether to render the new chat button when available */
+  showNewChatButton?: boolean
   /** Show search bar */
   searchable?: boolean
+  /** Whether search uses a full bar or a trigger-first pattern */
+  searchMode?: ChatConversationsSearchMode
+  /** Whether trigger-mode search is open by default */
+  defaultSearchOpen?: boolean
   /** Search placeholder */
   searchPlaceholder?: string
   /** Visual density for compact sidebars */
@@ -78,7 +89,12 @@ function ChatConversations({
   groupable = true,
   onNewChat,
   title = "会话列表",
+  showHeader = true,
+  showTitle = true,
+  showNewChatButton = true,
   searchable = true,
+  searchMode = "bar",
+  defaultSearchOpen = false,
   searchPlaceholder = "搜索会话…",
   density = "default",
   showDescription = true,
@@ -94,6 +110,7 @@ function ChatConversations({
   const isControlled = controlledActive !== undefined
   const activeId = isControlled ? controlledActive : internalActive
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [searchOpen, setSearchOpen] = React.useState(searchMode === "bar" || defaultSearchOpen)
   const [collapsedGroups, setCollapsedGroups] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(defaultCollapsedGroups.map((group) => [group, true])),
   )
@@ -167,6 +184,12 @@ function ChatConversations({
     setCollapsedGroups((current) => ({ ...current, [group]: !current[group] }))
   }, [])
 
+  React.useEffect(() => {
+    if (searchMode === "bar") {
+      setSearchOpen(true)
+    }
+  }, [searchMode])
+
   // Filter by search
   const filtered = React.useMemo(() => {
     if (!searchQuery) return items
@@ -196,27 +219,45 @@ function ChatConversations({
       </AvatarFallback>
     </Avatar>
   )
+  const showSearchTrigger = searchable && searchMode === "trigger"
+  const showSearchBar = searchable && (searchMode === "bar" || searchOpen)
+  const showHeaderRow = showHeader && (showTitle || (showNewChatButton && onNewChat) || showSearchTrigger)
 
   return (
     <div data-slot="chat-conversations" className={cn("flex flex-col", className)} {...props}>
       {/* Header */}
-      <div className={cn("flex items-center justify-between border-b", densityStyles.header)}>
-        <h2 className={cn("font-semibold", densityStyles.title)}>{title}</h2>
-        {onNewChat && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={densityStyles.newChatButton}
-            aria-label="新建会话"
-            onClick={onNewChat}
-          >
-            <MessageSquarePlus className={densityStyles.icon} />
-          </Button>
-        )}
-      </div>
+      {showHeaderRow && (
+        <div className={cn("flex items-center border-b", densityStyles.header, showTitle ? "justify-between" : "justify-end")}>
+          {showTitle && <h2 className={cn("font-semibold", densityStyles.title)}>{title}</h2>}
+          <div className="flex items-center gap-1">
+            {showSearchTrigger && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={densityStyles.newChatButton}
+                aria-label={searchOpen ? "收起搜索会话" : "打开搜索会话"}
+                onClick={() => setSearchOpen((current) => !current)}
+              >
+                <Search className={densityStyles.icon} />
+              </Button>
+            )}
+            {onNewChat && showNewChatButton && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={densityStyles.newChatButton}
+                aria-label="新建会话"
+                onClick={onNewChat}
+              >
+                <MessageSquarePlus className={densityStyles.icon} />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Search */}
-      {searchable && (
+      {showSearchBar && (
         <div className={densityStyles.searchWrap}>
           <div className={cn("flex items-center rounded-md border bg-muted/50", densityStyles.searchField)}>
             <Search className={cn("text-muted-foreground", densityStyles.icon)} />
@@ -228,6 +269,7 @@ function ChatConversations({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus={searchMode === "trigger" && searchOpen}
             />
           </div>
         </div>
@@ -319,4 +361,9 @@ function ChatConversations({
 }
 
 export { ChatConversations }
-export type { ChatConversationsDensity, ChatConversationsProps, ConversationItem }
+export type {
+  ChatConversationsDensity,
+  ChatConversationsProps,
+  ChatConversationsSearchMode,
+  ConversationItem,
+}

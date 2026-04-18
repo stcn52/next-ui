@@ -71,6 +71,8 @@ interface ChatSenderProps
   attachmentLayout?: AttachmentLayout
   /** Whether attachments render as previews or compact summary */
   attachmentDisplay?: AttachmentDisplay
+  /** Maximum number of preview attachments shown before collapsing the remainder */
+  maxVisibleAttachments?: number
   /** Callback when message is submitted */
   onSubmit?: (message: string, attachments?: Attachment[]) => void
   /** Callback when value changes */
@@ -93,8 +95,12 @@ interface ChatSenderProps
   showDefaultAttachmentButton?: boolean
   /** Additional leading actions next to the input */
   leadingActions?: React.ReactNode
+  /** Controls whether custom leading actions stay visible */
+  leadingActionsVisibility?: UtilityVisibility
   /** Additional trailing actions before submit/cancel */
   trailingActions?: React.ReactNode
+  /** Controls whether custom trailing actions stay visible */
+  trailingActionsVisibility?: UtilityVisibility
   /** Status/meta actions rendered in the bottom utility row */
   statusActions?: React.ReactNode
   /** Where status/meta actions are rendered */
@@ -161,6 +167,7 @@ function ChatSender({
   suggestionsVariant = "overlay",
   attachmentLayout = "scroll",
   attachmentDisplay = "summary",
+  maxVisibleAttachments,
   onSubmit,
   onChange,
   onCancel,
@@ -172,7 +179,9 @@ function ChatSender({
   onMentionSelect,
   showDefaultAttachmentButton,
   leadingActions,
+  leadingActionsVisibility,
   trailingActions,
+  trailingActionsVisibility,
   statusActions,
   statusActionsPlacement,
   attachmentSummary,
@@ -320,6 +329,12 @@ function ChatSender({
   )
   const resolvedDefaultActionLayout =
     defaultActionLayout ?? (density === "default" ? "separate" : "grouped")
+  const resolvedLeadingActionsVisibility =
+    leadingActionsVisibility ?? (density === "dense" ? "auto" : "always")
+  const resolvedTrailingActionsVisibility =
+    trailingActionsVisibility ?? (density === "dense" ? "auto" : "always")
+  const resolvedMaxVisibleAttachments =
+    maxVisibleAttachments === undefined ? undefined : Math.max(0, maxVisibleAttachments)
   const attachmentCount = attachments?.length ?? 0
   const uploadingCount = attachments?.filter((attachment) => attachment.status === "uploading").length ?? 0
   const errorCount = attachments?.filter((attachment) => attachment.status === "error").length ?? 0
@@ -651,6 +666,32 @@ function ChatSender({
       : utilityVisibility === "hidden"
         ? false
         : hasUtilityContent
+  const visiblePreviewAttachments =
+    attachmentDisplay === "preview" && attachments
+      ? (resolvedMaxVisibleAttachments === undefined
+          ? attachments
+          : attachments.slice(0, resolvedMaxVisibleAttachments))
+      : []
+  const hiddenPreviewAttachmentCount =
+    attachmentDisplay === "preview" && attachments
+      ? Math.max(0, attachmentCount - visiblePreviewAttachments.length)
+      : 0
+  const shouldShowLeadingActions = Boolean(leadingActions) && (
+    resolvedLeadingActionsVisibility === "always" ||
+      (resolvedLeadingActionsVisibility === "auto" &&
+        attachmentCount === 0 &&
+        !hasInputMeta &&
+        !overlayMode &&
+        !loading)
+  )
+  const shouldShowTrailingActions = Boolean(trailingActions) && (
+    resolvedTrailingActionsVisibility === "always" ||
+      (resolvedTrailingActionsVisibility === "auto" &&
+        attachmentCount === 0 &&
+        !hasInputMeta &&
+        !overlayMode &&
+        !loading)
+  )
 
   const defaultActionCount = Number(showAttachmentButton) + Number(hasOverlaySuggestions)
   const shouldGroupDefaultActions =
@@ -795,7 +836,7 @@ function ChatSender({
                   attachmentLayout === "wrap" && "flex-wrap",
                 )}
               >
-                {attachments.map((attachment) => (
+                {visiblePreviewAttachments.map((attachment) => (
                   <div
                     key={attachment.id}
                     className={cn(
@@ -861,6 +902,20 @@ function ChatSender({
                     )}
                   </div>
                 ))}
+                {hiddenPreviewAttachmentCount > 0 && (
+                  <div
+                    data-slot="attachment-preview-overflow"
+                    aria-label={`还有 ${hiddenPreviewAttachmentCount} 个附件已折叠`}
+                    className={cn(
+                      "flex min-w-0 items-center gap-1 rounded-md border border-dashed bg-muted/40 text-muted-foreground",
+                      densityStyles.attachmentItemPadding,
+                      attachmentLayout === "scroll" && "shrink-0",
+                    )}
+                  >
+                    <Paperclip className="size-3.5" />
+                    <span className="truncate text-xs font-medium">+{hiddenPreviewAttachmentCount} 附件</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -883,7 +938,11 @@ function ChatSender({
                 </>
               )}
               {prefix}
-              {leadingActions}
+              {shouldShowLeadingActions && (
+                <div data-slot="chat-sender-leading-actions" className="flex shrink-0 items-center">
+                  {leadingActions}
+                </div>
+              )}
               <Textarea
                 ref={textareaRef}
                 id={fieldProps?.id}
@@ -930,7 +989,11 @@ function ChatSender({
                   {showStatusActionsInInput}
                 </div>
               )}
-              {trailingActions}
+              {shouldShowTrailingActions && (
+                <div data-slot="chat-sender-trailing-actions" className="flex shrink-0 items-center">
+                  {trailingActions}
+                </div>
+              )}
               {suffix ?? (
                 loading && onCancel ? (
                   <Button

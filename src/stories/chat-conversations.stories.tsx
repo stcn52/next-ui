@@ -258,3 +258,39 @@ export const DisabledItems: Story = {
     )
   },
 }
+
+/* ------------------------------------------------------------------ */
+/*  Minimal Chrome                                                     */
+/* ------------------------------------------------------------------ */
+
+export const MinimalChrome: Story = {
+  render: function Render() {
+    const [active, setActive] = useState("1")
+    return (
+      <div className="h-[420px] w-56 rounded-xl border">
+        <ChatConversations
+          items={ITEMS}
+          activeKey={active}
+          onChange={(key) => setActive(key)}
+          density="dense"
+          showTitle={false}
+          showNewChatButton={false}
+          searchMode="trigger"
+          showDescription={false}
+          showAvatar={false}
+          showTime={false}
+          showGroupCount={false}
+          collapsibleGroups
+          className="h-full"
+        />
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByText("会话列表")).toBeNull()
+    await expect(canvas.queryByPlaceholderText("搜索会话…")).toBeNull()
+    await userEvent.click(canvas.getByRole("button", { name: "打开搜索会话" }))
+    await expect(canvas.getByPlaceholderText("搜索会话…")).toBeInTheDocument()
+  },
+}

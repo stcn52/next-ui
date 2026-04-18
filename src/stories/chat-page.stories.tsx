@@ -327,21 +327,32 @@ type Story = StoryObj
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
-function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
+function ChatPage({
+  ultraCompact = false,
+  initialDraft = "",
+  initialAttachments = [],
+  initialTool,
+}: {
+  ultraCompact?: boolean
+  initialDraft?: string
+  initialAttachments?: Attachment[]
+  initialTool?: ToolPanel
+}) {
   const [activeConv, setActiveConv] = useState("1")
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES)
-  const [draft, setDraft] = useState("")
+  const [draft, setDraft] = useState(initialDraft)
   const [isTyping, setIsTyping] = useState(false)
   const [model, setModel] = useState("gpt-4o")
-  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [attachments, setAttachments] = useState<Attachment[]>(initialAttachments)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTool, setActiveTool] = useState<ToolPanel>(ultraCompact ? null : "prompts")
+  const [activeTool, setActiveTool] = useState<ToolPanel>(initialTool ?? (ultraCompact ? null : "prompts"))
   const [selectedPromptKey, setSelectedPromptKey] = useState(PROMPT_ITEMS[0]?.key ?? "")
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
   const slashDraft = draft.trimStart()
   const showInlineCommandPalette = slashDraft.startsWith("/")
+  const useAdaptiveLayout = !ultraCompact && (showInlineCommandPalette || attachments.length > 0)
   const pageStyles = ultraCompact
     ? {
         shell: "h-[37.5rem] max-w-[84rem] rounded-md",
@@ -362,6 +373,26 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         toolPanelOverlay: "right-10 top-11 bottom-[4rem] w-[16.5rem]",
         toolPanelPadding: "p-1.5",
       }
+    : useAdaptiveLayout
+      ? {
+          shell: "h-[39rem] max-w-[88rem] rounded-lg",
+          sidebar: "w-52",
+          header: "px-2.5 py-1.5",
+          titleRow: "gap-1.5",
+          subtitle: "hidden",
+          actions: "gap-1",
+          titleMeta: "gap-1",
+          searchBar: "px-2.5 py-1",
+          messages: "gap-1.5 px-2 py-1.5",
+          sender: "px-2 pb-1.5 pt-0.5",
+          senderDensity: "dense" as const,
+          senderFooterText: undefined,
+          showKeyboardHint: false,
+          toolRail: "w-9 gap-0.5 py-1.5",
+          toolPanelDocked: "w-[16.5rem]",
+          toolPanelOverlay: "right-10 top-11 bottom-[4rem] w-[16.5rem]",
+          toolPanelPadding: "p-1.5",
+        }
     : {
         shell: "h-[40rem] max-w-[92rem] rounded-lg",
         sidebar: "w-56",
@@ -381,6 +412,8 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         toolPanelOverlay: "right-11 top-13 bottom-[4.75rem] w-[18rem]",
         toolPanelPadding: "p-2",
       }
+  const useCompactSidebarChrome = ultraCompact || useAdaptiveLayout
+  const shouldOverlayToolPanel = Boolean(activeTool) && (ultraCompact || useAdaptiveLayout)
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -602,7 +635,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           <ChatCommandPalette
             open
             attachTo="standalone"
-            density={ultraCompact ? "dense" : "compact"}
+            density={useCompactSidebarChrome ? "dense" : "compact"}
             showDescription={false}
             items={COMMAND_ITEMS}
             onSelect={handleCommandSelect}
@@ -621,14 +654,17 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         activeKey={activeConv}
         onChange={(key) => setActiveConv(key)}
         onNewChat={() => setActiveConv("new")}
-        title={ultraCompact ? "会话" : "会话列表"}
-        density={ultraCompact ? "dense" : "compact"}
+        title={useCompactSidebarChrome ? "会话" : "会话列表"}
+        density={useCompactSidebarChrome ? "dense" : "compact"}
+        showTitle={!useCompactSidebarChrome}
+        showNewChatButton={!useCompactSidebarChrome}
+        searchMode={useCompactSidebarChrome ? "trigger" : "bar"}
         collapsibleGroups
         defaultCollapsedGroups={["更早"]}
         showDescription={false}
-        showAvatar={!ultraCompact}
-        showTime={!ultraCompact}
-        showGroupCount={!ultraCompact}
+        showAvatar={!useCompactSidebarChrome}
+        showTime={!useCompactSidebarChrome}
+        showGroupCount={!useCompactSidebarChrome}
         className={`${pageStyles.sidebar} shrink-0 border-r`}
       />
 
@@ -755,7 +791,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                   open
                   query={draft}
                   attachTo="chat-sender"
-                  density={ultraCompact ? "dense" : "compact"}
+                  density={useCompactSidebarChrome ? "dense" : "compact"}
                   showDescription={false}
                   items={COMMAND_ITEMS}
                   onSelect={handleCommandSelect}
@@ -777,9 +813,9 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               footerTextPlacement="input"
               suggestionLimit={2}
               suggestionTriggerVisibility={showInlineCommandPalette ? "hidden" : "auto"}
-              overlayDensity={ultraCompact ? "dense" : "compact"}
+              overlayDensity={useCompactSidebarChrome ? "dense" : "compact"}
               loading={isStreaming}
-              showStopLabel={!ultraCompact}
+              showStopLabel={!useCompactSidebarChrome}
               onSubmit={handleSend}
               onCancel={handleStopStreaming}
               suggestions={QUICK_REPLIES}
@@ -790,7 +826,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               prefix={<AttachmentDialog />}
               onAttach={handleAddAttachment}
               statusActions={
-                ultraCompact ? undefined : (
+                useCompactSidebarChrome ? undefined : (
                   <span className="text-[10px] text-muted-foreground">模型: {model}</span>
                 )
               }
@@ -823,13 +859,13 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           </div>
         </div>
 
-        {!ultraCompact && activeTool && (
+        {!shouldOverlayToolPanel && activeTool && (
           <div className={`${pageStyles.toolPanelDocked} shrink-0 border-l bg-muted/5 p-2`}>
             {toolPanel}
           </div>
         )}
 
-        {ultraCompact && activeTool && (
+        {shouldOverlayToolPanel && activeTool && (
           <div className={`pointer-events-none absolute z-20 ${pageStyles.toolPanelOverlay}`}>
             <div className="pointer-events-auto h-full">{toolPanel}</div>
           </div>
@@ -996,6 +1032,25 @@ export const UltraCompact: Story = {
     await expect(canvas.getByPlaceholderText("搜索命令…")).toBeInTheDocument()
     await userEvent.click(canvas.getByRole("button", { name: "打开提示词库" }))
     await expect(canvas.getByText("提示词模板")).toBeInTheDocument()
+  },
+}
+
+export const AdaptiveMidWidth: Story = {
+  render: () => (
+    <ChatPage
+      initialDraft="/"
+      initialAttachments={[
+        { id: "att-seed", name: "layout-notes.md", type: "file", size: "12KB", status: "done" },
+      ]}
+      initialTool="commands"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByText("会话列表")).toBeNull()
+    await expect(canvas.getByRole("button", { name: "打开搜索会话" })).toBeInTheDocument()
+    await expect(canvas.getByText("1 附件")).toBeInTheDocument()
+    await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
   },
 }
 

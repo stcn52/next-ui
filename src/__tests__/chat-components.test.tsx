@@ -325,6 +325,40 @@ describe("ChatSender", () => {
     expect(screen.queryByText("design.png")).toBeNull()
   })
 
+  it("can collapse preview attachments into an overflow chip", () => {
+    render(
+      <ChatSender
+        attachments={[
+          { id: "1", name: "design.png", type: "image", status: "done" },
+          { id: "2", name: "logs.txt", type: "file", status: "done" },
+          { id: "3", name: "spec.pdf", type: "file", status: "done" },
+        ]}
+        attachmentDisplay="preview"
+        maxVisibleAttachments={2}
+      />,
+    )
+    expect(screen.getByText("design.png")).toBeTruthy()
+    expect(screen.getByText("logs.txt")).toBeTruthy()
+    expect(screen.queryByText("spec.pdf")).toBeNull()
+    expect(screen.getByText("+1 附件")).toBeTruthy()
+  })
+
+  it("can auto-hide custom actions when the sender is already crowded", () => {
+    render(
+      <ChatSender
+        density="dense"
+        attachments={[{ id: "1", name: "design.png", type: "image", status: "done" }]}
+        attachmentDisplay="preview"
+        leadingActionsVisibility="auto"
+        trailingActionsVisibility="auto"
+        leadingActions={<span data-testid="leading-action">L</span>}
+        trailingActions={<span data-testid="trailing-action">T</span>}
+      />,
+    )
+    expect(screen.queryByTestId("leading-action")).toBeNull()
+    expect(screen.queryByTestId("trailing-action")).toBeNull()
+  })
+
   it("supports keyboard mention selection without submitting", () => {
     const onChange = vi.fn()
     const onSubmit = vi.fn()
@@ -705,6 +739,24 @@ describe("ChatConversations", () => {
     fireEvent.click(screen.getByRole("button", { name: "Yesterday 分组" }))
     await waitFor(() => {
       expect(screen.getByText("Chat C")).toBeTruthy()
+    })
+  })
+
+  it("supports trigger-mode search for tighter sidebars", async () => {
+    render(
+      <ChatConversations
+        items={items}
+        density="dense"
+        showTitle={false}
+        showNewChatButton={false}
+        searchMode="trigger"
+      />,
+    )
+    expect(screen.queryByText("会话列表")).toBeNull()
+    expect(screen.queryByPlaceholderText("搜索会话…")).toBeNull()
+    fireEvent.click(screen.getByRole("button", { name: "打开搜索会话" }))
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("搜索会话…")).toBeTruthy()
     })
   })
 
