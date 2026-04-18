@@ -10,7 +10,7 @@ import { useMobileDetection, useLayoutHotkeys } from '@/hooks'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/inputs/select'
 import { Switch } from '@/components/ui/inputs/switch'
-import { Label } from '@/components/ui/label'
+import { Label } from '@/components/ui/inputs/label'
 import type { MenuMode } from '@/types/layout'
 
 const meta = {
