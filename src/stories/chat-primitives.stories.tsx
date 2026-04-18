@@ -1,5 +1,12 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
+import { ConfigProvider, useTranslation } from "@/components/config-provider"
+import {
+  buildChatInputToolbarLabels,
+  buildChatThreadTexts,
+  buildMessageActionsLabels,
+} from "@/components/ui/chat/chat-i18n"
 import { ConversationHeader } from "@/components/ui/chat/conversation-header"
 import { ChatInputToolbar } from "@/components/ui/chat/chat-input-toolbar"
 import { ChatThread } from "@/components/ui/chat/chat-thread"
@@ -71,5 +78,71 @@ export const Default: Story = {
         />
       </div>
     )
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  render: function Render() {
+    function LocalizedPrimitives() {
+      const [value, setValue] = useState("")
+      const t = useTranslation()
+      return (
+        <div className="w-[560px] rounded-xl border bg-background">
+          <ConversationHeader
+            title="AI Coding Assistant"
+            subtitle="Online"
+            avatarFallback="AI"
+            actions={<Button variant="outline" size="sm">Switch model</Button>}
+          />
+
+          <div className="px-4 py-3 text-sm text-muted-foreground">This area can host the message list.</div>
+
+          <div className="px-4 pb-3">
+            <ChatInputToolbar
+              onVoiceInput={() => {}}
+              onQuickCommand={() => {}}
+              labels={buildChatInputToolbarLabels(t)}
+            />
+          </div>
+
+          <div className="h-40 px-4 pb-3">
+            <ChatThread showUnreadDivider unreadLabel={buildChatThreadTexts(t).unreadLabel}>
+              <MessageThreadReply author="Chen" content="This direction works. Start with the minimal version." time="10:20" />
+              <MessageThreadReply author="AI" content="Understood. I will implement the baseline and add tests first." time="10:21" />
+            </ChatThread>
+          </div>
+
+          <div className="px-4 pb-3">
+            <MessageActions
+              onCopy={() => {}}
+              onEdit={() => {}}
+              onThumbsUp={() => {}}
+              onThumbsDown={() => {}}
+              onRegenerate={() => {}}
+              labels={buildMessageActionsLabels(t)}
+            />
+          </div>
+
+          <MessageComposer
+            value={value}
+            onChange={setValue}
+            onSubmit={() => setValue("")}
+            suggestions={["Explain code", "Generate tests", "Optimize performance"]}
+            footerText="Provider-backed locale demo"
+          />
+        </div>
+      )
+    }
+
+    return (
+      <ConfigProvider locale="en">
+        <LocalizedPrimitives />
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Unread messages")).toBeInTheDocument()
+    await expect(canvas.getByRole("button", { name: "Voice input" })).toBeInTheDocument()
   },
 }

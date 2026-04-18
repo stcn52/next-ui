@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.1 (2026-04-19)
+
+### Improvements
+
+- Localized chat primitives, prompt library surfaces, and file-manager stories through the shared `ConfigProvider` locale flow
+- Added reusable chat i18n label builders so `ChatBubble`, `ChatConversations`, `ChatSender`, and related stories can switch locale without story-local string duplication
+- Moved chat-page demo shell text, prompt-library chrome text, and relative conversation timestamps into locale dictionaries for `en`, `zh-CN`, and `ja-JP`
+- Expanded localized Storybook coverage for chat, prompt-library, and file-manager stories with stronger play assertions on search, slash commands, attachments, and localized prompt application
+- Added Playwright visual baselines for localized chat, file-manager, and prompt-library states
+
+### Tests
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build:lib`
+- Focused Playwright component visuals for localized chat, file-manager, and prompt-library stories
+
 ## 0.3.0 (2026-04-18)
 
 ### New Features

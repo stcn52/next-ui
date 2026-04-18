@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/inputs/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/inputs/textarea"
+import { useTranslation } from "@/components/config-provider"
 
 interface PromptVariable {
   key: string
@@ -71,8 +72,8 @@ function PromptLibrary({
   selectedKey: controlledSelectedKey,
   defaultSelectedKey,
   renderEmpty,
-  searchPlaceholder = "搜索提示词…",
-  applyLabel = "应用模板",
+  searchPlaceholder,
+  applyLabel,
   showItemDescription = true,
   showTemplateDescription = true,
   showTemplateContent = true,
@@ -81,6 +82,7 @@ function PromptLibrary({
   className,
   ...props
 }: PromptLibraryProps) {
+  const t = useTranslation()
   const [search, setSearch] = React.useState("")
   const [internalSelectedKey, setInternalSelectedKey] = React.useState(
     defaultSelectedKey ?? items[0]?.key ?? "",
@@ -94,7 +96,7 @@ function PromptLibrary({
         title: "text-sm",
         description: "text-xs",
         sidebarContent: "space-y-2.5 pt-2.5",
-        searchInput: "h-7 text-xs",
+        searchInput: "h-6 text-xs",
         empty: "px-2.5 py-3 text-xs",
         list: "h-72",
         groups: "space-y-2 pr-2.5",
@@ -109,11 +111,11 @@ function PromptLibrary({
         sectionTitle: "text-xs",
         variableLabel: "space-y-1 text-[11px]",
         variableText: "text-[11px]",
-        previewInput: "h-7 text-xs",
+        previewInput: "h-6 text-xs",
         previewArea: "min-h-24 text-xs",
         noVariables: "px-2.5 py-1.5 text-xs",
         footer: "justify-end gap-1.5",
-        applyButton: "h-7 px-3 text-xs",
+        applyButton: "h-6 px-3 text-xs",
       }
     : {
         root: "gap-3 lg:grid-cols-[280px_1fr]",
@@ -147,6 +149,21 @@ function PromptLibrary({
   const isControlled = controlledSelectedKey !== undefined
   const selectedKey = isControlled ? controlledSelectedKey : internalSelectedKey
   const isEmbedded = layout === "embedded"
+  const searchInputPlaceholder = searchPlaceholder ?? t("promptLibrarySearchPlaceholder")
+  const applyButtonLabel = applyLabel ?? t("promptLibraryApplyLabel")
+  const libraryTitle = t("promptLibraryTitle")
+  const libraryDescription = t("promptLibraryDescription")
+  const emptyLabel = renderEmpty ?? t("promptLibraryEmpty")
+  const uncategorizedLabel = t("promptLibraryUncategorized")
+  const selectTemplateLabel = t("promptLibrarySelectTemplate")
+  const variableCountLabel = (count: number) => t("promptLibraryVariableCount", { count })
+  const readyToApplyLabel = t("promptLibraryReadyToApply")
+  const variablesTitle = t("promptLibraryVariablesTitle")
+  const noVariablesLabel = t("promptLibraryNoVariables")
+  const templateContentTitle = t("promptLibraryTemplateContentTitle")
+  const previewTitle = t("promptLibraryPreviewTitle")
+  const compactPreviewTitle = t("promptLibraryCompactPreviewTitle")
+  const viewTemplateContentLabel = t("promptLibraryViewTemplateContent")
 
   const filteredItems = React.useMemo(() => {
     if (!search) return items
@@ -163,11 +180,11 @@ function PromptLibrary({
   const groupedItems = React.useMemo(() => {
     if (!groupable) return { "": filteredItems }
     return filteredItems.reduce<Record<string, PromptLibraryItem[]>>((acc, item) => {
-      const key = item.category ?? "未分类"
+      const key = item.category ?? uncategorizedLabel
       ;(acc[key] ??= []).push(item)
       return acc
     }, {})
-  }, [filteredItems, groupable])
+  }, [filteredItems, groupable, uncategorizedLabel])
 
   const selectedItem =
     filteredItems.find((item) => item.key === selectedKey) ??
@@ -230,7 +247,7 @@ function PromptLibrary({
           previewArea: "min-h-16 text-xs",
           badge: "inline-flex rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground",
           disclosure: "rounded-md border border-dashed bg-muted/20 px-2 py-1.5",
-          applyButton: "h-7 shrink-0 px-2.5 text-xs",
+          applyButton: "h-6 shrink-0 px-2.5 text-xs",
         }
       : {
           pane: "overflow-hidden rounded-lg border bg-card/70",
@@ -255,10 +272,10 @@ function PromptLibrary({
       >
         <section data-slot="prompt-library-list-pane" className={embeddedStyles.pane}>
           <div className={embeddedStyles.header}>
-            <p className={cn("font-medium", densityStyles.title)}>提示词模板</p>
+            <p className={cn("font-medium", densityStyles.title)}>{libraryTitle}</p>
             {density !== "compact" && (
               <p className={cn("text-muted-foreground", densityStyles.description)}>
-                选择模板并填入变量后应用到输入框
+                {libraryDescription}
               </p>
             )}
           </div>
@@ -267,7 +284,7 @@ function PromptLibrary({
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder={searchPlaceholder}
+                placeholder={searchInputPlaceholder}
                 size={density === "compact" ? "sm" : undefined}
                 className={densityStyles.searchInput}
               />
@@ -280,7 +297,7 @@ function PromptLibrary({
                     densityStyles.empty,
                   )}
                 >
-                  {renderEmpty ?? "暂无匹配模板"}
+                  {emptyLabel}
                 </div>
               ) : (
                 <div className={densityStyles.groups}>
@@ -322,7 +339,7 @@ function PromptLibrary({
           <div className={embeddedStyles.editorHeader}>
             <div className="min-w-0">
               <p className={cn("truncate font-medium", densityStyles.title)}>
-                {selectedItem?.title ?? "请选择模板"}
+                {selectedItem?.title ?? selectTemplateLabel}
               </p>
               {showTemplateDescription && selectedItem?.description && (
                 <p className={cn("truncate text-muted-foreground", densityStyles.description)}>
@@ -332,7 +349,7 @@ function PromptLibrary({
               {selectedItem && (
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   <span className={embeddedStyles.badge}>
-                    {hasVariables ? `${selectedVariables.length} 个变量` : "可直接应用"}
+                    {hasVariables ? variableCountLabel(selectedVariables.length) : readyToApplyLabel}
                   </span>
                   {selectedItem.category && (
                     <span className={embeddedStyles.badge}>{selectedItem.category}</span>
@@ -347,14 +364,14 @@ function PromptLibrary({
               className={embeddedStyles.applyButton}
               onClick={handleApply}
             >
-              {applyLabel}
+              {applyButtonLabel}
             </Button>
           </div>
           <div className={cn(embeddedStyles.editorBody, !hasVariables && density === "compact" && "gap-1.5")}>
             {hasVariables ? (
               <div className={densityStyles.section}>
                 <div className={densityStyles.subSection}>
-                  <div className={cn("font-medium", densityStyles.sectionTitle)}>变量</div>
+                  <div className={cn("font-medium", densityStyles.sectionTitle)}>{variablesTitle}</div>
                   <div className={densityStyles.subSection}>
                     {selectedVariables.map((variable) => (
                       <label key={variable.key} className={cn("block", densityStyles.variableLabel)}>
@@ -387,7 +404,7 @@ function PromptLibrary({
                   densityStyles.noVariables,
                 )}
               >
-                这个模板没有变量，可直接应用。
+                {noVariablesLabel}
               </div>
             )}
 
@@ -395,7 +412,7 @@ function PromptLibrary({
               {showTemplateContent && density === "compact" ? (
                 <details data-slot="prompt-library-template-disclosure" className={embeddedStyles.disclosure}>
                   <summary className="cursor-pointer list-none text-[11px] font-medium text-muted-foreground">
-                    查看模板内容
+                    {viewTemplateContentLabel}
                   </summary>
                   <Textarea
                     value={selectedItem?.content ?? ""}
@@ -405,7 +422,7 @@ function PromptLibrary({
                 </details>
               ) : showTemplateContent && (
                 <div className={densityStyles.variableLabel}>
-                  <div className={cn("font-medium", densityStyles.sectionTitle)}>模板内容</div>
+                  <div className={cn("font-medium", densityStyles.sectionTitle)}>{templateContentTitle}</div>
                   <Textarea
                     value={selectedItem?.content ?? ""}
                     readOnly
@@ -415,7 +432,7 @@ function PromptLibrary({
               )}
               <div className={densityStyles.variableLabel}>
                 <div className={cn("font-medium", densityStyles.sectionTitle)}>
-                  {density === "compact" ? "预览" : "渲染预览"}
+                  {density === "compact" ? compactPreviewTitle : previewTitle}
                 </div>
                 <Textarea value={rendered} readOnly className={embeddedStyles.previewArea} />
               </div>
@@ -435,9 +452,9 @@ function PromptLibrary({
     >
       <Card size="sm" className={densityStyles.sidebarCard}>
         <CardHeader className={densityStyles.header}>
-          <CardTitle className={densityStyles.title}>提示词模板</CardTitle>
+          <CardTitle className={densityStyles.title}>{libraryTitle}</CardTitle>
           <CardDescription className={densityStyles.description}>
-            选择模板并填入变量后应用到输入框
+            {libraryDescription}
           </CardDescription>
         </CardHeader>
         <CardContent className={densityStyles.sidebarContent}>
@@ -445,7 +462,7 @@ function PromptLibrary({
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={searchPlaceholder}
+              placeholder={searchInputPlaceholder}
               size={density === "compact" ? "sm" : undefined}
               className={densityStyles.searchInput}
             />
@@ -458,7 +475,7 @@ function PromptLibrary({
                   densityStyles.empty,
                 )}
               >
-                {renderEmpty ?? "暂无匹配模板"}
+                {emptyLabel}
               </div>
             ) : (
               <div className={densityStyles.groups}>
@@ -498,7 +515,7 @@ function PromptLibrary({
 
       <Card className={densityStyles.mainCard}>
         <CardHeader className={densityStyles.header}>
-          <CardTitle className={densityStyles.title}>{selectedItem?.title ?? "请选择模板"}</CardTitle>
+          <CardTitle className={densityStyles.title}>{selectedItem?.title ?? selectTemplateLabel}</CardTitle>
           {showTemplateDescription && selectedItem?.description && (
             <CardDescription className={densityStyles.description}>
               {selectedItem.description}
@@ -508,7 +525,7 @@ function PromptLibrary({
         <CardContent className={densityStyles.content}>
           <div className={densityStyles.section}>
             <div className={densityStyles.subSection}>
-              <div className={cn("font-medium", densityStyles.sectionTitle)}>变量</div>
+              <div className={cn("font-medium", densityStyles.sectionTitle)}>{variablesTitle}</div>
               {selectedItem?.variables?.length ? (
                 <div className={densityStyles.subSection}>
                   {selectedItem.variables.map((variable) => (
@@ -539,7 +556,7 @@ function PromptLibrary({
                     densityStyles.noVariables,
                   )}
                 >
-                  这个模板没有变量，可直接应用。
+                  {noVariablesLabel}
                 </div>
               )}
             </div>
@@ -548,7 +565,7 @@ function PromptLibrary({
           <div className={densityStyles.section}>
             {showTemplateContent && (
               <div className={densityStyles.variableLabel}>
-                <div className={cn("font-medium", densityStyles.sectionTitle)}>模板内容</div>
+                <div className={cn("font-medium", densityStyles.sectionTitle)}>{templateContentTitle}</div>
                 <Textarea
                   value={selectedItem?.content ?? ""}
                   readOnly
@@ -557,7 +574,7 @@ function PromptLibrary({
               </div>
             )}
             <div className={densityStyles.variableLabel}>
-              <div className={cn("font-medium", densityStyles.sectionTitle)}>渲染预览</div>
+              <div className={cn("font-medium", densityStyles.sectionTitle)}>{previewTitle}</div>
               <Textarea value={rendered} readOnly className={densityStyles.previewArea} />
             </div>
           </div>
@@ -570,7 +587,7 @@ function PromptLibrary({
             className={densityStyles.applyButton}
             onClick={handleApply}
           >
-            {applyLabel}
+            {applyButtonLabel}
           </Button>
         </CardFooter>
       </Card>

@@ -1,7 +1,7 @@
 {
   "name": "@stcn52/next-ui",
   "private": false,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "基于 shadcn/ui v3 + Tailwind CSS v4 + React 19 构建的纯前端 UI 组件库",
   "author": "stcn52",
   "license": "MIT",

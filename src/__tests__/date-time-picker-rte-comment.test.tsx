@@ -3,6 +3,7 @@
  */
 import { render, screen, fireEvent, within } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
+import { ConfigProvider } from "@/components/config-provider"
 import { DateTimePicker } from "@/components/ui/date/date-time-picker"
 import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { CommentEditor } from "@/components/ui/comment-editor"
@@ -11,7 +12,11 @@ import { CommentEditor } from "@/components/ui/comment-editor"
 
 describe("DateTimePicker", () => {
   it("renders trigger button with placeholder", () => {
-    render(<DateTimePicker placeholder="选择日期时间" />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DateTimePicker placeholder="选择日期时间" />
+      </ConfigProvider>,
+    )
     expect(screen.getByRole("combobox", { name: "选择日期时间" })).toBeInTheDocument()
   })
 
@@ -23,31 +28,47 @@ describe("DateTimePicker", () => {
   })
 
   it("opens popover on click", () => {
-    render(<DateTimePicker placeholder="选择" />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DateTimePicker placeholder="选择" />
+      </ConfigProvider>,
+    )
     fireEvent.click(screen.getByRole("combobox"))
     // Calendar should be visible
     expect(screen.getByRole("grid")).toBeInTheDocument()
   })
 
   it("shows hour and minute spinners in popover", () => {
-    render(<DateTimePicker defaultValue={new Date("2024-08-15T14:30:00")} />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DateTimePicker defaultValue={new Date("2024-08-15T14:30:00")} />
+      </ConfigProvider>,
+    )
     fireEvent.click(screen.getByRole("combobox"))
     expect(screen.getByRole("spinbutton", { name: "小时" })).toBeInTheDocument()
     expect(screen.getByRole("spinbutton", { name: "分钟" })).toBeInTheDocument()
   })
 
   it("increments hour via up button", () => {
-    render(<DateTimePicker defaultValue={new Date("2024-08-15T10:00:00")} />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DateTimePicker defaultValue={new Date("2024-08-15T10:00:00")} />
+      </ConfigProvider>,
+    )
     fireEvent.click(screen.getByRole("combobox"))
-    const upBtn = screen.getByRole("button", { name: "小时 增加" })
+    const upBtn = screen.getByRole("button", { name: "小时 +" })
     fireEvent.click(upBtn)
     expect(screen.getByRole("spinbutton", { name: "小时" }).textContent).toBe("11")
   })
 
   it("decrements minute via down button", () => {
-    render(<DateTimePicker defaultValue={new Date("2024-08-15T10:30:00")} />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <DateTimePicker defaultValue={new Date("2024-08-15T10:30:00")} />
+      </ConfigProvider>,
+    )
     fireEvent.click(screen.getByRole("combobox"))
-    const downBtn = screen.getByRole("button", { name: "分钟 减少" })
+    const downBtn = screen.getByRole("button", { name: "分钟 -" })
     fireEvent.click(downBtn)
     expect(screen.getByRole("spinbutton", { name: "分钟" }).textContent).toBe("29")
   })

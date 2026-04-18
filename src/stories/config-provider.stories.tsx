@@ -212,30 +212,60 @@ export const SizeIntegration: Story = {
     const [size, setSize] = useState<Size>("md")
     return (
       <ConfigProvider size={size}>
-        <div className="flex flex-col gap-6 max-w-md">
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium">Size:</span>
-            {(["sm", "md", "lg"] as Size[]).map((s) => (
-              <Button
-                key={s}
-                size={s === "md" ? "default" : s}
-                variant={size === s ? "default" : "outline"}
-                onClick={() => setSize(s)}
-              >
-                {s}
-              </Button>
-            ))}
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-2 items-center flex-wrap">
-              <Button>Default Button</Button>
-              <Button variant="outline">Outline</Button>
-              <Badge>Badge</Badge>
-              <Badge variant="secondary">Secondary</Badge>
-            </div>
-            <Input placeholder="Input responds to size" />
-            <Textarea placeholder="Textarea responds to size" />
-          </div>
+        <div className="flex flex-col gap-6 max-w-2xl">
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Size Control</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex gap-2 items-center">
+                <span className="text-sm font-medium">Current Size:</span>
+                {(["sm", "md", "lg"] as Size[]).map((s) => (
+                  <Button
+                    key={s}
+                    size={s === "md" ? "default" : s}
+                    variant={size === s ? "default" : "outline"}
+                    onClick={() => setSize(s)}
+                  >
+                    {s.toUpperCase()}
+                  </Button>
+                ))}
+                <Badge variant="secondary" className="ml-2">
+                  {size === "sm" ? "24px" : size === "md" ? "32px" : "40px"}
+                </Badge>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div>
+                  <div className="text-sm font-medium mb-2">Buttons</div>
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <Button>Primary</Button>
+                    <Button variant="outline">Outline</Button>
+                    <Button variant="secondary">Secondary</Button>
+                    <Button variant="ghost">Ghost</Button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-medium mb-2">Inputs</div>
+                  <div className="flex flex-col gap-2">
+                    <Input placeholder="Text input" />
+                    <Textarea placeholder="Textarea" rows={2} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-medium mb-2">Badges</div>
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <Badge>Default</Badge>
+                    <Badge variant="secondary">Secondary</Badge>
+                    <Badge variant="outline">Outline</Badge>
+                    <Badge variant="destructive">Destructive</Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </ConfigProvider>
     )
@@ -243,11 +273,11 @@ export const SizeIntegration: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     // Switch to sm
-    await userEvent.click(canvas.getByText("sm"))
-    await expect(canvas.getByPlaceholderText("Input responds to size")).toBeInTheDocument()
+    await userEvent.click(canvas.getByText("SM"))
+    await expect(canvas.getByText("24px")).toBeInTheDocument()
     // Switch to lg
-    await userEvent.click(canvas.getByText("lg"))
-    await expect(canvas.getByPlaceholderText("Textarea responds to size")).toBeInTheDocument()
+    await userEvent.click(canvas.getByText("LG"))
+    await expect(canvas.getByText("40px")).toBeInTheDocument()
   },
 }
 

@@ -4,7 +4,7 @@
  * DataGrid Toolbar — 全局搜索 + 列可见性切换 + 导出/重置 + 已选行计数
  */
 import { type Table } from "@tanstack/react-table"
-import { CopyIcon, DownloadIcon, SearchIcon, RotateCcwIcon, SlidersHorizontalIcon } from "lucide-react"
+import { CopyIcon, DownloadIcon, EllipsisIcon, SearchIcon, RotateCcwIcon, SlidersHorizontalIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/inputs/input"
 import { Badge } from "@/components/ui/display/badge"
@@ -13,7 +13,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
+  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/overlays/dropdown-menu"
@@ -50,71 +50,34 @@ export function Toolbar<TData>({
   const selectedTotal = table.getFilteredRowModel().rows.length
   const filterLabel = filterPlaceholder ?? locale.filter ?? "Filter..."
   const copyLabel = locale.copy ?? "Copy"
+  const exportLabel = locale.exportCsv ?? "Export CSV"
   const columnsLabel = locale.columns ?? "Columns"
   const resetLabel = locale.reset ?? "Reset"
+  const moreActionsLabel = locale.moreActions ?? "More actions"
+  const hasSecondaryActions = enableClipboardCopy || enableCsvExport || enableResetView
 
   return (
-    <div className="flex items-center gap-2 pb-2">
+    <div className="flex flex-wrap items-center gap-2 pb-2">
       {/* Filter input */}
       {filterColumn && (
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative min-w-[220px] flex-1 max-w-sm">
           <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
           <Input
             placeholder={filterLabel}
             value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
             onChange={(e) => table.getColumn(filterColumn)?.setFilterValue(e.target.value)}
-            className="h-8 pl-8 text-sm"
+            className="pl-8"
             aria-label={filterLabel}
           />
         </div>
       )}
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
         {/* Selected rows badge */}
         {selectedCount > 0 && (
-          <Badge variant="secondary" className="text-xs h-7">
+          <Badge variant="secondary" className="h-6 px-2 text-sm">
             {formatMessage(locale.rowsSelected, { count: selectedCount, total: selectedTotal })}
           </Badge>
-        )}
-
-        {enableClipboardCopy && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            onClick={onCopyClipboard}
-            disabled={!canCopyClipboard}
-            aria-label={copyLabel}
-          >
-            <CopyIcon className="size-3.5" />
-            {copyLabel}
-          </Button>
-        )}
-
-        {enableCsvExport && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            onClick={onExportCsv}
-            aria-label="导出 CSV"
-          >
-            <DownloadIcon className="size-3.5" />
-            CSV
-          </Button>
-        )}
-
-        {enableResetView && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            onClick={onResetView}
-            aria-label={resetLabel}
-          >
-            <RotateCcwIcon className="size-3.5" />
-            {resetLabel}
-          </Button>
         )}
 
         {/* Column visibility */}
@@ -122,14 +85,16 @@ export function Toolbar<TData>({
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" aria-label={columnsLabel}>
+                <Button variant="outline" aria-label={columnsLabel}>
                   <SlidersHorizontalIcon className="size-3.5" />
                   {columnsLabel}
                 </Button>
               }
             />
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuLabel className="text-xs">{columnsLabel}</DropdownMenuLabel>
+              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                {columnsLabel}
+              </div>
               <DropdownMenuSeparator />
               {table
                 .getAllColumns()
@@ -137,13 +102,53 @@ export function Toolbar<TData>({
                 .map((col) => (
                   <DropdownMenuCheckboxItem
                     key={col.id}
-                    className="capitalize text-xs"
+                    className="capitalize"
                     checked={col.getIsVisible()}
                     onCheckedChange={(v) => col.toggleVisibility(v)}
                   >
                     {col.id}
                   </DropdownMenuCheckboxItem>
                 ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {hasSecondaryActions && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" aria-label={moreActionsLabel}>
+                  <EllipsisIcon className="size-4" />
+                  {moreActionsLabel}
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-44">
+              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                {moreActionsLabel}
+              </div>
+              <DropdownMenuSeparator />
+              {enableClipboardCopy && (
+                <DropdownMenuItem
+                  onClick={onCopyClipboard}
+                  disabled={!canCopyClipboard}
+                >
+                  <CopyIcon className="size-4" />
+                  {copyLabel}
+                </DropdownMenuItem>
+              )}
+              {enableCsvExport && (
+                <DropdownMenuItem onClick={onExportCsv}>
+                  <DownloadIcon className="size-4" />
+                  {exportLabel}
+                </DropdownMenuItem>
+              )}
+              {enableResetView && (
+                <DropdownMenuItem onClick={onResetView}>
+                  <RotateCcwIcon className="size-4" />
+                  {resetLabel}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

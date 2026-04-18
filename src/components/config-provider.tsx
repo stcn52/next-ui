@@ -34,6 +34,8 @@ interface LocaleStrings {
   submit: string
   reset: string
   copy: string
+  exportCsv: string
+  moreActions: string
   // Pagination
   previous: string
   next: string
@@ -53,6 +55,11 @@ interface LocaleStrings {
   pickDateRange: string
   pickStartDate: string
   pickEndDate: string
+  pickTime: string
+  pickDateTime: string
+  hour: string
+  minute: string
+  done: string
   // Combobox / Select
   selectOption: string
   // Command

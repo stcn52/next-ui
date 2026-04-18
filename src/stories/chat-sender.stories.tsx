@@ -1,6 +1,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
+import { ConfigProvider, useTranslation } from "@/components/config-provider"
+import { buildChatSenderLabels } from "@/components/ui/chat/chat-i18n"
 import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat/chat-sender"
 import { Button } from "@/components/ui/button"
 import { Mic, Image } from "lucide-react"
@@ -218,6 +220,41 @@ export const WithFooter: Story = {
       />
     </div>
   ),
+}
+
+export const LocalizedWithProvider: Story = {
+  render: function Render() {
+    function LocalizedSender() {
+      const [value, setValue] = useState("")
+      const t = useTranslation()
+      return (
+        <div className="w-[480px]">
+          <ChatSender
+            value={value}
+            onChange={setValue}
+            suggestions={["Explain it", "Write tests", "Refine API", "Summarize changes"]}
+            attachments={[
+              { id: "1", name: "spec.md", type: "file", status: "done" },
+              { id: "2", name: "wireframe.png", type: "image", status: "uploading", progress: 42 },
+            ]}
+            labels={buildChatSenderLabels(t)}
+            footerText="Provider-backed locale labels"
+          />
+        </div>
+      )
+    }
+
+    return (
+      <ConfigProvider locale="en">
+        <LocalizedSender />
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByPlaceholderText("Type a message…")).toBeInTheDocument()
+    await expect(canvas.getByRole("button", { name: "Send" })).toBeInTheDocument()
+  },
 }
 
 /* ------------------------------------------------------------------ */

@@ -5,6 +5,7 @@ import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 import {
   ConfigProvider,
+  resolveLocale,
   useTranslation,
 } from "@/components/config-provider"
 import {
@@ -37,18 +38,53 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
+const zh = resolveLocale("zh-CN")
+const en = resolveLocale("en")
+
 export const Default: Story = {
   name: "File Manager",
   render: () => (
     <ConfigProvider locale="zh-CN">
-      <FileManagerPage />
+      <FileManagerPage defaultOpenMenuId="1" />
     </ConfigProvider>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("文件管理")).toBeInTheDocument()
-    await expect(canvas.getByPlaceholderText("搜索文件…")).toBeInTheDocument()
-    await expect(canvas.getByText("项目文档")).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText(zh.fileManagerPathSearchPlaceholder)).toBeInTheDocument()
+    await expect(canvas.getByText("301")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.fileManagerOpenNewWindow)).toBeInTheDocument()
+  },
+}
+
+export const Dark: Story = {
+  name: "File Manager Dark",
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <div className="dark">
+        <FileManagerPage defaultOpenMenuId="1" />
+      </div>
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByPlaceholderText(zh.fileManagerPathSearchPlaceholder)).toBeInTheDocument()
+    await expect(canvas.getByText("301", { exact: true })).toBeInTheDocument()
+    await expect(canvas.getByText(zh.fileManagerOpenNewWindow)).toBeInTheDocument()
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  name: "File Manager Localized",
+  render: () => (
+    <ConfigProvider locale="en">
+      <FileManagerPage defaultOpenMenuId="1" />
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByPlaceholderText(en.fileManagerPathSearchPlaceholder)).toBeInTheDocument()
+    await expect(canvas.getByText(en.fileManagerRecycleBin)).toBeInTheDocument()
+    await expect(canvas.getByText(en.fileManagerOpenNewWindow)).toBeInTheDocument()
   },
 }
 
@@ -76,7 +112,7 @@ export const GridView: Story = {
   render: () => <GridViewPreview />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("项目文档")).toBeInTheDocument()
+    await expect(canvas.getByText("301")).toBeInTheDocument()
   },
 }
 
@@ -129,6 +165,21 @@ export const Storage: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("存储空间")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.storageTitle)).toBeInTheDocument()
+  },
+}
+
+export const StorageLocalizedWithProvider: Story = {
+  name: "Storage Overview Localized",
+  render: () => (
+    <ConfigProvider locale="en">
+      <StorageOverview />
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(en.storageTitle)).toBeInTheDocument()
+    await expect(canvas.getByText(en.storageDocuments)).toBeInTheDocument()
+    await expect(canvas.getByText(en.storageImages)).toBeInTheDocument()
   },
 }

@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import { expect, within } from "storybook/test"
+import { ConfigProvider, useTranslation } from "@/components/config-provider"
+import { buildChatPresenceLabels } from "@/components/ui/chat/chat-i18n"
 import { ChatPresence } from "@/components/ui/chat/chat-presence"
 
 const meta: Meta<typeof ChatPresence> = {
@@ -64,5 +67,39 @@ export const StackedOffline: Story = {
     status: "offline",
     lastSeen: "5 分钟前",
     readState: "sent",
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  render: function Render() {
+    function LocalizedPresence() {
+      const t = useTranslation()
+      return (
+        <ChatPresence
+          variant="badge"
+          status="away"
+          density="compact"
+          participantLimit={2}
+          participants={[
+            { key: "a", label: "Alice" },
+            { key: "b", label: "Bob" },
+            { key: "c", label: "Chen" },
+          ]}
+          readState="read"
+          labels={buildChatPresenceLabels(t)}
+        />
+      )
+    }
+
+    return (
+      <ConfigProvider locale="en">
+        <LocalizedPresence />
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Away")).toBeInTheDocument()
+    await expect(canvas.getByText("Read")).toBeInTheDocument()
   },
 }

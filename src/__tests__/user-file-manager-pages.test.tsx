@@ -50,8 +50,8 @@ describe("FileManagerPage i18n", () => {
       </ConfigProvider>,
     )
 
-    expect(screen.getByText("ファイルマネージャー")).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("ファイルを検索…")).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("ファイル/ディレクトリを検索")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "新しいタブ" })).toBeInTheDocument()
   })
 
   it("shows empty state after filtering", async () => {
@@ -62,7 +62,7 @@ describe("FileManagerPage i18n", () => {
       </ConfigProvider>,
     )
 
-    const search = screen.getByPlaceholderText("Search files…")
+    const search = screen.getByPlaceholderText("Search files/directories")
     await user.type(search, "zzz-no-file")
 
     expect(screen.getByText("No matching files")).toBeInTheDocument()

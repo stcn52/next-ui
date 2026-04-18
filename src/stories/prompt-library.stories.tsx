@@ -1,6 +1,7 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
+import { ConfigProvider, resolveLocale } from "@/components/config-provider"
 import { PromptLibrary, type PromptLibraryApplyResult, type PromptLibraryItem } from "@/components/ui/prompt-library"
 
 const ITEMS: PromptLibraryItem[] = [
@@ -43,18 +44,23 @@ const meta: Meta<typeof PromptLibrary> = {
 export default meta
 type Story = StoryObj<typeof PromptLibrary>
 
+const zh = resolveLocale("zh-CN")
+const en = resolveLocale("en")
+
 export const Default: Story = {
   render: function Render() {
     const [result, setResult] = useState<PromptLibraryApplyResult | null>(null)
     return (
-      <div className="w-[980px] space-y-3">
-        {result && (
-          <div className="rounded-lg border bg-muted/50 p-3 text-xs">
-            已应用: {result.rendered}
-          </div>
-        )}
-        <PromptLibrary items={ITEMS} onApply={(payload) => setResult(payload)} />
-      </div>
+      <ConfigProvider locale="zh-CN">
+        <div className="w-[980px] space-y-3">
+          {result && (
+            <div className="rounded-lg border bg-muted/50 p-3 text-xs">
+              已应用: {result.rendered}
+            </div>
+          )}
+          <PromptLibrary items={ITEMS} onApply={(payload) => setResult(payload)} />
+        </div>
+      </ConfigProvider>
     )
   },
   play: async ({ canvasElement }) => {
@@ -62,55 +68,100 @@ export const Default: Story = {
     await expect(canvas.getByText("问题排查助手")).toBeInTheDocument()
     await userEvent.type(canvas.getByPlaceholderText("例如 ChatSender"), "ChatSender")
     await userEvent.type(canvas.getByPlaceholderText("例如 Enter 会误触发送"), "布局过高")
-    await userEvent.click(canvas.getByRole("button", { name: "应用模板" }))
+    await userEvent.click(canvas.getByRole("button", { name: zh.promptLibraryApplyLabel }))
     await expect(canvas.getByText(/ChatSender 中的 布局过高/)).toBeInTheDocument()
   },
 }
 
 export const Filtered: Story = {
-  args: {
-    items: ITEMS,
-  },
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <PromptLibrary items={ITEMS} />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await userEvent.type(canvas.getByPlaceholderText("搜索提示词…"), "文案")
+    await userEvent.type(canvas.getByPlaceholderText(zh.promptLibrarySearchPlaceholder), "文案")
     await expect(canvas.getByText("文案润色")).toBeInTheDocument()
   },
 }
 
 export const EmbeddedCompact: Story = {
-  args: {
-    items: ITEMS,
-    density: "compact",
-    layout: "embedded",
-    showItemDescription: false,
-    showTemplateDescription: false,
-    showTemplateContent: false,
-  },
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <PromptLibrary
+        items={ITEMS}
+        density="compact"
+        layout="embedded"
+        showItemDescription={false}
+        showTemplateDescription={false}
+        showTemplateContent={false}
+      />
+    </ConfigProvider>
+  ),
 }
 
 export const EmbeddedSidebarCompare: Story = {
   render: function Render() {
     return (
-      <div className="grid w-[760px] gap-3 md:grid-cols-2">
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">compact 默认布局</p>
-          <PromptLibrary items={ITEMS} density="compact" />
+      <ConfigProvider locale="zh-CN">
+        <div className="grid w-[760px] gap-3 md:grid-cols-2">
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">compact 默认布局</p>
+            <PromptLibrary items={ITEMS} density="compact" />
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">compact embedded 工具面板布局</p>
+            <PromptLibrary items={ITEMS} density="compact" layout="embedded" />
+          </div>
         </div>
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">compact embedded 工具面板布局</p>
-          <PromptLibrary items={ITEMS} density="compact" layout="embedded" />
-        </div>
-      </div>
+      </ConfigProvider>
     )
   },
 }
 
 export const EmbeddedNoVariables: Story = {
-  args: {
-    items: ITEMS,
-    density: "compact",
-    layout: "embedded",
-    defaultSelectedKey: "quick-summary",
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <PromptLibrary
+        items={ITEMS}
+        density="compact"
+        layout="embedded"
+        defaultSelectedKey="quick-summary"
+      />
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(zh.promptLibraryNoVariables)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.promptLibraryCompactPreviewTitle)).toBeInTheDocument()
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  render: function Render() {
+    const [result, setResult] = useState<PromptLibraryApplyResult | null>(null)
+    return (
+      <ConfigProvider locale="en">
+        <div className="w-[980px] space-y-3">
+          {result && (
+            <div className="rounded-lg border bg-muted/50 p-3 text-xs">
+              Applied: {result.rendered}
+            </div>
+          )}
+          <PromptLibrary items={ITEMS} onApply={(payload) => setResult(payload)} />
+        </div>
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(en.promptLibraryTitle)).toBeInTheDocument()
+    await userEvent.type(canvas.getByPlaceholderText(en.promptLibrarySearchPlaceholder), "summary")
+    await expect(canvas.getByText("快速总结")).toBeInTheDocument()
+    await userEvent.click(canvas.getByText("快速总结"))
+    await expect(canvas.getByText(en.promptLibraryNoVariables)).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: en.promptLibraryApplyLabel }))
+    await expect(canvas.getByText(/80 字以内/)).toBeInTheDocument()
   },
 }

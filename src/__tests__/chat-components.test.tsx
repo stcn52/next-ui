@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+import { ConfigProvider } from "@/components/config-provider"
 import {
   Bubble,
   BubbleList,
@@ -77,10 +78,12 @@ describe("Bubble", () => {
   it("shows regenerate button for assistant when onRegenerate provided", () => {
     const spy = vi.fn()
     const { container } = render(<Bubble role="assistant" content="Regen" onRegenerate={spy} />)
-    // The regenerate button is the last icon button in the actions area
+    // Regenerate now lives in the overflow menu.
     const buttons = container.querySelectorAll("button")
-    const regenBtn = buttons[buttons.length - 1]
-    expect(regenBtn).toBeTruthy()
+    const overflowBtn = buttons[buttons.length - 1]
+    expect(overflowBtn).toBeTruthy()
+    fireEvent.click(overflowBtn)
+    const regenBtn = screen.getByText("重新生成")
     fireEvent.click(regenBtn)
     expect(spy).toHaveBeenCalledOnce()
   })
@@ -339,8 +342,8 @@ describe("ChatSender", () => {
         attachmentDisplay="summary"
       />,
     )
-    expect(screen.getByText("2 个附件")).toBeTruthy()
-    expect(screen.getByText("上传中 1")).toBeTruthy()
+    expect(screen.getByText("2 附件")).toBeTruthy()
+    expect(screen.getByText("传 1")).toBeTruthy()
     expect(screen.queryByText("design.png")).toBeNull()
   })
 
@@ -428,7 +431,7 @@ describe("ChatSender", () => {
         attachmentSummaryPlacement="input"
       />,
     )
-    expect(screen.getByText("1 个附件")).toBeTruthy()
+    expect(screen.getByText("1 附件")).toBeTruthy()
     expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
   })
 
@@ -681,7 +684,11 @@ describe("PromptLibrary", () => {
   ]
 
   it("renders filtered templates by search", () => {
-    render(<PromptLibrary items={items} />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary items={items} />
+      </ConfigProvider>,
+    )
     fireEvent.change(screen.getByPlaceholderText("搜索提示词…"), {
       target: { value: "文案" },
     })
@@ -691,7 +698,11 @@ describe("PromptLibrary", () => {
 
   it("applies rendered prompt with variable values", () => {
     const onApply = vi.fn()
-    render(<PromptLibrary items={items} onApply={onApply} />)
+    render(
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary items={items} onApply={onApply} />
+      </ConfigProvider>,
+    )
     fireEvent.change(screen.getByPlaceholderText("模块"), { target: { value: "ChatSender" } })
     fireEvent.change(screen.getByPlaceholderText("问题"), { target: { value: "高度过高" } })
     fireEvent.click(screen.getByRole("button", { name: "应用模板" }))
@@ -706,20 +717,26 @@ describe("PromptLibrary", () => {
   })
 
   it("supports compact density for embedded tool panels", () => {
-    const { container } = render(<PromptLibrary items={items} density="compact" />)
+    const { container } = render(
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary items={items} density="compact" />
+      </ConfigProvider>,
+    )
     expect(container.querySelector('[data-slot="prompt-library"]')).toBeTruthy()
     expect(screen.getByText("提示词模板")).toBeTruthy()
   })
 
   it("can hide list and template descriptions for embedded prompt tools", () => {
     render(
-      <PromptLibrary
-        items={items}
-        density="compact"
-        showItemDescription={false}
-        showTemplateDescription={false}
-        showTemplateContent={false}
-      />,
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary
+          items={items}
+          density="compact"
+          showItemDescription={false}
+          showTemplateDescription={false}
+          showTemplateContent={false}
+        />
+      </ConfigProvider>,
     )
     expect(screen.getAllByText("排查问题").length).toBeGreaterThan(0)
     expect(screen.queryByText("定位问题根因")).toBeNull()
@@ -729,14 +746,16 @@ describe("PromptLibrary", () => {
 
   it("supports embedded layout for compact tool panels", () => {
     const { container } = render(
-      <PromptLibrary
-        items={items}
-        density="compact"
-        layout="embedded"
-        showItemDescription={false}
-        showTemplateDescription={false}
-        showTemplateContent={false}
-      />,
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary
+          items={items}
+          density="compact"
+          layout="embedded"
+          showItemDescription={false}
+          showTemplateDescription={false}
+          showTemplateContent={false}
+        />
+      </ConfigProvider>,
     )
     expect(container.querySelector('[data-slot="prompt-library"]')?.getAttribute("data-layout")).toBe("embedded")
     expect(container.querySelector('[data-slot="prompt-library-editor-pane"]')).toBeTruthy()
@@ -746,12 +765,14 @@ describe("PromptLibrary", () => {
 
   it("collapses template content into a disclosure for compact embedded layouts", () => {
     render(
-      <PromptLibrary
-        items={items}
-        density="compact"
-        layout="embedded"
-        defaultSelectedKey="bug"
-      />,
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary
+          items={items}
+          density="compact"
+          layout="embedded"
+          defaultSelectedKey="bug"
+        />
+      </ConfigProvider>,
     )
     expect(screen.getByText("查看模板内容")).toBeTruthy()
     expect(screen.queryByText("模板内容")).toBeNull()
@@ -760,12 +781,14 @@ describe("PromptLibrary", () => {
 
   it("prioritizes quick apply state for embedded templates without variables", () => {
     render(
-      <PromptLibrary
-        items={items}
-        density="compact"
-        layout="embedded"
-        defaultSelectedKey="summary"
-      />,
+      <ConfigProvider locale="zh-CN">
+        <PromptLibrary
+          items={items}
+          density="compact"
+          layout="embedded"
+          defaultSelectedKey="summary"
+        />
+      </ConfigProvider>,
     )
     expect(screen.getByText("可直接应用")).toBeTruthy()
     expect(document.querySelector('[data-slot="prompt-library-no-variables"]')).toBeTruthy()

@@ -162,7 +162,8 @@ describe("DataGrid — data mode", () => {
       )
 
       fireEvent.change(screen.getByPlaceholderText("搜名字"), { target: { value: "陈宇" } })
-      fireEvent.click(screen.getByRole("button", { name: "导出 CSV" }))
+      fireEvent.click(screen.getByRole("button", { name: "More actions" }))
+      fireEvent.click(screen.getByRole("menuitem", { name: "Export CSV" }))
 
       expect(createObjectURL).toHaveBeenCalledTimes(1)
       const blob = createObjectURL.mock.calls[0][0] as Blob
@@ -200,7 +201,8 @@ describe("DataGrid — data mode", () => {
     expect(screen.getByPlaceholderText("搜名字")).toHaveValue("陈宇")
     expect(screen.getByText("陈宇")).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Reset" }))
+    fireEvent.click(screen.getByRole("button", { name: "More actions" }))
+    fireEvent.click(screen.getByRole("menuitem", { name: "Reset" }))
 
     expect(screen.getByPlaceholderText("搜名字")).toHaveValue("")
     expect(screen.getByText("李薇")).toBeInTheDocument()
@@ -218,7 +220,8 @@ describe("DataGrid — data mode", () => {
 
     fireEvent.click(screen.getAllByRole("checkbox")[1])
     fireEvent.click(screen.getAllByRole("checkbox")[2])
-    fireEvent.click(screen.getByRole("button", { name: "Copy" }))
+    fireEvent.click(screen.getByRole("button", { name: "More actions" }))
+    fireEvent.click(screen.getByRole("menuitem", { name: "Copy" }))
 
     expect(mockClipboard.writeText).toHaveBeenCalledTimes(1)
     const copied = mockClipboard.writeText.mock.calls[0][0] as string
@@ -336,7 +339,8 @@ describe("DataGrid — spreadsheet mode", () => {
     render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={vi.fn()} />)
 
     fireEvent.click(screen.getByText("陈宇"))
-    fireEvent.click(screen.getByRole("button", { name: "Copy" }))
+    fireEvent.click(screen.getByRole("button", { name: "More actions" }))
+    fireEvent.click(screen.getByRole("menuitem", { name: "Copy" }))
 
     expect(mockClipboard.writeText).toHaveBeenCalledWith("陈宇")
   })
@@ -353,9 +357,9 @@ describe("DataGrid — spreadsheet mode", () => {
   it("disables copy when nothing is selected", () => {
     render(<DataGrid columns={COLS} data={ROWS} spreadsheet onCellEdit={vi.fn()} />)
 
-    const copyButton = screen.getByRole("button", { name: "Copy" })
-    expect(copyButton).toBeDisabled()
-
+    fireEvent.click(screen.getByRole("button", { name: "More actions" }))
+    const copyButton = screen.getByRole("menuitem", { name: "Copy" })
+    expect(copyButton).toHaveAttribute("aria-disabled", "true")
     fireEvent.click(copyButton)
     expect(mockClipboard.writeText).not.toHaveBeenCalled()
   })

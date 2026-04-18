@@ -147,6 +147,29 @@ interface ChatSenderProps
   maxRows?: number
   /** Whether the textarea should grow with content until maxRows */
   autoResize?: boolean
+  /** Localized labels */
+  labels?: {
+    placeholder?: string
+    dragOverlayText?: string
+    applySuggestionAriaLabel?: (suggestion: string) => string
+    moreSuggestionsLabel?: (count: number) => string
+    attachmentCountLabel?: (count: number, compact: boolean) => string
+    uploadingCountLabel?: (count: number, compact: boolean) => string
+    errorCountLabel?: (count: number, compact: boolean) => string
+    attachAriaLabel?: string
+    suggestionsAriaLabel?: string
+    suggestionsPanelAriaLabel?: string
+    mentionsAriaLabel?: string
+    uploadErrorText?: string
+    retryLabel?: string
+    removeAttachmentAriaLabel?: (name: string) => string
+    hiddenAttachmentsAriaLabel?: (count: number) => string
+    hiddenAttachmentsLabel?: (count: number) => string
+    stopAriaLabel?: string
+    stopLabel?: string
+    sendAriaLabel?: string
+    keyboardHint?: string
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -156,7 +179,7 @@ interface ChatSenderProps
 function ChatSender({
   value: controlledValue,
   defaultValue = "",
-  placeholder = "输入消息…",
+  placeholder,
   loading = false,
   disabled = false,
   allowAttachment = true,
@@ -202,9 +225,45 @@ function ChatSender({
   minRows,
   maxRows = 6,
   autoResize = true,
+  labels,
   className,
   ...props
 }: ChatSenderProps) {
+  const text = React.useMemo(
+    () => ({
+      placeholder: labels?.placeholder ?? placeholder ?? "输入消息…",
+      dragOverlayText: labels?.dragOverlayText ?? "释放文件以上传",
+      applySuggestionAriaLabel:
+        labels?.applySuggestionAriaLabel ?? ((suggestion: string) => `应用提示 ${suggestion}`),
+      moreSuggestionsLabel: labels?.moreSuggestionsLabel ?? ((count: number) => `更多 ${count}`),
+      attachmentCountLabel:
+        labels?.attachmentCountLabel ??
+        ((count: number, compact: boolean) => (compact ? `${count} 附件` : `${count} 个附件`)),
+      uploadingCountLabel:
+        labels?.uploadingCountLabel ??
+        ((count: number, compact: boolean) => (compact ? `传 ${count}` : `上传中 ${count}`)),
+      errorCountLabel:
+        labels?.errorCountLabel ??
+        ((count: number, compact: boolean) => (compact ? `错 ${count}` : `失败 ${count}`)),
+      attachAriaLabel: labels?.attachAriaLabel ?? "添加附件",
+      suggestionsAriaLabel: labels?.suggestionsAriaLabel ?? "打开快捷提示",
+      suggestionsPanelAriaLabel: labels?.suggestionsPanelAriaLabel ?? "快捷提示",
+      mentionsAriaLabel: labels?.mentionsAriaLabel ?? "提及建议",
+      uploadErrorText: labels?.uploadErrorText ?? "上传失败",
+      retryLabel: labels?.retryLabel ?? "重试",
+      removeAttachmentAriaLabel:
+        labels?.removeAttachmentAriaLabel ?? ((name: string) => `移除 ${name}`),
+      hiddenAttachmentsAriaLabel:
+        labels?.hiddenAttachmentsAriaLabel ?? ((count: number) => `还有 ${count} 个附件已折叠`),
+      hiddenAttachmentsLabel:
+        labels?.hiddenAttachmentsLabel ?? ((count: number) => `+${count} 附件`),
+      stopAriaLabel: labels?.stopAriaLabel ?? "停止生成",
+      stopLabel: labels?.stopLabel ?? "停止生成",
+      sendAriaLabel: labels?.sendAriaLabel ?? "发送",
+      keyboardHint: labels?.keyboardHint ?? "⇧↵ 换行",
+    }),
+    [labels, placeholder],
+  )
   const rootRef = React.useRef<HTMLDivElement>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const [internalValue, setInternalValue] = React.useState(defaultValue)
@@ -333,13 +392,13 @@ function ChatSender({
   const resolvedMinRows = minRows ?? (density === "dense" ? 1 : 2)
   const resolvedMaxRows = Math.max(maxRows, resolvedMinRows)
   const resolvedAttachmentSummaryPlacement =
-    attachmentSummaryPlacement ?? (density === "dense" ? "input" : "utility")
+    attachmentSummaryPlacement ?? "utility"
   const resolvedAttachmentSummaryDetail =
-    attachmentSummaryDetail ?? (density === "default" ? "full" : "compact")
+    attachmentSummaryDetail ?? "compact"
   const resolvedStatusActionsPlacement =
     statusActionsPlacement ?? (density === "dense" ? "input" : "utility")
   const resolvedFooterTextPlacement =
-    footerTextPlacement ?? (density === "dense" ? "input" : "utility")
+    footerTextPlacement ?? "utility"
   const resolvedSuggestionLimit = Math.max(
     1,
     suggestionLimit ??
@@ -352,11 +411,11 @@ function ChatSender({
           : 3),
   )
   const resolvedDefaultActionLayout =
-    defaultActionLayout ?? (density === "default" ? "separate" : "grouped")
+    defaultActionLayout ?? "grouped"
   const resolvedLeadingActionsVisibility =
-    leadingActionsVisibility ?? (density === "dense" ? "auto" : "always")
+    leadingActionsVisibility ?? "auto"
   const resolvedTrailingActionsVisibility =
-    trailingActionsVisibility ?? (density === "dense" ? "auto" : "always")
+    trailingActionsVisibility ?? "auto"
   const resolvedMaxVisibleAttachments =
     maxVisibleAttachments === undefined ? undefined : Math.max(0, maxVisibleAttachments)
   const attachmentCount = attachments?.length ?? 0
@@ -571,7 +630,7 @@ function ChatSender({
       <button
         key={suggestion}
         type="button"
-        aria-label={`应用提示 ${suggestion}`}
+        aria-label={text.applySuggestionAriaLabel(suggestion)}
         onClick={() => handleSuggestionClick(suggestion)}
         className={cn(
           "rounded-full border bg-background text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
@@ -581,7 +640,7 @@ function ChatSender({
         {suggestion}
       </button>
     ),
-    [densityStyles.suggestionChip, handleSuggestionClick],
+    [densityStyles.suggestionChip, handleSuggestionClick, text],
   )
 
   const renderSuggestionOverflowChip = React.useCallback(
@@ -595,10 +654,10 @@ function ChatSender({
             densityStyles.suggestionChip,
           )}
         >
-          更多 {hiddenSuggestionCount}
+          {text.moreSuggestionsLabel(hiddenSuggestionCount)}
         </button>
       ) : null,
-    [densityStyles.suggestionChip, hiddenSuggestionCount],
+    [densityStyles.suggestionChip, hiddenSuggestionCount, text],
   )
 
   const attachmentSummaryNode =
@@ -620,8 +679,8 @@ function ChatSender({
             )}
           >
             {resolvedAttachmentSummaryDetail === "compact"
-              ? `${attachmentCount} 附件`
-              : `${attachmentCount} 个附件`}
+              ? text.attachmentCountLabel(attachmentCount, true)
+              : text.attachmentCountLabel(attachmentCount, false)}
           </span>
           {uploadingCount > 0 && (
             <span
@@ -631,8 +690,8 @@ function ChatSender({
               )}
             >
               {resolvedAttachmentSummaryDetail === "compact"
-                ? `传 ${uploadingCount}`
-                : `上传中 ${uploadingCount}`}
+                ? text.uploadingCountLabel(uploadingCount, true)
+                : text.uploadingCountLabel(uploadingCount, false)}
             </span>
           )}
           {errorCount > 0 && (
@@ -643,8 +702,8 @@ function ChatSender({
               )}
             >
               {resolvedAttachmentSummaryDetail === "compact"
-                ? `错 ${errorCount}`
-                : `失败 ${errorCount}`}
+                ? text.errorCountLabel(errorCount, true)
+                : text.errorCountLabel(errorCount, false)}
             </span>
           )}
         </div>
@@ -733,7 +792,7 @@ function ChatSender({
       variant="ghost"
       size={densityStyles.controlButtonSize}
       className="shrink-0"
-      aria-label="添加附件"
+      aria-label={text.attachAriaLabel}
       disabled={disabled}
       onClick={onAttach}
     >
@@ -747,7 +806,7 @@ function ChatSender({
       variant="ghost"
       size={densityStyles.controlButtonSize}
       className="shrink-0"
-      aria-label="打开快捷提示"
+      aria-label={text.suggestionsAriaLabel}
       aria-expanded={showSuggestions}
       disabled={disabled}
       onClick={() => {
@@ -797,7 +856,7 @@ function ChatSender({
           <div
             data-slot="mention-list"
             role="listbox"
-            aria-label="提及建议"
+            aria-label={text.mentionsAriaLabel}
             className={cn(
               "absolute inset-x-0 bottom-full z-20 max-h-64 overflow-y-auto rounded-md border bg-popover shadow-sm",
               overlayStyles.offset,
@@ -831,7 +890,7 @@ function ChatSender({
         {overlayMode === "suggestions" && (
           <div
             data-slot="suggestion-list"
-            aria-label="快捷提示"
+            aria-label={text.suggestionsPanelAriaLabel}
             className={cn(
               "absolute inset-x-0 bottom-full z-20 rounded-md border bg-popover shadow-sm",
               overlayStyles.offset,
@@ -851,7 +910,7 @@ function ChatSender({
         )}>
           {isDragOver && (
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-primary/5">
-              <p className="text-xs font-medium text-primary">释放文件以上传</p>
+              <p className="text-xs font-medium text-primary">{text.dragOverlayText}</p>
             </div>
           )}
             {attachmentDisplay === "preview" && attachments && attachments.length > 0 && (
@@ -906,7 +965,7 @@ function ChatSender({
                       {attachment.status === "error" && (
                         <div className="mt-0.5 flex items-center gap-1">
                           <p className={cn("text-destructive", densityStyles.attachmentMeta)}>
-                            {attachment.error ?? "上传失败"}
+                            {attachment.error ?? text.uploadErrorText}
                           </p>
                           {onRetryAttachment && (
                             <button
@@ -914,7 +973,7 @@ function ChatSender({
                               className={cn("text-primary underline-offset-2 hover:underline", densityStyles.attachmentMeta)}
                               onClick={() => onRetryAttachment(attachment.id)}
                             >
-                              重试
+                              {text.retryLabel}
                             </button>
                           )}
                         </div>
@@ -925,7 +984,7 @@ function ChatSender({
                         type="button"
                         onClick={() => onRemoveAttachment(attachment.id)}
                         className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover/att:opacity-100"
-                        aria-label={`移除 ${attachment.name}`}
+                        aria-label={text.removeAttachmentAriaLabel(attachment.name)}
                       >
                         <X className="size-2.5" />
                       </button>
@@ -935,7 +994,7 @@ function ChatSender({
                 {hiddenPreviewAttachmentCount > 0 && (
                   <div
                     data-slot="attachment-preview-overflow"
-                    aria-label={`还有 ${hiddenPreviewAttachmentCount} 个附件已折叠`}
+                    aria-label={text.hiddenAttachmentsAriaLabel(hiddenPreviewAttachmentCount)}
                     className={cn(
                       "flex min-w-0 items-center border border-dashed bg-muted/40 text-muted-foreground",
                       densityStyles.attachmentOverflow,
@@ -944,7 +1003,7 @@ function ChatSender({
                     )}
                   >
                     <Paperclip className="size-3.5" />
-                    <span className={cn("truncate", densityStyles.attachmentTitle)}>+{hiddenPreviewAttachmentCount} 附件</span>
+                    <span className={cn("truncate", densityStyles.attachmentTitle)}>{text.hiddenAttachmentsLabel(hiddenPreviewAttachmentCount)}</span>
                   </div>
                 )}
               </div>
@@ -957,7 +1016,7 @@ function ChatSender({
               {shouldGroupDefaultActions ? (
                 <div
                   data-slot="chat-sender-default-actions"
-                  className={cn("flex shrink-0 items-center", densityStyles.actionGroup)}
+                  className={cn("flex shrink-0 items-center self-start", densityStyles.actionGroup)}
                 >
                   {attachmentTrigger}
                   {suggestionTrigger}
@@ -983,7 +1042,7 @@ function ChatSender({
                   id={fieldProps?.id}
                   name={fieldProps?.name}
                   rows={resolvedMinRows}
-                  placeholder={placeholder}
+                  placeholder={text.placeholder}
                   value={draft}
                   onChange={(event) => updateValue(event.target.value)}
                   onKeyDown={handleKeyDown}
@@ -1066,21 +1125,21 @@ function ChatSender({
                     type="button"
                     variant="outline"
                     size={densityStyles.stopButtonSize}
-                    className="shrink-0"
+                    className="shrink-0 self-start"
                     onClick={onCancel}
-                    aria-label="停止生成"
+                    aria-label={text.stopAriaLabel}
                   >
                     <Square className="size-3" />
-                    {showStopLabel && "停止生成"}
+                    {showStopLabel && text.stopLabel}
                   </Button>
                 ) : (
                   <Button
                     type="button"
                     size={densityStyles.controlButtonSize}
-                    className="shrink-0"
+                    className="shrink-0 self-start"
                     disabled={!draft.trim() || disabled}
                     onClick={handleSubmit}
-                    aria-label="发送"
+                    aria-label={text.sendAriaLabel}
                   >
                     <Send className="size-4" />
                   </Button>
@@ -1101,11 +1160,11 @@ function ChatSender({
                     </p>
                   )}
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex shrink-0 items-center gap-1 text-muted-foreground/80">
                   {showStatusActionsInUtility}
-                  {!showStatusActionsInUtility && showKeyboardHint && (
-                    <p className={cn("text-muted-foreground/60 select-none", densityStyles.metaText)}>
-                      ⇧↵ 换行
+                  {showKeyboardHint && (
+                    <p className={cn("select-none text-muted-foreground/60", densityStyles.metaText)}>
+                      {text.keyboardHint}
                     </p>
                   )}
                 </div>

@@ -1,9 +1,21 @@
-import { useCallback, useRef, useState, useEffect } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
 import { cn } from "@/lib/utils"
+import {
+  ConfigProvider,
+  resolveLocale,
+  useTranslation,
+} from "@/components/config-provider"
 import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import { Button } from "@/components/ui/button"
+import {
+  buildChatBubbleLabels,
+  buildChatCommandPaletteTexts,
+  buildChatConversationsLabels,
+  buildChatPresenceLabels,
+  buildChatSenderLabels,
+} from "@/components/ui/chat/chat-i18n"
 import {
   Bubble,
   type BubbleProps,
@@ -59,198 +71,195 @@ type ToolPanel = "prompts" | "commands" | null
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 
-const CONVERSATIONS: ConversationItem[] = [
-  { key: "1", label: "AI 编码助手", description: "已为你生成代码片段…", time: "10:30", unread: 2, group: "今天" },
-  { key: "2", label: "翻译助手", description: "翻译已完成", time: "09:15", group: "今天" },
-  { key: "3", label: "PPT 大纲生成", description: "大纲内容如下…", time: "昨天", group: "昨天" },
-  { key: "4", label: "数据分析报告", description: "报告已生成，请查收。", time: "昨天", group: "昨天" },
-  { key: "5", label: "学习计划", description: "推荐以下学习路径…", time: "3天前", group: "更早" },
-]
-
 const MODELS = [
   { id: "gpt-4o", label: "GPT-4o" },
   { id: "claude-4", label: "Claude Opus 4" },
   { id: "deepseek-v3", label: "DeepSeek V3" },
 ]
-
-const INITIAL_MESSAGES: ChatMessage[] = [
-  { id: "sys-1", role: "system", content: "今天", timestamp: "" },
-  {
-    id: "m1",
-    role: "assistant",
-    content: "你好！我是 AI 编码助手 🤖\n\n我可以帮你完成以下任务：\n- 编写和优化代码\n- 解释错误信息\n- 代码审查与重构建议\n- 生成单元测试\n\n请问有什么可以帮你的？",
-    timestamp: "10:00",
-    model: "gpt-4o",
-  },
-  { id: "m2", role: "user", content: "帮我写一个 React 自定义 Hook，用来做防抖搜索。", timestamp: "10:05", status: "sent" },
-  {
-    id: "m3",
-    role: "assistant",
-    content: "好的，这是一个 `useDebounceSearch` Hook 的实现：\n\n```typescript\nfunction useDebounceSearch(delay = 300) {\n  const [query, setQuery] = useState('')\n  const [debouncedQuery, setDebouncedQuery] = useState('')\n\n  useEffect(() => {\n    const timer = setTimeout(() => {\n      setDebouncedQuery(query)\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay])\n\n  return { query, setQuery, debouncedQuery }\n}\n```\n\n**主要特点：**\n1. 输入变化后延迟 300ms 才触发实际搜索\n2. 每次输入都会重置计时器，避免频繁请求\n3. 组件卸载时自动清理 timer",
-    timestamp: "10:05",
-    thinking: ["分析用户需求：React 防抖搜索 Hook", "选择 useState + useEffect 实现方案", "添加清理函数防止内存泄漏"],
-    model: "gpt-4o",
-  },
-  { id: "m4", role: "user", content: "能加上 loading 状态和取消请求的功能吗？", timestamp: "10:28", status: "sent" },
-  {
-    id: "m5",
-    role: "assistant",
-    content: "当然可以！这里是增强版本，加入了 `loading` 状态和 `AbortController` 取消请求：\n\n```typescript\nfunction useDebounceSearch<T>(fetcher: (q: string, signal: AbortSignal) => Promise<T>, delay = 300) {\n  const [query, setQuery] = useState('')\n  const [data, setData] = useState<T | null>(null)\n  const [loading, setLoading] = useState(false)\n  const abortRef = useRef<AbortController>()\n\n  useEffect(() => {\n    if (!query) { setData(null); return }\n    const timer = setTimeout(async () => {\n      abortRef.current?.abort()\n      const ctrl = new AbortController()\n      abortRef.current = ctrl\n      setLoading(true)\n      try {\n        const res = await fetcher(query, ctrl.signal)\n        if (!ctrl.signal.aborted) setData(res)\n      } finally {\n        if (!ctrl.signal.aborted) setLoading(false)\n      }\n    }, delay)\n    return () => clearTimeout(timer)\n  }, [query, delay, fetcher])\n\n  return { query, setQuery, data, loading }\n}\n```\n\n**改进点：**\n- 🔄 `loading` 状态跟踪请求进度\n- ❌ 新请求发起前自动取消上一个未完成的请求\n- 🛡️ 使用 `AbortSignal` 防止竞态条件",
-    timestamp: "10:30",
-    thinking: ["评估需求：loading 状态 + 取消请求", "引入 AbortController 管理请求生命周期", "处理竞态条件：确保旧请求不覆盖新结果", "添加泛型支持以提升复用性"],
-    model: "gpt-4o",
-  },
-]
-
-const PROMPT_SUGGESTIONS = [
-  { icon: "💡", text: "帮我写一个组件" },
-  { icon: "🔍", text: "解释这段代码" },
-  { icon: "🧪", text: "生成单元测试" },
-  { icon: "📝", text: "优化代码性能" },
-]
-
-const QUICK_REPLIES = [
-  "能再详细解释一下吗？",
-  "帮我加上 TypeScript 类型",
-  "写个使用示例",
-]
-
-const MENTION_ITEMS: MentionItem[] = [
-  { key: "file", label: "文件", description: "引用项目文件" },
-  { key: "code", label: "代码块", description: "引用代码片段" },
-  { key: "doc", label: "文档", description: "引用技术文档" },
-  { key: "web", label: "网页", description: "引用网页内容" },
-]
-
-const COMMAND_ITEMS: ChatCommandItem[] = [
-  {
-    key: "model-gpt-4o",
-    label: "切换到 GPT-4o",
-    description: "回到默认通用编码模型",
-    group: "模型",
-    icon: <Bot className="size-4" />,
-    keywords: ["model", "gpt", "4o"],
-  },
-  {
-    key: "model-claude-4",
-    label: "切换到 Claude Opus 4",
-    description: "适合长上下文分析和重构建议",
-    group: "模型",
-    icon: <Sparkles className="size-4" />,
-    keywords: ["model", "claude", "opus"],
-  },
-  {
-    key: "context-file",
-    label: "注入当前文件",
-    description: "把当前文件加入上下文并附到输入区",
-    group: "上下文",
-    icon: <FileText className="size-4" />,
-    keywords: ["file", "context", "attachment"],
-  },
-  {
-    key: "context-ticket",
-    label: "注入工单约束",
-    description: "插入布局压缩和高密度目标说明",
-    group: "上下文",
-    icon: <FileUp className="size-4" />,
-    keywords: ["ticket", "requirement", "layout"],
-  },
-  {
-    key: "prompt-compact-layout",
-    label: "打开布局优化模板",
-    description: "切到 PromptLibrary 的紧凑布局模板",
-    group: "提示词",
-    icon: <Sparkles className="size-4" />,
-    keywords: ["prompt", "layout", "compact"],
-  },
-  {
-    key: "prompt-tests",
-    label: "插入测试补齐提示",
-    description: "直接生成补测试的请求草稿",
-    group: "提示词",
-    icon: <FileText className="size-4" />,
-    keywords: ["test", "coverage", "regression"],
-  },
-  {
-    key: "clear-chat",
-    label: "重置当前会话",
-    description: "清空中间对话并回到欢迎引导",
-    group: "会话",
-    icon: <X className="size-4" />,
-    keywords: ["clear", "reset", "chat"],
-  },
-]
-
-const PROMPT_ITEMS: PromptLibraryItem[] = [
-  {
-    key: "compact-layout",
-    title: "收缩聊天布局",
-    description: "减少无效留白，同时保留高频操作入口",
-    category: "页面架构",
-    content:
-      "请针对 {{component}} 做高密度布局优化，重点处理 {{goal}}。要求保留高频操作、避免信息隐藏过深，并给出建议的间距和交互调整。",
-    variables: [
-      { key: "component", label: "组件名", placeholder: "例如 ChatPage", defaultValue: "ChatPage" },
+function buildLocalizedChatPageContent(t: (key: string, vars?: Record<string, string | number>) => string) {
+  return {
+    conversations: [
+      { key: "1", label: t("chatPageConversation1Label"), description: t("chatPageConversation1Description"), time: "10:30", unread: 2, group: t("chatPageConversation1Group") },
+      { key: "2", label: t("chatPageConversation2Label"), description: t("chatPageConversation2Description"), time: "09:15", group: t("chatPageConversation2Group") },
+      { key: "3", label: t("chatPageConversation3Label"), description: t("chatPageConversation3Description"), time: t("chatPageConversation3Time"), group: t("chatPageConversation3Group") },
+      { key: "4", label: t("chatPageConversation4Label"), description: t("chatPageConversation4Description"), time: t("chatPageConversation4Time"), group: t("chatPageConversation4Group") },
+      { key: "5", label: t("chatPageConversation5Label"), description: t("chatPageConversation5Description"), time: t("chatPageConversation5Time"), group: t("chatPageConversation5Group") },
+    ] satisfies ConversationItem[],
+    initialMessages: [
+      { id: "sys-1", role: "system", content: t("chatPageSystemToday"), timestamp: "" },
+      { id: "m1", role: "assistant", content: t("chatPageAssistantGreeting"), timestamp: "10:00", model: "gpt-4o" },
+      { id: "m2", role: "user", content: t("chatPageUserDebouncePrompt"), timestamp: "10:05", status: "sent" },
       {
-        key: "goal",
-        label: "优化目标",
-        placeholder: "例如 侧栏和消息区占位过大",
-        defaultValue: "侧栏和消息区占位过大",
+        id: "m3",
+        role: "assistant",
+        content: t("chatPageAssistantDebounceReply"),
+        timestamp: "10:05",
+        thinking: [
+          t("chatPageAssistantDebounceThinking1"),
+          t("chatPageAssistantDebounceThinking2"),
+          t("chatPageAssistantDebounceThinking3"),
+        ],
+        model: "gpt-4o",
       },
-    ],
-  },
-  {
-    key: "command-workflow",
-    title: "设计命令工作流",
-    description: "为 slash 命令、模型切换和上下文注入设计交互",
-    category: "交互设计",
-    content:
-      "请为 {{surface}} 设计 slash 命令交互，覆盖 {{features}}，并说明如何在紧凑布局下保持 discoverability。",
-    variables: [
-      { key: "surface", label: "交互面", placeholder: "例如 ChatSender", defaultValue: "ChatSender" },
+      { id: "m4", role: "user", content: t("chatPageUserLoadingPrompt"), timestamp: "10:28", status: "sent" },
       {
-        key: "features",
-        label: "功能集合",
-        placeholder: "例如 模型切换、上下文注入、模板调用",
-        defaultValue: "模型切换、上下文注入、模板调用",
+        id: "m5",
+        role: "assistant",
+        content: t("chatPageAssistantLoadingReply"),
+        timestamp: "10:30",
+        thinking: [
+          t("chatPageAssistantLoadingThinking1"),
+          t("chatPageAssistantLoadingThinking2"),
+          t("chatPageAssistantLoadingThinking3"),
+          t("chatPageAssistantLoadingThinking4"),
+        ],
+        model: "gpt-4o",
       },
+    ] satisfies ChatMessage[],
+    promptSuggestions: [
+      { icon: "💡", text: t("chatPagePromptSuggestion1") },
+      { icon: "🔍", text: t("chatPagePromptSuggestion2") },
+      { icon: "🧪", text: t("chatPagePromptSuggestion3") },
+      { icon: "📝", text: t("chatPagePromptSuggestion4") },
     ],
-  },
-  {
-    key: "regression-check",
-    title: "补齐回归验证",
-    description: "生成适合组件工单的测试请求",
-    category: "工程交付",
-    content:
-      "请为 {{scope}} 补齐回归测试，重点覆盖 {{risk}}，并列出最容易回归的交互边界。",
-    variables: [
-      { key: "scope", label: "范围", placeholder: "例如 Chat 组件", defaultValue: "Chat 组件" },
+    quickReplies: [
+      t("chatPageQuickReply1"),
+      t("chatPageQuickReply2"),
+      t("chatPageQuickReply3"),
+    ],
+    mentionItems: [
+      { key: "file", label: t("chatPageMentionFileLabel"), description: t("chatPageMentionFileDescription") },
+      { key: "code", label: t("chatPageMentionCodeLabel"), description: t("chatPageMentionCodeDescription") },
+      { key: "doc", label: t("chatPageMentionDocLabel"), description: t("chatPageMentionDocDescription") },
+      { key: "web", label: t("chatPageMentionWebLabel"), description: t("chatPageMentionWebDescription") },
+    ] satisfies MentionItem[],
+    commandItems: [
+      { key: "model-gpt-4o", label: t("chatPageCommandModelGpt4oLabel"), description: t("chatPageCommandModelGpt4oDescription"), group: t("chatPageCommandModelGroup"), icon: <Bot className="size-4" />, keywords: ["model", "gpt", "4o"] },
+      { key: "model-claude-4", label: t("chatPageCommandModelClaudeLabel"), description: t("chatPageCommandModelClaudeDescription"), group: t("chatPageCommandModelGroup"), icon: <Sparkles className="size-4" />, keywords: ["model", "claude", "opus"] },
+      { key: "context-file", label: t("chatPageCommandContextFileLabel"), description: t("chatPageCommandContextFileDescription"), group: t("chatPageCommandContextGroup"), icon: <FileText className="size-4" />, keywords: ["file", "context", "attachment"] },
+      { key: "context-ticket", label: t("chatPageCommandContextTicketLabel"), description: t("chatPageCommandContextTicketDescription"), group: t("chatPageCommandContextGroup"), icon: <FileUp className="size-4" />, keywords: ["ticket", "requirement", "layout"] },
+      { key: "prompt-compact-layout", label: t("chatPageCommandPromptCompactLabel"), description: t("chatPageCommandPromptCompactDescription"), group: t("chatPageCommandPromptGroup"), icon: <Sparkles className="size-4" />, keywords: ["prompt", "layout", "compact"] },
+      { key: "prompt-tests", label: t("chatPageCommandPromptTestsLabel"), description: t("chatPageCommandPromptTestsDescription"), group: t("chatPageCommandPromptGroup"), icon: <FileText className="size-4" />, keywords: ["test", "coverage", "regression"] },
+      { key: "clear-chat", label: t("chatPageCommandClearLabel"), description: t("chatPageCommandClearDescription"), group: t("chatPageCommandSessionGroup"), icon: <X className="size-4" />, keywords: ["clear", "reset", "chat"] },
+    ] satisfies ChatCommandItem[],
+    promptItems: [
       {
-        key: "risk",
-        label: "风险点",
-        placeholder: "例如 紧凑布局、折叠分组、slash 命令",
-        defaultValue: "紧凑布局、折叠分组、slash 命令",
+        key: "compact-layout",
+        title: t("chatPagePromptCompactTitle"),
+        description: t("chatPagePromptCompactDescription"),
+        category: t("chatPagePromptCompactCategory"),
+        content: t("chatPagePromptCompactContent"),
+        variables: [
+          { key: "component", label: t("chatPagePromptCompactComponentLabel"), placeholder: t("chatPagePromptCompactComponentPlaceholder"), defaultValue: "ChatPage" },
+          { key: "goal", label: t("chatPagePromptCompactGoalLabel"), placeholder: t("chatPagePromptCompactGoalPlaceholder"), defaultValue: t("chatPagePromptCompactGoalDefault") },
+        ],
       },
+      {
+        key: "command-workflow",
+        title: t("chatPagePromptWorkflowTitle"),
+        description: t("chatPagePromptWorkflowDescription"),
+        category: t("chatPagePromptWorkflowCategory"),
+        content: t("chatPagePromptWorkflowContent"),
+        variables: [
+          { key: "surface", label: t("chatPagePromptWorkflowSurfaceLabel"), placeholder: t("chatPagePromptWorkflowSurfacePlaceholder"), defaultValue: "ChatSender" },
+          { key: "features", label: t("chatPagePromptWorkflowFeaturesLabel"), placeholder: t("chatPagePromptWorkflowFeaturesPlaceholder"), defaultValue: t("chatPagePromptWorkflowFeaturesDefault") },
+        ],
+      },
+      {
+        key: "regression-check",
+        title: t("chatPagePromptRegressionTitle"),
+        description: t("chatPagePromptRegressionDescription"),
+        category: t("chatPagePromptRegressionCategory"),
+        content: t("chatPagePromptRegressionContent"),
+        variables: [
+          { key: "scope", label: t("chatPagePromptRegressionScopeLabel"), placeholder: t("chatPagePromptRegressionScopePlaceholder"), defaultValue: t("chatPagePromptRegressionScopeDefault") },
+          { key: "risk", label: t("chatPagePromptRegressionRiskLabel"), placeholder: t("chatPagePromptRegressionRiskPlaceholder"), defaultValue: t("chatPagePromptRegressionRiskDefault") },
+        ],
+      },
+    ] satisfies PromptLibraryItem[],
+  }
+}
+
+function buildDefaultChatPageContent(t: (key: string, vars?: Record<string, string | number>) => string) {
+  return {
+    ...buildLocalizedChatPageContent(t),
+    models: MODELS,
+    compactConversationTitle: t("chatPageCompactConversationTitle"),
+    defaultConversationTitle: t("chatPageDefaultConversationTitle"),
+    defaultCollapsedGroups: [t("chatPageConversation5Group")],
+    headerTitle: t("chatPageHeaderTitle"),
+    headerSubtitle: t("chatPageHeaderSubtitle"),
+    searchMessagesPlaceholder: t("chatPageSearchMessagesPlaceholder"),
+    closeSearchAriaLabel: t("chatPageCloseSearchAriaLabel"),
+    searchMessagesAriaLabel: t("chatPageSearchMessagesAriaLabel"),
+    senderPlaceholder: t("chatPageSenderPlaceholder"),
+    senderFooterText: t("chatPageSenderFooterText"),
+    modelMetaLabel: t("chatPageModelMetaLabel"),
+    promptWorkbenchTitle: t("chatPagePromptWorkbenchTitle"),
+    commandWorkbenchTitle: t("chatPageCommandWorkbenchTitle"),
+    promptWorkbenchSubtitle: t("chatPagePromptWorkbenchSubtitle"),
+    commandWorkbenchSubtitle: t("chatPageCommandWorkbenchSubtitle"),
+    closeToolPanelAriaLabel: t("chatPageCloseToolPanelAriaLabel"),
+    attachmentDialogTriggerAriaLabel: t("chatPageAttachmentDialogTriggerAriaLabel"),
+    attachmentDialogTitle: t("chatPageAttachmentDialogTitle"),
+    attachmentDialogDescription: t("chatPageAttachmentDialogDescription"),
+    attachmentImageLabel: t("chatPageAttachmentImageLabel"),
+    attachmentDocumentLabel: t("chatPageAttachmentDocumentLabel"),
+    modelSelectorAriaLabel: t("chatPageModelSelectorAriaLabel"),
+    currentFileDraft: t("chatPageCurrentFileDraft"),
+    ticketDraft: t("chatPageTicketDraft"),
+    testsDraft: t("chatPageTestsDraft"),
+    toolRailPromptsAriaLabel: t("chatPageToolRailPromptsAriaLabel"),
+    toolRailCommandsAriaLabel: t("chatPageToolRailCommandsAriaLabel"),
+    toolRailPromptsLabel: t("chatPageToolRailPromptsLabel"),
+    toolRailCommandsLabel: t("chatPageToolRailCommandsLabel"),
+    toolRailDefaultLabel: t("chatPageToolRailDefaultLabel"),
+    assistantReplyThinking: [
+      (userText: string) => t("chatPageAssistantReplyThinkingLead", {
+        snippet: `${userText.slice(0, 20)}${userText.length > 20 ? "…" : ""}`,
+      }),
+      () => t("chatPageAssistantReplyThinking1"),
+      () => t("chatPageAssistantReplyThinking2"),
     ],
-  },
-]
+    assistantReplyContent: (userText: string, replyModel: string) =>
+      t("chatPageAssistantReplyContent", { text: userText, model: replyModel }),
+    attachmentName: (index: number) => t("chatPageAttachmentName", { index }),
+    searchResultCount: (count: number) => t("chatPageSearchResultCount", { count }),
+    welcomeTitle: t("chatPageWelcomeTitle"),
+    welcomeDescription: t("chatPageWelcomeDescription"),
+    welcomeHeaderTitle: t("chatPageWelcomeHeaderTitle"),
+    welcomeHeaderSubtitle: t("chatPageWelcomeHeaderSubtitle"),
+    welcomeSenderPlaceholder: t("chatPageWelcomeSenderPlaceholder"),
+    welcomeReply: (text: string) => t("chatPageWelcomeReply", { text }),
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
-function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
+function WelcomeScreen({
+  onPrompt,
+  title,
+  description,
+  suggestions,
+}: {
+  onPrompt: (text: string) => void
+  title: string
+  description: string
+  suggestions: Array<{ icon: string; text: string }>
+}) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-5">
       <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white shadow-lg">
         <Sparkles className="size-7" />
       </div>
       <div className="text-center">
-        <h2 className="text-lg font-semibold">你好，有什么可以帮你的？</h2>
-        <p className="mt-1 text-sm text-muted-foreground">选择以下场景快速开始，或直接输入你的问题</p>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
       <div className="grid w-full max-w-md grid-cols-2 gap-2.5">
-        {PROMPT_SUGGESTIONS.map((p) => (
+        {suggestions.map((p) => (
           <button
             key={p.text}
             onClick={() => onPrompt(p.text)}
@@ -265,28 +274,40 @@ function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
   )
 }
 
-function AttachmentDialog() {
+function AttachmentDialog({
+  triggerAriaLabel,
+  title,
+  description,
+  imageLabel,
+  documentLabel,
+}: {
+  triggerAriaLabel: string
+  title: string
+  description: string
+  imageLabel: string
+  documentLabel: string
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label="添加附件">
+        <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label={triggerAriaLabel}>
           <FileUp className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>添加附件</DialogTitle>
-          <DialogDescription>选择文件类型并上传</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3 py-4">
           <button className="flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors hover:bg-accent">
             <Image className="size-8 text-blue-500" />
-            <span className="text-sm">图片</span>
+            <span className="text-sm">{imageLabel}</span>
             <span className="text-[10px] text-muted-foreground">PNG, JPG, GIF</span>
           </button>
           <button className="flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors hover:bg-accent">
             <FileText className="size-8 text-green-500" />
-            <span className="text-sm">文档</span>
+            <span className="text-sm">{documentLabel}</span>
             <span className="text-[10px] text-muted-foreground">PDF, TXT, MD</span>
           </button>
         </div>
@@ -295,14 +316,24 @@ function AttachmentDialog() {
   )
 }
 
-function ModelSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function ModelSelector({
+  value,
+  onChange,
+  ariaLabel,
+  models,
+}: {
+  value: string
+  onChange: (v: string) => void
+  ariaLabel: string
+  models: typeof MODELS
+}) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-7 w-28 text-[11px]" aria-label="选择模型">
+      <SelectTrigger className="h-7 w-28 text-[11px]" aria-label={ariaLabel}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {MODELS.map((m) => (
+        {models.map((m) => (
           <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
         ))}
       </SelectContent>
@@ -323,6 +354,9 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
+const zh = resolveLocale("zh-CN")
+const en = resolveLocale("en")
+
 /* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
@@ -332,14 +366,18 @@ function ChatPage({
   initialDraft = "",
   initialAttachments = [],
   initialTool,
+  localized = false,
 }: {
   ultraCompact?: boolean
   initialDraft?: string
   initialAttachments?: Attachment[]
   initialTool?: ToolPanel
+  localized?: boolean
 }) {
+  const t = useTranslation()
+  const content = useMemo(() => buildDefaultChatPageContent(t), [t])
   const [activeConv, setActiveConv] = useState("1")
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES)
+  const [messages, setMessages] = useState<ChatMessage[]>(content.initialMessages)
   const [draft, setDraft] = useState(initialDraft)
   const [isTyping, setIsTyping] = useState(false)
   const [model, setModel] = useState("gpt-4o")
@@ -347,7 +385,7 @@ function ChatPage({
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTool, setActiveTool] = useState<ToolPanel>(initialTool ?? (ultraCompact ? null : "prompts"))
-  const [selectedPromptKey, setSelectedPromptKey] = useState(PROMPT_ITEMS[0]?.key ?? "")
+  const [selectedPromptKey, setSelectedPromptKey] = useState(content.promptItems[0]?.key ?? "")
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
   const slashDraft = draft.trimStart()
@@ -417,7 +455,7 @@ function ChatPage({
         messages: "gap-1.5 px-2.5 py-2",
         sender: "px-2.5 pb-2 pt-1",
         senderDensity: "compact" as const,
-        senderFooterText: "仅供参考",
+        senderFooterText: content.senderFooterText,
         showKeyboardHint: false,
         toolRail: "w-10 gap-1 py-2",
         toolPanelDocked: "w-[19rem]",
@@ -431,6 +469,11 @@ function ChatPage({
       }
   const useCompactSidebarChrome = ultraCompact || useAdaptiveLayout
   const shouldOverlayToolPanel = Boolean(visibleTool) && (ultraCompact || useAdaptiveLayout)
+  const conversationLabels = localized ? buildChatConversationsLabels(t) : undefined
+  const presenceLabels = localized ? buildChatPresenceLabels(t) : undefined
+  const bubbleLabels = localized ? buildChatBubbleLabels(t) : undefined
+  const senderLabels = localized ? buildChatSenderLabels(t) : undefined
+  const commandPaletteTexts = localized ? buildChatCommandPaletteTexts(t) : undefined
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -446,11 +489,11 @@ function ChatPage({
   const simulateAIReply = useCallback((userText: string, replyModel: string) => {
     setIsTyping(true)
     const thinkSteps = [
-      `分析用户输入："${userText.slice(0, 20)}${userText.length > 20 ? "…" : ""}"`,
-      "检索相关上下文和知识库",
-      "生成回复内容",
+      content.assistantReplyThinking[0](userText),
+      content.assistantReplyThinking[1](),
+      content.assistantReplyThinking[2](),
     ]
-    const replyContent = `收到你的消息："${userText}"\n\n这是一条模拟的 AI 回复（${replyModel}）。在实际应用中，这里会接入大语言模型 API 来返回智能回答。`
+    const replyContent = content.assistantReplyContent(userText, replyModel)
 
     setTimeout(() => {
       setIsTyping(false)
@@ -459,7 +502,7 @@ function ChatPage({
       const currentStream = streamIdRef.current
       setMessages((prev) => [
         ...prev,
-        { id, role: "assistant", content: "", timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), thinking: thinkSteps, streaming: true, model: replyModel },
+        { id, role: "assistant", content: "", timestamp: new Date().toLocaleTimeString(localized ? "en-US" : "zh-CN", { hour: "2-digit", minute: "2-digit" }), thinking: thinkSteps, streaming: true, model: replyModel },
       ])
 
       let charIndex = 0
@@ -477,26 +520,26 @@ function ChatPage({
         }
       }, 20)
     }, 800)
-  }, [])
+  }, [content, localized])
 
   const handleSend = useCallback((text: string, atts?: Attachment[]) => {
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
       content: atts && atts.length > 0 ? `${text}\n\n📎 ${atts.map((a) => a.name).join(", ")}` : text,
-      timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+      timestamp: new Date().toLocaleTimeString(localized ? "en-US" : "zh-CN", { hour: "2-digit", minute: "2-digit" }),
       status: "sent",
     }
     setMessages((prev) => [...prev, userMsg])
     setDraft("")
     setAttachments([])
     simulateAIReply(text, model)
-  }, [model, simulateAIReply])
+  }, [localized, model, simulateAIReply])
 
   const handleAddAttachment = useCallback(() => {
     const id = `att-${Date.now()}`
-    setAttachments((prev) => [...prev, { id, name: `示例文件-${prev.length + 1}.png`, type: "image" as const, size: "128KB" }])
-  }, [])
+    setAttachments((prev) => [...prev, { id, name: content.attachmentName(prev.length + 1), type: "image" as const, size: "128KB" }])
+  }, [content])
 
   const handleRemoveAttachment = useCallback((id: string) => {
     setAttachments((prev) => prev.filter((a) => a.id !== id))
@@ -583,14 +626,14 @@ function ChatPage({
       setDraft((current) => {
         const normalized = current.trim()
         return !normalized || normalized.startsWith("/")
-          ? "请结合当前文件继续分析布局问题。"
+          ? content.currentFileDraft
           : current
       })
       return
     }
 
     if (item.key === "context-ticket") {
-      setDraft("请结合现有工单，继续优化 Chat 布局，重点压缩无效留白并保留高频操作。")
+      setDraft(content.ticketDraft)
       return
     }
 
@@ -602,18 +645,18 @@ function ChatPage({
     }
 
     if (item.key === "prompt-tests") {
-      setDraft("请基于当前 Chat 组件补齐回归测试，覆盖紧凑布局、折叠分组和 slash 命令。")
+      setDraft(content.testsDraft)
       return
     }
 
     if (item.key === "clear-chat") {
-      setMessages(INITIAL_MESSAGES.slice(0, 2))
+      setMessages(content.initialMessages.slice(0, 2))
       setAttachments([])
       setDraft("")
       setSearchQuery("")
       return
     }
-  }, [])
+  }, [content])
 
   const isStreaming = isTyping || messages.some((m) => m.streaming)
 
@@ -628,20 +671,20 @@ function ChatPage({
       )}>
         <div className="min-w-0">
           <p className="truncate text-xs font-medium">
-            {visibleTool === "prompts" ? "提示词工作台" : "命令工作台"}
+            {visibleTool === "prompts" ? content.promptWorkbenchTitle : content.commandWorkbenchTitle}
           </p>
           {pageStyles.showToolPanelSubtitle && (
             <p className="truncate text-[10px] text-muted-foreground">
               {visibleTool === "prompts"
-                ? "应用后直接写入输入框"
-                : "搜索或输入 / 触发命令"}
+                ? content.promptWorkbenchSubtitle
+                : content.commandWorkbenchSubtitle}
             </p>
           )}
         </div>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="关闭工具面板"
+          aria-label={content.closeToolPanelAriaLabel}
           onClick={() => setActiveTool(null)}
         >
           <X className="size-3.5" />
@@ -651,7 +694,7 @@ function ChatPage({
         {visibleTool === "prompts" ? (
           <div className="h-full overflow-y-auto">
             <PromptLibrary
-              items={PROMPT_ITEMS}
+              items={content.promptItems}
               density="compact"
               layout="embedded"
               groupable
@@ -670,9 +713,12 @@ function ChatPage({
             density={useCompactSidebarChrome ? "dense" : "compact"}
             layout="embedded"
             showDescription={false}
-            items={COMMAND_ITEMS}
+            items={content.commandItems}
             onSelect={handleCommandSelect}
             className="max-w-none"
+            emptyText={commandPaletteTexts?.emptyText}
+            searchPlaceholder={commandPaletteTexts?.searchPlaceholder}
+            defaultGroupLabel={commandPaletteTexts?.defaultGroupLabel}
           />
         )}
       </div>
@@ -683,22 +729,23 @@ function ChatPage({
     <div className={`mx-auto flex overflow-hidden border bg-background shadow-sm ${pageStyles.shell}`}>
       {/* Conversations sidebar */}
       <ChatConversations
-        items={CONVERSATIONS}
+        items={content.conversations}
         activeKey={activeConv}
         onChange={(key) => setActiveConv(key)}
         onNewChat={() => setActiveConv("new")}
-        title={useCompactSidebarChrome ? "会话" : "会话列表"}
+        title={useCompactSidebarChrome ? content.compactConversationTitle : content.defaultConversationTitle}
         density={useCompactSidebarChrome ? "dense" : "compact"}
         showTitle={!useCompactSidebarChrome}
         showNewChatButton={!useCompactSidebarChrome}
         searchMode={useCompactSidebarChrome ? "trigger" : "bar"}
         collapsibleGroups
-        defaultCollapsedGroups={["更早"]}
+        defaultCollapsedGroups={content.defaultCollapsedGroups}
         showDescription={false}
         showAvatar={!useCompactSidebarChrome}
         showTime={!useCompactSidebarChrome}
         showGroupCount={!useCompactSidebarChrome}
         className={`${pageStyles.sidebar} shrink-0 border-r`}
+        labels={conversationLabels}
       />
 
       {/* Chat area */}
@@ -714,7 +761,7 @@ function ChatPage({
               </Avatar>
               <div className="min-w-0">
                 <div className={cn("flex items-center", pageStyles.titleMeta)}>
-                  <h3 className="min-w-0 truncate text-sm font-semibold">AI 编码助手</h3>
+                  <h3 className="min-w-0 truncate text-sm font-semibold">{content.headerTitle}</h3>
                   <ChatPresence
                     layout="header"
                     status="online"
@@ -725,10 +772,11 @@ function ChatPage({
                     showStatusLabel={isTyping}
                     showReadLabel={false}
                     className={cn("hidden sm:flex", searchOpen && "sm:hidden")}
+                    labels={presenceLabels}
                   />
                 </div>
                 {pageStyles.subtitle && !searchOpen && (
-                  <p className={pageStyles.subtitle}>模板与命令收进右侧，输入 / 可就地触发</p>
+                  <p className={pageStyles.subtitle}>{content.headerSubtitle}</p>
                 )}
               </div>
             </div>
@@ -743,7 +791,7 @@ function ChatPage({
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="搜索聊天记录…"
+                    placeholder={content.searchMessagesPlaceholder}
                     className={cn(
                       "min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
                       pageStyles.headerSearchInput,
@@ -752,13 +800,13 @@ function ChatPage({
                   />
                   {searchQuery && (
                     <span className="hidden shrink-0 text-[10px] text-muted-foreground md:inline">
-                      {filteredMessages.filter((m) => m.role !== "system").length} 条
+                      {content.searchResultCount(filteredMessages.filter((m) => m.role !== "system").length)}
                     </span>
                   )}
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="关闭搜索"
+                    aria-label={content.closeSearchAriaLabel}
                     className="shrink-0"
                     onClick={() => {
                       setSearchOpen(false)
@@ -770,11 +818,16 @@ function ChatPage({
                 </div>
               ) : (
                 <>
-                  <ModelSelector value={model} onChange={setModel} />
+                  <ModelSelector
+                    value={model}
+                    onChange={setModel}
+                    ariaLabel={content.modelSelectorAriaLabel}
+                    models={content.models}
+                  />
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="搜索消息"
+                    aria-label={content.searchMessagesAriaLabel}
                     onClick={() => {
                       setActiveTool(null)
                       setSearchOpen(true)
@@ -799,7 +852,7 @@ function ChatPage({
                   thinking: m.thinking,
                   streaming: m.streaming,
                   density: "compact",
-                  metaLabel: m.model && m.role === "assistant" ? `模型: ${m.model}` : undefined,
+                  metaLabel: m.model && m.role === "assistant" ? `${content.modelMetaLabel}: ${m.model}` : undefined,
                 }
                 return (
                   <Bubble
@@ -808,6 +861,7 @@ function ChatPage({
                     onCopy={() => handleCopy(m.content)}
                     onRegenerate={m.role === "assistant" ? () => handleRegenerate(m.id) : undefined}
                     onEdit={m.role === "user" ? (content) => handleEdit(m.id, content) : undefined}
+                    labels={bubbleLabels}
                   />
                 )
               })}
@@ -838,15 +892,18 @@ function ChatPage({
                   layout="embedded"
                   showDescription={false}
                   className="pointer-events-auto"
-                  items={COMMAND_ITEMS}
+                  items={content.commandItems}
                   onSelect={handleCommandSelect}
+                  emptyText={commandPaletteTexts?.emptyText}
+                  searchPlaceholder={commandPaletteTexts?.searchPlaceholder}
+                  defaultGroupLabel={commandPaletteTexts?.defaultGroupLabel}
                 />
               </div>
             )}
             <ChatSender
               value={draft}
               onChange={setDraft}
-              placeholder="输入消息… (/ 命令, Enter 发送)"
+              placeholder={content.senderPlaceholder}
               density={pageStyles.senderDensity}
               minRows={1}
               maxRows={ultraCompact ? 4 : 5}
@@ -863,19 +920,28 @@ function ChatPage({
               showStopLabel={!useCompactSidebarChrome}
               onSubmit={handleSend}
               onCancel={handleStopStreaming}
-              suggestions={QUICK_REPLIES}
+              suggestions={content.quickReplies}
               onSuggestionClick={(s) => setDraft(s)}
               attachments={attachments}
               onRemoveAttachment={handleRemoveAttachment}
-              mentions={MENTION_ITEMS}
-              prefix={useCompactSidebarChrome ? undefined : <AttachmentDialog />}
+              mentions={content.mentionItems}
+              prefix={useCompactSidebarChrome ? undefined : (
+                <AttachmentDialog
+                  triggerAriaLabel={content.attachmentDialogTriggerAriaLabel}
+                  title={content.attachmentDialogTitle}
+                  description={content.attachmentDialogDescription}
+                  imageLabel={content.attachmentImageLabel}
+                  documentLabel={content.attachmentDocumentLabel}
+                />
+              )}
               onAttach={handleAddAttachment}
               statusActions={
                 useCompactSidebarChrome ? undefined : (
-                  <span className="text-[10px] text-muted-foreground">模型: {model}</span>
+                  <span className="text-[10px] text-muted-foreground">{content.modelMetaLabel}: {model}</span>
                 )
               }
               footerText={pageStyles.senderFooterText}
+              labels={senderLabels}
             />
           </div>
         </div>
@@ -884,7 +950,7 @@ function ChatPage({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="打开提示词库"
+            aria-label={content.toolRailPromptsAriaLabel}
             className={visibleTool === "prompts" ? "bg-background text-foreground shadow-sm" : undefined}
             onClick={() => handleToolToggle("prompts")}
           >
@@ -893,7 +959,7 @@ function ChatPage({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="打开命令面板"
+            aria-label={content.toolRailCommandsAriaLabel}
             className={visibleTool === "commands" ? "bg-background text-foreground shadow-sm" : undefined}
             onClick={() => handleToolToggle("commands")}
           >
@@ -901,7 +967,7 @@ function ChatPage({
           </Button>
           {pageStyles.showToolRailLabel && (
             <div className="mt-auto px-1 text-center text-[10px] leading-4 text-muted-foreground">
-              {visibleTool === "prompts" ? "模板" : visibleTool === "commands" ? "命令" : "工具"}
+              {visibleTool === "prompts" ? content.toolRailPromptsLabel : visibleTool === "commands" ? content.toolRailCommandsLabel : content.toolRailDefaultLabel}
             </div>
           )}
         </div>
@@ -926,7 +992,9 @@ function ChatPage({
 /*  Welcome variant                                                    */
 /* ------------------------------------------------------------------ */
 
-function ChatWelcomePage() {
+function ChatWelcomePage({ localized = false }: { localized?: boolean }) {
+  const t = useTranslation()
+  const content = useMemo(() => buildDefaultChatPageContent(t), [t])
   const [draft, setDraft] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isTyping, setIsTyping] = useState(false)
@@ -945,12 +1013,12 @@ function ChatWelcomePage() {
 
   const handleSend = useCallback(
     (text: string) => {
-      const content = text.trim()
-      if (!content) return
+      const nextMessage = text.trim()
+      if (!nextMessage) return
 
       setMessages((prev) => [
         ...prev,
-        { id: `u-${Date.now()}`, role: "user", content, timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), status: "sent" },
+        { id: `u-${Date.now()}`, role: "user", content: nextMessage, timestamp: new Date().toLocaleTimeString(localized ? "en-US" : "zh-CN", { hour: "2-digit", minute: "2-digit" }), status: "sent" },
       ])
       setDraft("")
 
@@ -959,11 +1027,11 @@ function ChatWelcomePage() {
         setIsTyping(false)
         setMessages((prev) => [
           ...prev,
-          { id: `a-${Date.now()}`, role: "assistant", content: `好的，关于「${content}」，我来帮你处理。\n\n这是一条模拟的 AI 回复，在实际应用中会对接大语言模型。`, timestamp: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) },
+          { id: `a-${Date.now()}`, role: "assistant", content: content.welcomeReply(nextMessage), timestamp: new Date().toLocaleTimeString(localized ? "en-US" : "zh-CN", { hour: "2-digit", minute: "2-digit" }) },
         ])
       }, 1500)
     },
-    [],
+    [content, localized],
   )
 
   const handleCopy = useCallback((text: string) => {
@@ -982,14 +1050,19 @@ function ChatWelcomePage() {
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="text-sm font-semibold">新对话</h3>
-          <p className="text-xs text-muted-foreground">请描述你需要的帮助</p>
+          <h3 className="text-sm font-semibold">{content.welcomeHeaderTitle}</h3>
+          <p className="text-xs text-muted-foreground">{content.welcomeHeaderSubtitle}</p>
         </div>
       </div>
 
       {/* Body */}
       {showWelcome ? (
-        <WelcomeScreen onPrompt={handleSend} />
+        <WelcomeScreen
+          onPrompt={handleSend}
+          title={content.welcomeTitle}
+          description={content.welcomeDescription}
+          suggestions={content.promptSuggestions}
+        />
       ) : (
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="flex flex-col gap-2.5 px-3 py-2.5">
@@ -1017,7 +1090,7 @@ function ChatWelcomePage() {
         <ChatSender
           value={draft}
           onChange={setDraft}
-          placeholder="输入消息… (Enter 发送)"
+          placeholder={content.welcomeSenderPlaceholder}
           density="compact"
           minRows={1}
           showKeyboardHint
@@ -1033,30 +1106,34 @@ function ChatWelcomePage() {
 /* ------------------------------------------------------------------ */
 
 export const Default: Story = {
-  render: () => <ChatPage />,
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <ChatPage />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     // Verify conversations sidebar
-    await expect(canvas.getByText("会话列表")).toBeInTheDocument()
-    await expect(canvas.getByRole("heading", { name: "AI 编码助手" })).toBeInTheDocument()
-    await expect(canvas.getByText("翻译助手")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageDefaultConversationTitle)).toBeInTheDocument()
+    await expect(canvas.getByRole("heading", { name: zh.chatPageHeaderTitle })).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation2Label)).toBeInTheDocument()
 
     // Verify model selector
-    await expect(canvas.getByLabelText("选择模型")).toBeInTheDocument()
+    await expect(canvas.getByLabelText(zh.chatPageModelSelectorAriaLabel)).toBeInTheDocument()
 
     // Verify messages rendered
     await expect(canvas.getByText(/useDebounceSearch/)).toBeInTheDocument()
-    await expect(canvas.getByText("帮我写一个 React 自定义 Hook，用来做防抖搜索。")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageUserDebouncePrompt)).toBeInTheDocument()
 
     // Apply a prompt template into the sender
-    await expect(canvas.getByText("收缩聊天布局")).toBeInTheDocument()
-    await userEvent.clear(canvas.getByPlaceholderText("组件名"))
-    await userEvent.type(canvas.getByPlaceholderText("组件名"), "ChatPage")
-    await userEvent.clear(canvas.getByPlaceholderText("优化目标"))
-    await userEvent.type(canvas.getByPlaceholderText("优化目标"), "工具面板和消息区空间分配")
-    await userEvent.click(canvas.getByRole("button", { name: "应用模板" }))
+    await expect(canvas.getByText(zh.chatPagePromptCompactTitle)).toBeInTheDocument()
+    await userEvent.clear(canvas.getByPlaceholderText(zh.chatPagePromptCompactComponentLabel))
+    await userEvent.type(canvas.getByPlaceholderText(zh.chatPagePromptCompactComponentLabel), "ChatPage")
+    await userEvent.clear(canvas.getByPlaceholderText(zh.chatPagePromptCompactGoalLabel))
+    await userEvent.type(canvas.getByPlaceholderText(zh.chatPagePromptCompactGoalLabel), "工具面板和消息区空间分配")
+    await userEvent.click(canvas.getByRole("button", { name: zh.promptLibraryApplyLabel }))
 
-    const textarea = canvas.getByPlaceholderText("输入消息… (/ 命令, Enter 发送)")
+    const textarea = canvas.getByPlaceholderText(zh.chatPageSenderPlaceholder)
     await expect(textarea).toHaveValue(
       "请针对 ChatPage 做高密度布局优化，重点处理 工具面板和消息区空间分配。要求保留高频操作、避免信息隐藏过深，并给出建议的间距和交互调整。",
     )
@@ -1064,58 +1141,96 @@ export const Default: Story = {
     // Trigger slash command and inject current file
     await userEvent.clear(textarea)
     await userEvent.type(textarea, "/")
-    await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
-    await userEvent.click(canvas.getByText("注入当前文件"))
+    await expect(canvas.getByText(zh.chatPageCommandContextFileLabel)).toBeInTheDocument()
+    await userEvent.click(canvas.getByText(zh.chatPageCommandContextFileLabel))
     await expect(canvas.getByText("1 附件")).toBeInTheDocument()
 
     // Search stays inside the header instead of opening a dedicated row
-    await userEvent.click(canvas.getByRole("button", { name: "搜索消息" }))
-    await expect(canvas.getByPlaceholderText("搜索聊天记录…")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: zh.chatPageSearchMessagesAriaLabel }))
+    await expect(canvas.getByPlaceholderText(zh.chatPageSearchMessagesPlaceholder)).toBeInTheDocument()
   },
 }
 
 export const UltraCompact: Story = {
-  render: () => <ChatPage ultraCompact />,
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <ChatPage ultraCompact />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByRole("button", { name: "打开提示词库" })).toBeInTheDocument()
-    await userEvent.click(canvas.getByRole("button", { name: "打开命令面板" }))
+    await expect(canvas.getByRole("button", { name: zh.chatPageToolRailPromptsAriaLabel })).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: zh.chatPageToolRailCommandsAriaLabel }))
     await expect(canvas.getByPlaceholderText("搜索命令…")).toBeInTheDocument()
-    await userEvent.click(canvas.getByRole("button", { name: "打开提示词库" }))
-    await expect(canvas.getByText("提示词模板")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: zh.chatPageToolRailPromptsAriaLabel }))
+    await expect(canvas.getByText(zh.promptLibraryTitle)).toBeInTheDocument()
   },
 }
 
 export const AdaptiveMidWidth: Story = {
   render: () => (
-    <ChatPage
-      initialDraft="/"
-      initialAttachments={[
-        { id: "att-seed", name: "layout-notes.md", type: "file", size: "12KB", status: "done" },
-      ]}
-      initialTool="commands"
-    />
+    <ConfigProvider locale="zh-CN">
+      <ChatPage
+        initialDraft="/"
+        initialAttachments={[
+          { id: "att-seed", name: "layout-notes.md", type: "file", size: "12KB", status: "done" },
+        ]}
+        initialTool="commands"
+      />
+    </ConfigProvider>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.queryByText("会话列表")).toBeNull()
-    await expect(canvas.getByRole("button", { name: "打开搜索会话" })).toBeInTheDocument()
+    await expect(canvas.queryByText(zh.chatPageDefaultConversationTitle)).toBeNull()
+    await expect(canvas.getByRole("button", { name: zh.conversationOpenSearchAriaLabel })).toBeInTheDocument()
     await expect(canvas.getByText("1 附件")).toBeInTheDocument()
-    await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageCommandContextFileLabel)).toBeInTheDocument()
   },
 }
 
 export const Welcome: Story = {
-  render: () => <ChatWelcomePage />,
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <ChatWelcomePage />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     // Welcome screen visible
-    await expect(canvas.getByText("你好，有什么可以帮你的？")).toBeInTheDocument()
-    await expect(canvas.getByText("帮我写一个组件")).toBeInTheDocument()
-    await expect(canvas.getByText("生成单元测试")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageWelcomeTitle)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPagePromptSuggestion1)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPagePromptSuggestion3)).toBeInTheDocument()
 
     // Click a prompt suggestion
-    await userEvent.click(canvas.getByText("帮我写一个组件"))
-    await expect(canvas.getByText("帮我写一个组件")).toBeInTheDocument()
+    await userEvent.click(canvas.getByText(zh.chatPagePromptSuggestion1))
+    await expect(canvas.getByText(zh.chatPagePromptSuggestion1)).toBeInTheDocument()
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  render: () => (
+    <ConfigProvider locale="en">
+      <ChatPage localized />
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(en.chatPageDefaultConversationTitle)).toBeInTheDocument()
+    await expect(canvas.getByText(en.presenceOnline)).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText(en.senderPlaceholder)).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText(en.conversationSearchPlaceholder)).toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole("button", { name: en.chatPageSearchMessagesAriaLabel }))
+    await expect(canvas.getByPlaceholderText(en.chatPageSearchMessagesPlaceholder)).toBeInTheDocument()
+    await userEvent.type(canvas.getByPlaceholderText(en.chatPageSearchMessagesPlaceholder), "Hook")
+    await expect(canvas.getByText(en.chatPageSearchResultCount.replace("{count}", "3"))).toBeInTheDocument()
+
+    const textarea = canvas.getByPlaceholderText(en.senderPlaceholder)
+    await userEvent.clear(textarea)
+    await userEvent.type(textarea, "/")
+    await expect(canvas.getByText(en.chatPageCommandContextFileLabel)).toBeInTheDocument()
+    await userEvent.click(canvas.getByText(en.chatPageCommandContextFileLabel))
+    await expect(canvas.getByText(/1 file/)).toBeInTheDocument()
+    await expect(canvas.getByDisplayValue(en.chatPageCurrentFileDraft)).toBeInTheDocument()
   },
 }

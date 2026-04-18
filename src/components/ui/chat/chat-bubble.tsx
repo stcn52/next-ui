@@ -3,6 +3,12 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/overlays/dropdown-menu"
 import { Separator } from "@/components/ui/display/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/overlays/tooltip"
 import {
@@ -11,6 +17,7 @@ import {
   Check,
   ChevronDown,
   Copy,
+  Ellipsis,
   Pencil,
   RefreshCcw,
   ThumbsDown,
@@ -68,6 +75,21 @@ interface BubbleProps {
   onRegenerate?: () => void
   /** Callback to edit a user message */
   onEdit?: (newContent: string) => void
+  /** Localized labels */
+  labels?: {
+    thoughtChainToggleLabel?: (count: number) => string
+    saveLabel?: string
+    cancelLabel?: string
+    copyAriaLabel?: string
+    copyTooltip?: string
+    thumbsUpAriaLabel?: string
+    thumbsUpTooltip?: string
+    thumbsDownAriaLabel?: string
+    thumbsDownTooltip?: string
+    moreActionsAriaLabel?: string
+    editLabel?: string
+    regenerateLabel?: string
+  }
   className?: string
 }
 
@@ -128,7 +150,15 @@ function RichContent({ content }: { content: string }) {
 /*  ThoughtChain                                                       */
 /* ------------------------------------------------------------------ */
 
-function ThoughtChain({ steps, density = "default" }: { steps: string[]; density?: BubbleDensity }) {
+function ThoughtChain({
+  steps,
+  density = "default",
+  toggleLabel,
+}: {
+  steps: string[]
+  density?: BubbleDensity
+  toggleLabel?: (count: number) => string
+}) {
   const [open, setOpen] = React.useState(false)
   const densityStyles = density === "compact"
     ? {
@@ -152,15 +182,15 @@ function ThoughtChain({ steps, density = "default" }: { steps: string[]; density
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="thought-chain" className="mb-1">
       <CollapsibleTrigger className={cn("flex items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted", densityStyles.trigger)}>
-        <BrainCircuit className={cn("text-violet-500", densityStyles.icon)} />
-        <span className={densityStyles.count}>思考过程 ({steps.length} 步)</span>
+        <BrainCircuit className={cn("text-primary", densityStyles.icon)} />
+        <span className={densityStyles.count}>{toggleLabel?.(steps.length) ?? `思考过程 (${steps.length} 步)`}</span>
         <ChevronDown className={cn("transition-transform", densityStyles.icon, open ? "rotate-180" : "")} />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className={cn("border-l-2 border-violet-500/30", densityStyles.container)}>
+        <div className={cn("border-l-2 border-primary/20", densityStyles.container)}>
           {steps.map((step, i) => (
             <div key={i} className={cn("flex items-start", densityStyles.row)}>
-              <span className={cn("mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-violet-500/10 font-medium text-violet-600", densityStyles.marker)}>
+              <span className={cn("mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-medium text-primary", densityStyles.marker)}>
                 {i + 1}
               </span>
               <span className={cn("text-muted-foreground", densityStyles.text)}>{step}</span>
@@ -261,9 +291,9 @@ const VARIANT_CLASSES: Record<BubbleVariant, { user: string; assistant: string }
 }
 
 const SHAPE_CLASSES: Record<BubbleShape, { user: string; assistant: string }> = {
-  default: { user: "rounded-2xl rounded-br-md", assistant: "rounded-2xl rounded-bl-md" },
+  default: { user: "rounded-lg rounded-br-md", assistant: "rounded-lg rounded-bl-md" },
   round: { user: "rounded-full", assistant: "rounded-full" },
-  corner: { user: "rounded-2xl rounded-br-none", assistant: "rounded-2xl rounded-bl-none" },
+  corner: { user: "rounded-lg rounded-br-none", assistant: "rounded-lg rounded-bl-none" },
 }
 
 function Bubble({
@@ -284,6 +314,7 @@ function Bubble({
   onFeedback,
   onRegenerate,
   onEdit,
+  labels,
   className,
 }: BubbleProps) {
   const isUser = role === "user"
@@ -291,6 +322,20 @@ function Bubble({
   const [liked, setLiked] = React.useState<"up" | "down" | null>(null)
   const [editing, setEditing] = React.useState(false)
   const [editText, setEditText] = React.useState(content)
+  const text = {
+    thoughtChainToggleLabel: labels?.thoughtChainToggleLabel ?? ((count: number) => `思考过程 (${count} 步)`),
+    saveLabel: labels?.saveLabel ?? "保存并重发",
+    cancelLabel: labels?.cancelLabel ?? "取消",
+    copyAriaLabel: labels?.copyAriaLabel ?? "复制消息",
+    copyTooltip: labels?.copyTooltip ?? "复制",
+    thumbsUpAriaLabel: labels?.thumbsUpAriaLabel ?? "点赞",
+    thumbsUpTooltip: labels?.thumbsUpTooltip ?? "有帮助",
+    thumbsDownAriaLabel: labels?.thumbsDownAriaLabel ?? "点踩",
+    thumbsDownTooltip: labels?.thumbsDownTooltip ?? "无帮助",
+    moreActionsAriaLabel: labels?.moreActionsAriaLabel ?? "更多消息操作",
+    editLabel: labels?.editLabel ?? "编辑",
+    regenerateLabel: labels?.regenerateLabel ?? "重新生成",
+  }
   const hasActions = !!(onCopy || (isUser && onEdit) || (!isUser && onFeedback) || (!isUser && onRegenerate))
   const densityStyles = density === "compact"
     ? {
@@ -306,8 +351,8 @@ function Bubble({
         status: "size-2.5",
         metaLabel: "max-w-[11rem] text-[9px]",
         actionRow: "gap-0.5",
-        actionButton: "size-5",
-        actionIcon: "size-2.5",
+        actionButton: "size-6",
+        actionIcon: "size-3",
         system: "gap-1.5 py-1.5",
         systemText: "text-[11px]",
       }
@@ -324,8 +369,8 @@ function Bubble({
         status: "size-3",
         metaLabel: "max-w-[12rem] text-[10px]",
         actionRow: "gap-0.5",
-        actionButton: "size-6",
-        actionIcon: "size-3",
+        actionButton: "size-7",
+        actionIcon: "size-3.5",
         system: "gap-2 py-2",
         systemText: "text-xs",
       }
@@ -353,6 +398,7 @@ function Bubble({
     setLiked(next)
     if (next) onFeedback?.(next)
   }
+  const showOverflowActions = Boolean((isUser && onEdit) || (!isUser && onRegenerate))
 
   const defaultAvatar = isUser ? (
     <Avatar className={cn("mt-0.5 shrink-0", densityStyles.avatar)}>
@@ -362,7 +408,7 @@ function Bubble({
     </Avatar>
   ) : (
     <Avatar className={cn("mt-0.5 shrink-0", densityStyles.avatar)}>
-      <AvatarFallback className={cn("bg-gradient-to-br from-violet-500 to-blue-500 text-white", densityStyles.avatarFallback)}>
+      <AvatarFallback className={cn("bg-primary/10 text-primary", densityStyles.avatarFallback)}>
         <Bot className={densityStyles.avatarIcon} />
       </AvatarFallback>
     </Avatar>
@@ -382,15 +428,21 @@ function Bubble({
       <div className={cn("flex flex-col gap-0.5", densityStyles.contentWrap)}>
         {header}
 
-        {!isUser && thinking && thinking.length > 0 && <ThoughtChain steps={thinking} density={density} />}
+        {!isUser && thinking && thinking.length > 0 && (
+          <ThoughtChain
+            steps={thinking}
+            density={density}
+            toggleLabel={text.thoughtChainToggleLabel}
+          />
+        )}
 
         {editing ? (
           <div className="flex w-full flex-col gap-2">
             <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className={densityStyles.editor} autoFocus />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleEditSubmit}>保存并重发</Button>
+              <Button size="sm" onClick={handleEditSubmit}>{text.saveLabel}</Button>
               <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditText(content) }}>
-                <X className="mr-1 size-3" /> 取消
+                <X className="mr-1 size-3" /> {text.cancelLabel}
               </Button>
             </div>
           </div>
@@ -417,30 +469,17 @@ function Bubble({
             {timestamp && <span className={cn("text-muted-foreground/60", densityStyles.time)}>{timestamp}</span>}
             {status === "sent" && isUser && <Check className={cn("text-muted-foreground/60", densityStyles.status)} />}
 
-            <div className={cn("flex items-center opacity-0 transition-opacity group-hover:opacity-100", densityStyles.actionRow)}>
+            <div className={cn("flex items-center opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100", densityStyles.actionRow)}>
               {onCopy && (
                 <Tooltip>
                   <TooltipTrigger
                     className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
                     onClick={() => onCopy(content)}
-                    aria-label="复制消息"
+                    aria-label={text.copyAriaLabel}
                   >
                     <Copy className={densityStyles.actionIcon} />
                   </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>复制</p></TooltipContent>
-                </Tooltip>
-              )}
-
-              {isUser && onEdit && (
-                <Tooltip>
-                  <TooltipTrigger
-                    className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
-                    onClick={() => setEditing(true)}
-                    aria-label="编辑消息"
-                  >
-                    <Pencil className={densityStyles.actionIcon} />
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
+                  <TooltipContent side="bottom"><p>{text.copyTooltip}</p></TooltipContent>
                 </Tooltip>
               )}
 
@@ -450,36 +489,56 @@ function Bubble({
                     <TooltipTrigger
                       className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton, liked === "up" && "text-green-500")}
                       onClick={() => handleFeedback("up")}
-                      aria-label="点赞"
+                      aria-label={text.thumbsUpAriaLabel}
                     >
                       <ThumbsUp className={densityStyles.actionIcon} />
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{text.thumbsUpTooltip}</p></TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
                       className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton, liked === "down" && "text-red-500")}
                       onClick={() => handleFeedback("down")}
-                      aria-label="点踩"
+                      aria-label={text.thumbsDownAriaLabel}
                     >
                       <ThumbsDown className={densityStyles.actionIcon} />
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{text.thumbsDownTooltip}</p></TooltipContent>
                   </Tooltip>
                 </>
               )}
 
-              {!isUser && onRegenerate && (
-                <Tooltip>
-                  <TooltipTrigger
-                    className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
-                    onClick={onRegenerate}
-                    aria-label="重新生成消息"
-                  >
-                    <RefreshCcw className={densityStyles.actionIcon} />
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
-                </Tooltip>
+              {showOverflowActions && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <button
+                        type="button"
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-md transition-colors hover:bg-muted",
+                          densityStyles.actionButton,
+                        )}
+                        aria-label={text.moreActionsAriaLabel}
+                      >
+                        <Ellipsis className={densityStyles.actionIcon} />
+                      </button>
+                    }
+                  />
+                  <DropdownMenuContent align={isUser ? "end" : "start"} className="w-40">
+                    {isUser && onEdit && (
+                      <DropdownMenuItem onClick={() => setEditing(true)}>
+                        <Pencil className="size-4" />
+                        {text.editLabel}
+                      </DropdownMenuItem>
+                    )}
+                    {!isUser && onRegenerate && (
+                      <DropdownMenuItem onClick={onRegenerate}>
+                        <RefreshCcw className="size-4" />
+                        {text.regenerateLabel}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>

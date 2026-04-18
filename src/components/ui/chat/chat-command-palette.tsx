@@ -39,6 +39,7 @@ interface ChatCommandPaletteProps
   showShortcut?: boolean
   emptyText?: string
   searchPlaceholder?: string
+  defaultGroupLabel?: string
   onOpenChange?: (open: boolean) => void
   onSelect?: (item: ChatCommandItem) => void
 }
@@ -56,6 +57,7 @@ function ChatCommandPalette({
   showShortcut,
   emptyText = "没有匹配的命令",
   searchPlaceholder = "搜索命令…",
+  defaultGroupLabel = "命令",
   onOpenChange,
   onSelect,
   className,
@@ -103,11 +105,11 @@ function ChatCommandPalette({
     },
     dense: {
       root: "rounded-md",
-      input: "h-7 text-[11px]",
+      input: "h-6 text-[11px]",
       inputShell: "[&_svg]:size-3",
       list: "max-h-40",
       group: "**:[[cmdk-group-heading]]:px-1 **:[[cmdk-group-heading]]:py-0.5 **:[[cmdk-group-heading]]:text-[9px]",
-      item: "min-h-7 gap-1.5 rounded-md px-1.5 py-1",
+      item: "min-h-6 gap-1.5 rounded-md px-1.5 py-1",
       itemBody: "items-center",
       label: "text-[11px]",
       description: "text-[9px]",
@@ -146,11 +148,11 @@ function ChatCommandPalette({
 
   const groupedItems = React.useMemo(() => {
     return filteredItems.reduce<Record<string, ChatCommandItem[]>>((acc, item) => {
-      const key = item.group ?? "命令"
+      const key = item.group ?? defaultGroupLabel
       ;(acc[key] ??= []).push(item)
       return acc
     }, {})
-  }, [filteredItems])
+  }, [defaultGroupLabel, filteredItems])
   const groupEntries = Object.entries(groupedItems)
   const showGroupHeading = groupEntries.length > 1
 
@@ -224,7 +226,7 @@ function ChatCommandPalette({
               densityStyles.input,
               densityStyles.inputShell,
               isEmbedded && "rounded-md border-border/60 bg-muted/35",
-              isEmbedded && isAttached && "h-7 rounded-sm bg-muted/25 px-2 text-[11px]",
+              isEmbedded && isAttached && "h-6 rounded-sm bg-muted/25 px-2 text-[11px]",
             )}
           />
         )}
@@ -254,7 +256,7 @@ function ChatCommandPalette({
                       className={cn(
                         densityStyles.item,
                         isEmbedded && "data-selected:bg-muted/80",
-                        isEmbedded && isAttached && resolvedDensity !== "default" && "min-h-7 rounded-sm px-1.5 py-1",
+                        isEmbedded && isAttached && resolvedDensity !== "default" && "min-h-6 rounded-sm px-1.5 py-1",
                         activeIndex === itemIndex && "bg-muted",
                       )}
                     >

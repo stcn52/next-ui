@@ -75,6 +75,15 @@ interface ChatConversationsProps extends Omit<React.ComponentProps<"div">, "onCh
   collapsibleGroups?: boolean
   /** Group names collapsed by default */
   defaultCollapsedGroups?: string[]
+  /** Localized labels */
+  labels?: {
+    title?: string
+    searchPlaceholder?: string
+    openSearchAriaLabel?: string
+    closeSearchAriaLabel?: string
+    newChatAriaLabel?: string
+    groupAriaLabel?: (group: string) => string
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -95,17 +104,26 @@ function ChatConversations({
   searchable = true,
   searchMode = "bar",
   defaultSearchOpen = false,
-  searchPlaceholder = "搜索会话…",
+  searchPlaceholder,
   density = "default",
-  showDescription = true,
+  showDescription = false,
   showAvatar = true,
   showTime = true,
-  showGroupCount = true,
+  showGroupCount = false,
   collapsibleGroups = false,
   defaultCollapsedGroups = [],
+  labels,
   className,
   ...props
 }: ChatConversationsProps) {
+  const text = {
+    title: labels?.title ?? title,
+    searchPlaceholder: labels?.searchPlaceholder ?? searchPlaceholder ?? "搜索会话…",
+    openSearchAriaLabel: labels?.openSearchAriaLabel ?? "打开搜索会话",
+    closeSearchAriaLabel: labels?.closeSearchAriaLabel ?? "收起搜索会话",
+    newChatAriaLabel: labels?.newChatAriaLabel ?? "新建会话",
+    groupAriaLabel: labels?.groupAriaLabel ?? ((group: string) => `${group} 分组`),
+  }
   const [internalActive, setInternalActive] = React.useState(defaultActiveKey ?? items[0]?.key ?? "")
   const isControlled = controlledActive !== undefined
   const activeId = isControlled ? controlledActive : internalActive
@@ -116,22 +134,22 @@ function ChatConversations({
   )
   const densityStyles = {
     default: {
-      header: "px-3 py-2",
+      header: "px-3 py-1.5",
       title: "text-sm",
-      newChatButton: "size-8",
+      newChatButton: "size-7",
       searchWrap: "px-3 py-1",
       searchField: "gap-2 px-2.5 py-1.5",
       searchText: "text-sm",
-      listWrap: "gap-1 px-2 py-1",
-      groupLabel: "px-2 pt-2 pb-0.5 text-[10px]",
+      listWrap: "gap-0.5 px-2 py-1",
+      groupLabel: "px-2 py-1 text-[10px]",
       row: "gap-2 rounded-md px-2.5 py-1.5",
-      avatar: "size-8",
+      avatar: "size-7",
       avatarFallback: "text-xs",
       icon: "size-3.5",
       label: "text-sm",
       time: "text-[10px]",
       description: "text-xs",
-      badge: "size-5 text-[10px]",
+      badge: "h-4 min-w-4 px-1 text-[10px]",
     },
     compact: {
       header: "px-2.5 py-1.5",
@@ -141,7 +159,7 @@ function ChatConversations({
       searchField: "gap-1.5 px-2 py-1",
       searchText: "text-xs",
       listWrap: "gap-0.5 px-1.5 py-1",
-      groupLabel: "px-2 pt-1.5 pb-0.5 text-[9px]",
+      groupLabel: "px-2 py-1 text-[9px]",
       row: "gap-1.5 rounded-md px-2 py-1.5",
       avatar: "size-7",
       avatarFallback: "text-[10px]",
@@ -149,7 +167,7 @@ function ChatConversations({
       label: "text-xs",
       time: "text-[9px]",
       description: "text-[11px]",
-      badge: "size-4.5 text-[9px]",
+      badge: "h-4 min-w-4 px-1 text-[9px]",
     },
     dense: {
       header: "px-2 py-1",
@@ -159,7 +177,7 @@ function ChatConversations({
       searchField: "gap-1.5 px-2 py-1",
       searchText: "text-[11px]",
       listWrap: "gap-0.5 px-1 py-0.5",
-      groupLabel: "px-1.5 pt-1 pb-0 text-[9px]",
+      groupLabel: "px-1.5 py-0.5 text-[9px]",
       row: "gap-1 rounded-md px-1.5 py-1",
       avatar: "size-6",
       avatarFallback: "text-[9px]",
@@ -167,7 +185,7 @@ function ChatConversations({
       label: "text-[11px]",
       time: "text-[9px]",
       description: "text-[10px]",
-      badge: "size-4 text-[9px]",
+      badge: "h-4 min-w-4 px-1 text-[9px]",
     },
   }[density]
 
@@ -211,11 +229,11 @@ function ChatConversations({
     <Avatar className={cn("shrink-0", densityStyles.avatar)}>
       <AvatarFallback
         className={cn(
-          "bg-gradient-to-br from-violet-500/20 to-blue-500/20",
+          "bg-primary/10 text-primary",
           densityStyles.avatarFallback,
         )}
       >
-        <Bot className={cn("text-violet-600", densityStyles.icon)} />
+        <Bot className={densityStyles.icon} />
       </AvatarFallback>
     </Avatar>
   )
@@ -227,15 +245,21 @@ function ChatConversations({
     <div data-slot="chat-conversations" className={cn("flex flex-col", className)} {...props}>
       {/* Header */}
       {showHeaderRow && (
-        <div className={cn("flex items-center border-b", densityStyles.header, showTitle ? "justify-between" : "justify-end")}>
-          {showTitle && <h2 className={cn("font-semibold", densityStyles.title)}>{title}</h2>}
+        <div
+          className={cn(
+            "flex items-center border-b border-border/70",
+            densityStyles.header,
+            showTitle ? "justify-between" : "justify-end",
+          )}
+        >
+          {showTitle && <h2 className={cn("font-medium text-foreground", densityStyles.title)}>{text.title}</h2>}
           <div className="flex items-center gap-1">
             {showSearchTrigger && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 className={densityStyles.newChatButton}
-                aria-label={searchOpen ? "收起搜索会话" : "打开搜索会话"}
+                aria-label={searchOpen ? text.closeSearchAriaLabel : text.openSearchAriaLabel}
                 onClick={() => setSearchOpen((current) => !current)}
               >
                 <Search className={densityStyles.icon} />
@@ -243,10 +267,10 @@ function ChatConversations({
             )}
             {onNewChat && showNewChatButton && (
               <Button
-                variant="ghost"
-                size="icon"
+                variant="outline"
+                size="icon-sm"
                 className={densityStyles.newChatButton}
-                aria-label="新建会话"
+                aria-label={text.newChatAriaLabel}
                 onClick={onNewChat}
               >
                 <MessageSquarePlus className={densityStyles.icon} />
@@ -259,14 +283,14 @@ function ChatConversations({
       {/* Search */}
       {showSearchBar && (
         <div className={densityStyles.searchWrap}>
-          <div className={cn("flex items-center rounded-md border bg-muted/50", densityStyles.searchField)}>
+          <div className={cn("flex items-center rounded-md border border-border/70 bg-muted/30", densityStyles.searchField)}>
             <Search className={cn("text-muted-foreground", densityStyles.icon)} />
             <input
               className={cn(
                 "flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
                 densityStyles.searchText,
               )}
-              placeholder={searchPlaceholder}
+              placeholder={text.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus={searchMode === "trigger" && searchOpen}
@@ -286,11 +310,11 @@ function ChatConversations({
                     type="button"
                     onClick={() => toggleGroup(group)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-md text-left font-medium tracking-wide text-muted-foreground transition-colors hover:bg-muted/60",
+                      "flex w-full items-center justify-between rounded-md text-left font-medium text-muted-foreground transition-colors hover:bg-muted/60",
                       densityStyles.groupLabel,
                     )}
                     aria-expanded={!collapsedGroups[group]}
-                    aria-label={`${group} 分组`}
+                    aria-label={text.groupAriaLabel(group)}
                   >
                     <span>{group}</span>
                     <span className="flex items-center gap-1">
@@ -303,7 +327,7 @@ function ChatConversations({
                 ) : (
                   <p
                     className={cn(
-                      "font-medium tracking-wide text-muted-foreground",
+                      "font-medium text-muted-foreground",
                       densityStyles.groupLabel,
                     )}
                   >
@@ -320,7 +344,7 @@ function ChatConversations({
                     "flex w-full items-center text-left transition-colors",
                     densityStyles.row,
                     !showAvatar && "justify-between",
-                    activeId === c.key ? "bg-accent" : "hover:bg-accent/50",
+                    activeId === c.key ? "bg-accent/80" : "hover:bg-accent/50",
                     c.disabled && "pointer-events-none opacity-50",
                   )}
                 >
@@ -342,8 +366,10 @@ function ChatConversations({
                   </div>
                   {!!c.unread && c.unread > 0 && (
                     <Badge
+                      variant={activeId === c.key ? "default" : "secondary"}
+                      size="sm"
                       className={cn(
-                        "shrink-0 justify-center rounded-full px-0",
+                        "shrink-0 justify-center rounded-full",
                         densityStyles.badge,
                       )}
                     >

@@ -1,6 +1,8 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
+import { ConfigProvider, useTranslation } from "@/components/config-provider"
+import { buildChatBubbleLabels } from "@/components/ui/chat/chat-i18n"
 import {
   Bubble,
   BubbleList,
@@ -239,6 +241,47 @@ export const Streaming: Story = {
       />
     </div>
   ),
+}
+
+export const LocalizedWithProvider: Story = {
+  render: function Render() {
+    function LocalizedBubble() {
+      const t = useTranslation()
+      return (
+        <div className="flex w-[480px] flex-col gap-4">
+          <Bubble
+            role="assistant"
+            content="Here is a localized assistant reply."
+            timestamp="10:00"
+            thinking={["Identify the user goal", "Match the correct labels", "Return the localized UI"]}
+            onCopy={() => {}}
+            onFeedback={() => {}}
+            onRegenerate={() => {}}
+            labels={buildChatBubbleLabels(t)}
+          />
+          <Bubble
+            role="user"
+            content="Can you switch the labels to English?"
+            timestamp="10:01"
+            status="sent"
+            onCopy={() => {}}
+            onEdit={() => {}}
+            labels={buildChatBubbleLabels(t)}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <ConfigProvider locale="en">
+        <LocalizedBubble />
+      </ConfigProvider>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText("Thinking steps (3)")).toBeInTheDocument()
+  },
 }
 
 /* ------------------------------------------------------------------ */

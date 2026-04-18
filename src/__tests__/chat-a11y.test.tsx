@@ -19,7 +19,8 @@ describe("Chat a11y", () => {
     expect(screen.getByLabelText("复制消息")).toBeInTheDocument()
     expect(screen.getByLabelText("点赞")).toBeInTheDocument()
     expect(screen.getByLabelText("点踩")).toBeInTheDocument()
-    expect(screen.getByLabelText("重新生成消息")).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText("更多消息操作"))
+    expect(screen.getByText("重新生成")).toBeInTheDocument()
   })
 
   it("supports keyboard submit in sender", () => {

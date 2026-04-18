@@ -1,7 +1,13 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
+import {
+  ConfigProvider,
+  resolveLocale,
+  useTranslation,
+} from "@/components/config-provider"
 import { ChatConversations, type ConversationItem } from "@/components/ui/chat/chat-conversations"
+import { buildChatConversationsLabels } from "@/components/ui/chat/chat-i18n"
 import { MessageCircle, Code, Languages, FileSpreadsheet, BookOpen } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
 
@@ -15,42 +21,97 @@ const meta: Meta<typeof ChatConversations> = {
 export default meta
 type Story = StoryObj<typeof ChatConversations>
 
+const zh = resolveLocale("zh-CN")
+const en = resolveLocale("en")
+
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 
-const ITEMS: ConversationItem[] = [
-  { key: "1", label: "AI 编码助手", description: "已为你生成代码片段…", time: "10:30", unread: 2, group: "今天" },
-  { key: "2", label: "翻译助手", description: "翻译已完成", time: "09:15", group: "今天" },
-  { key: "3", label: "PPT 大纲生成", description: "大纲内容如下…", time: "昨天", group: "昨天" },
-  { key: "4", label: "数据分析报告", description: "报告已生成，请查收。", time: "昨天", group: "昨天" },
-  { key: "5", label: "学习计划", description: "推荐以下学习路径…", time: "3天前", group: "更早" },
-]
+function buildConversationItems(t: (key: string, vars?: Record<string, string | number>) => string): ConversationItem[] {
+  return [
+    { key: "1", label: t("chatPageConversation1Label"), description: t("chatPageConversation1Description"), time: "10:30", unread: 2, group: t("chatPageConversation1Group") },
+    { key: "2", label: t("chatPageConversation2Label"), description: t("chatPageConversation2Description"), time: "09:15", group: t("chatPageConversation2Group") },
+    { key: "3", label: t("chatPageConversation3Label"), description: t("chatPageConversation3Description"), time: t("chatPageConversation3Time"), group: t("chatPageConversation3Group") },
+    { key: "4", label: t("chatPageConversation4Label"), description: t("chatPageConversation4Description"), time: t("chatPageConversation4Time"), group: t("chatPageConversation4Group") },
+    { key: "5", label: t("chatPageConversation5Label"), description: t("chatPageConversation5Description"), time: t("chatPageConversation5Time"), group: t("chatPageConversation5Group") },
+  ]
+}
+
+function LocalizedConversationList({
+  containerClassName = "h-[500px] w-72 rounded-xl border",
+  className = "h-full",
+  title,
+  searchable = true,
+  groupable = true,
+  density,
+  showTitle,
+  showNewChatButton,
+  searchMode,
+  showDescription,
+  showAvatar,
+  showTime,
+  showGroupCount,
+  collapsibleGroups,
+}: {
+  containerClassName?: string
+  className?: string
+  title?: string
+  searchable?: boolean
+  groupable?: boolean
+  density?: "compact" | "dense"
+  showTitle?: boolean
+  showNewChatButton?: boolean
+  searchMode?: "bar" | "trigger"
+  showDescription?: boolean
+  showAvatar?: boolean
+  showTime?: boolean
+  showGroupCount?: boolean
+  collapsibleGroups?: boolean
+}) {
+  const [active, setActive] = useState("1")
+  const t = useTranslation()
+  return (
+    <div className={containerClassName}>
+      <ChatConversations
+        items={buildConversationItems(t)}
+        activeKey={active}
+        onChange={(key) => setActive(key)}
+        onNewChat={() => setActive("new")}
+        labels={buildChatConversationsLabels(t)}
+        title={title}
+        searchable={searchable}
+        groupable={groupable}
+        density={density}
+        showTitle={showTitle}
+        showNewChatButton={showNewChatButton}
+        searchMode={searchMode}
+        showDescription={showDescription}
+        showAvatar={showAvatar}
+        showTime={showTime}
+        showGroupCount={showGroupCount}
+        collapsibleGroups={collapsibleGroups}
+        className={className}
+      />
+    </div>
+  )
+}
 
 /* ------------------------------------------------------------------ */
 /*  Default                                                            */
 /* ------------------------------------------------------------------ */
 
 export const Default: Story = {
-  render: function Render() {
-    const [active, setActive] = useState("1")
-    return (
-      <div className="h-[500px] w-72 rounded-xl border">
-        <ChatConversations
-          items={ITEMS}
-          activeKey={active}
-          onChange={(key) => setActive(key)}
-          onNewChat={() => setActive("new")}
-          className="h-full"
-        />
-      </div>
-    )
-  },
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("会话列表")).toBeInTheDocument()
-    await expect(canvas.getByText("AI 编码助手")).toBeInTheDocument()
-    await expect(canvas.getByText("翻译助手")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.conversationTitle)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation1Label)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation2Label)).toBeInTheDocument()
     await expect(canvas.getByText("2")).toBeInTheDocument() // unread badge
   },
 }
@@ -61,14 +122,15 @@ export const Default: Story = {
 
 export const Grouped: Story = {
   render: () => (
-    <div className="h-[500px] w-72 rounded-xl border">
-      <ChatConversations items={ITEMS} className="h-full" />
-    </div>
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList />
+    </ConfigProvider>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText("今天")).toBeInTheDocument()
-    await expect(canvas.getByText("更早")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation1Group)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation5Group)).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation5Time)).toBeInTheDocument()
   },
 }
 
@@ -77,26 +139,18 @@ export const Grouped: Story = {
 /* ------------------------------------------------------------------ */
 
 export const Searchable: Story = {
-  render: function Render() {
-    const [active, setActive] = useState("1")
-    return (
-      <div className="h-[500px] w-72 rounded-xl border">
-        <ChatConversations
-          items={ITEMS}
-          activeKey={active}
-          onChange={(key) => setActive(key)}
-          className="h-full"
-        />
-      </div>
-    )
-  },
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const search = canvas.getByPlaceholderText("搜索会话…")
+    const search = canvas.getByPlaceholderText(zh.conversationSearchPlaceholder)
     await userEvent.type(search, "翻译")
-    await expect(canvas.getByText("翻译助手")).toBeInTheDocument()
+    await expect(canvas.getByText(zh.chatPageConversation2Label)).toBeInTheDocument()
     // Other items should be filtered out
-    await expect(canvas.queryByText("AI 编码助手")).toBeNull()
+    await expect(canvas.queryByText(zh.chatPageConversation1Label)).toBeNull()
   },
 }
 
@@ -200,19 +254,28 @@ export const CustomIcons: Story = {
 
 export const CustomTitle: Story = {
   render: () => (
-    <div className="h-[400px] w-72 rounded-xl border">
-      <ChatConversations
-        items={ITEMS}
-        title="对话历史"
-        searchable={false}
-        className="h-full"
-      />
-    </div>
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList title="对话历史" searchable={false} containerClassName="h-[400px] w-72 rounded-xl border" />
+    </ConfigProvider>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText("对话历史")).toBeInTheDocument()
-    await expect(canvas.queryByPlaceholderText("搜索会话…")).toBeNull()
+    await expect(canvas.queryByPlaceholderText(zh.conversationSearchPlaceholder)).toBeNull()
+  },
+}
+
+export const LocalizedWithProvider: Story = {
+  render: () => (
+    <ConfigProvider locale="en">
+      <LocalizedConversationList />
+    </ConfigProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(en.conversationTitle)).toBeInTheDocument()
+    await expect(canvas.getByPlaceholderText(en.conversationSearchPlaceholder)).toBeInTheDocument()
+    await expect(canvas.getByText(en.chatPageConversation3Time)).toBeInTheDocument()
   },
 }
 
@@ -223,13 +286,9 @@ export const CustomTitle: Story = {
 export const Flat: Story = {
   name: "FlatList (no grouping)",
   render: () => (
-    <div className="h-[400px] w-72 rounded-xl border">
-      <ChatConversations
-        items={ITEMS}
-        groupable={false}
-        className="h-full"
-      />
-    </div>
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList groupable={false} containerClassName="h-[400px] w-72 rounded-xl border" />
+    </ConfigProvider>
   ),
 }
 
@@ -264,28 +323,23 @@ export const DisabledItems: Story = {
 /* ------------------------------------------------------------------ */
 
 export const MinimalChrome: Story = {
-  render: function Render() {
-    const [active, setActive] = useState("1")
-    return (
-      <div className="h-[420px] w-56 rounded-xl border">
-        <ChatConversations
-          items={ITEMS}
-          activeKey={active}
-          onChange={(key) => setActive(key)}
-          density="dense"
-          showTitle={false}
-          showNewChatButton={false}
-          searchMode="trigger"
-          showDescription={false}
-          showAvatar={false}
-          showTime={false}
-          showGroupCount={false}
-          collapsibleGroups
-          className="h-full"
-        />
-      </div>
-    )
-  },
+  render: () => (
+    <ConfigProvider locale="zh-CN">
+      <LocalizedConversationList
+        containerClassName="h-[420px] w-56 rounded-xl border"
+        className="h-full"
+        density="dense"
+        showTitle={false}
+        showNewChatButton={false}
+        searchMode="trigger"
+        showDescription={false}
+        showAvatar={false}
+        showTime={false}
+        showGroupCount={false}
+        collapsibleGroups
+      />
+    </ConfigProvider>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.queryByText("会话列表")).toBeNull()
