@@ -6,6 +6,7 @@ import { UploadIcon, XIcon, FileIcon, ImageIcon, FileTextIcon } from "lucide-rea
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/display/progress"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -13,7 +14,7 @@ import { Progress } from "@/components/ui/display/progress"
 
 export interface FileUploadItem {
   id: string
-  file: File
+  file: Pick<File, "name" | "size" | "type">
   progress?: number
   status?: "pending" | "uploading" | "done" | "error"
   error?: string
@@ -131,6 +132,7 @@ interface FileUploadProps {
   /** Disabled state */
   disabled?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 /**
@@ -168,6 +170,7 @@ function FileUpload({
   description,
   disabled = false,
   className,
+  fieldProps,
 }: FileUploadProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [dragActive, setDragActive] = React.useState(false)
@@ -223,13 +226,18 @@ function FileUpload({
         role="button"
         tabIndex={disabled || reachedMax ? -1 : 0}
         aria-disabled={disabled || reachedMax}
-        aria-label={placeholder}
+        aria-label={fieldProps ? undefined : placeholder}
+        aria-labelledby={fieldProps?.["aria-labelledby"]}
+        aria-describedby={fieldProps?.["aria-describedby"]}
+        aria-invalid={fieldProps?.["aria-invalid"]}
+        aria-required={fieldProps?.["aria-required"]}
         onClick={() => !disabled && !reachedMax && inputRef.current?.click()}
         onKeyDown={(e) => {
           if ((e.key === "Enter" || e.key === " ") && !disabled && !reachedMax) {
             inputRef.current?.click()
           }
         }}
+        onBlur={fieldProps?.onBlur}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -250,6 +258,8 @@ function FileUpload({
       {/* Hidden input */}
       <input
         ref={inputRef}
+        id={fieldProps?.id}
+        name={fieldProps?.name}
         type="file"
         accept={accept}
         multiple={multiple}

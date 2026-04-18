@@ -12,6 +12,7 @@
 - 提供大数据量表格、虚拟滚动、行内编辑、URL 状态同步等高级数据能力
 - 集成 dnd-kit，支持拖拽排序和看板交互
 - 支持 `react-hook-form` + `zod` 表单校验
+- 支持 schema 驱动的表单引擎，包含规则联动、派生值、可重复分组和自定义组件注册
 - 支持深色模式、Storybook 文档和可访问性
 - 提供对话场景组件：Bubble、BubbleList、ChatSender、ChatConversations、ThoughtChain
 - Monaco 驱动的代码工作台：文件树、可拖拽编辑区和沙箱预览整合在一个紧凑容器中
@@ -56,6 +57,67 @@ import { ConfigProvider } from "@stcn52/next-ui"
   {/* 所有组件都会继承大尺寸和中文语言 */}
 </ConfigProvider>
 ```
+
+### Schema 表单引擎
+
+`form-engine` 可以根据 schema 渲染表单，并让业务项目注册自己的组件：
+
+```tsx
+import { SchemaForm, createFieldWidgetRegistry, defineFieldWidget } from "@stcn52/next-ui"
+import { ColorPicker } from "./color-picker"
+
+const colorPickerWidget = defineFieldWidget(({ fieldApi, fieldProps, disabled }) => (
+  <ColorPicker
+    fieldProps={fieldProps}
+    value={fieldApi.state.value as string}
+    disabled={disabled}
+    onChange={(next) => fieldApi.handleChange(next)}
+  />
+))
+
+const widgets = createFieldWidgetRegistry({
+  "color-picker": colorPickerWidget,
+})
+
+<SchemaForm schema={schema} widgets={widgets} onSubmit={console.log} />
+```
+
+`fieldProps` 包含标签、错误和描述文案的无障碍绑定信息，业务组件应该把它透传给真正的输入控件。
+`defineFieldWidget()` 不是必须的，但当 widget 会在多个表单里复用时会更清晰。
+
+JSON schema 里也可以直接声明自定义组件：
+
+```json
+{
+  "type": "input",
+  "name": "brandColor",
+  "label": "品牌色",
+  "widget": "color-picker",
+  "widgetProps": {
+    "showPresets": true
+  }
+}
+```
+
+时间类组件也保持同样的可序列化约定，例如 `date-time-picker` 使用 ISO 字符串：
+
+```json
+{
+  "type": "input",
+  "name": "launchAt",
+  "label": "发布窗口",
+  "widget": "date-time-picker",
+  "defaultValue": "2024-12-08T14:30:00",
+  "widgetProps": {
+    "hourCycle": 24,
+    "placeholder": "选择发布时间"
+  }
+}
+```
+
+如果只需要时间，`time-picker` 则保持 `HH:mm` 字符串格式。
+
+对于上传类组件，`widgetProps` 仍保持 JSON 可序列化；如果需要持久化表单值，建议保存附件元数据，而不是直接保存原始 `File` 对象。
 
 ### 自定义语言包
 

@@ -2,6 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/inputs/textarea"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 import { FileText, Image as ImageIcon, Lightbulb, Paperclip, Send, Square, X } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
@@ -99,6 +100,8 @@ interface ChatSenderProps
   suffix?: React.ReactNode
   /** Footer text below the sender */
   footerText?: string
+  /** Form-engine field wiring */
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
   /**
    * Maximum number of visible rows before the textarea enters scroll mode.
    * Defaults to 6.
@@ -141,6 +144,7 @@ function ChatSender({
   prefix,
   suffix,
   footerText,
+  fieldProps,
   maxRows = 6,
   className,
   ...props
@@ -604,16 +608,23 @@ function ChatSender({
               {prefix}
               {leadingActions}
               <Textarea
+                id={fieldProps?.id}
+                name={fieldProps?.name}
                 placeholder={placeholder}
                 value={draft}
                 onChange={(event) => updateValue(event.target.value)}
                 onKeyDown={handleKeyDown}
+                onBlur={fieldProps?.onBlur}
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={(event) => {
                   setIsComposing(false)
                   updateValue(event.currentTarget.value)
                 }}
                 disabled={disabled}
+                aria-labelledby={fieldProps?.["aria-labelledby"]}
+                aria-describedby={fieldProps?.["aria-describedby"]}
+                aria-invalid={fieldProps?.["aria-invalid"]}
+                aria-required={fieldProps?.["aria-required"]}
                 style={{ maxHeight: `${maxRows * 1.5}rem` }}
                 className={cn(
                   "flex-1 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0",

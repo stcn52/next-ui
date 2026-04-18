@@ -12,19 +12,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/overlays/popover"
-import { useLocale, formatMessage } from "@/components/config-provider"
+import { useLocale } from "@/components/config-provider"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 function DatePicker({
   date,
   onDateChange,
   placeholder,
   className,
+  disabled = false,
+  fieldProps,
   ...props
 }: {
   date?: Date
   onDateChange?: (date: Date | undefined) => void
   placeholder?: string
   className?: string
+  disabled?: boolean
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 } & Omit<React.ComponentProps<typeof Calendar>, "mode" | "selected" | "onSelect">) {
   const locale = useLocale()
   const [open, setOpen] = React.useState(false)
@@ -35,13 +40,21 @@ function DatePicker({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
-            aria-label={date ? formatMessage(locale.selectedDate, { date: format(date, 'PPP') }) : resolvedPlaceholder}
+            aria-label={fieldProps ? undefined : (date ? format(date, "PPP") : resolvedPlaceholder)}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             className={cn(
               "w-[240px] justify-start text-left font-normal",
               !date && "text-muted-foreground",
               className
             )}
+            disabled={disabled}
+            onBlur={fieldProps?.onBlur}
           />
         }
       >

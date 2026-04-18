@@ -18,6 +18,7 @@ import { ClockIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 import { cn } from "@/lib/utils"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ export interface TimePickerProps {
   disabled?: boolean
   placeholder?: string
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── Parse / format helpers ───────────────────────────────────────────────────
@@ -93,6 +95,7 @@ export function TimePicker({
   disabled = false,
   placeholder = "选择时间",
   className,
+  fieldProps,
 }: TimePickerProps) {
   const isControlled = value !== undefined
   const [internalVal, setInternalVal] = React.useState(defaultValue)
@@ -144,11 +147,17 @@ export function TimePicker({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label={placeholder}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             disabled={disabled}
+            onBlur={fieldProps?.onBlur}
             className={cn(
               "justify-start text-left font-normal h-9 min-w-[140px]",
               !label && "text-muted-foreground",

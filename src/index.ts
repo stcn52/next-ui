@@ -1,6 +1,7 @@
 import "./index.css"
 
 export * from "./components/ui"
+export * from "./components/form-engine"
 export * from "./components/config-provider"
 export * from "./components/theme-provider"
 export * from "./components/theme-tokens"

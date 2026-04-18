@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/display/separator"
 import { Toggle } from "@/components/ui/inputs/toggle"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 import { cn } from "@/lib/utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ export interface RichTextEditorProps {
   maxRows?: number
   disabled?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── Simple Markdown preview renderer ────────────────────────────────────────
@@ -171,6 +173,7 @@ export function RichTextEditor({
   maxRows = 20,
   disabled = false,
   className,
+  fieldProps,
 }: RichTextEditorProps) {
   const isControlled = value !== undefined
   const [internal, setInternal] = React.useState(defaultValue)
@@ -259,12 +262,18 @@ export function RichTextEditor({
       ) : (
         <textarea
           ref={taRef}
+          id={fieldProps?.id}
+          name={fieldProps?.name}
           value={text}
           onChange={(e) => update(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          aria-label="Markdown 编辑器"
+          aria-labelledby={fieldProps?.["aria-labelledby"]}
+          aria-describedby={fieldProps?.["aria-describedby"]}
+          aria-invalid={fieldProps?.["aria-invalid"]}
+          aria-required={fieldProps?.["aria-required"]}
+          onBlur={fieldProps?.onBlur}
           className="w-full resize-none bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none"
           style={{ minHeight: `${minRows * 1.5}rem`, maxHeight: `${maxRows * 1.5}rem` }}
         />

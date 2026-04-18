@@ -5,6 +5,7 @@ import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/display/badge"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -34,6 +35,7 @@ interface TagInputProps extends Omit<React.ComponentProps<"div">, "onChange"> {
   /** Disabled state */
   disabled?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 /**
@@ -59,6 +61,7 @@ function TagInput({
   delimiters = ["Enter", ","],
   disabled = false,
   className,
+  fieldProps,
   ...props
 }: TagInputProps) {
   const isControlled = controlledTags !== undefined
@@ -114,6 +117,11 @@ function TagInput({
     }
   }
 
+  const handleInputBlur = () => {
+    handleBlur()
+    fieldProps?.onBlur()
+  }
+
   const reachedMax = maxTags !== undefined && tags.length >= maxTags
 
   return (
@@ -125,6 +133,7 @@ function TagInput({
         (disabled || reachedMax) && "cursor-not-allowed opacity-50",
         className,
       )}
+      data-invalid={fieldProps?.["aria-invalid"] ? "true" : undefined}
       onClick={() => !disabled && inputRef.current?.focus()}
       {...props}
     >
@@ -154,12 +163,18 @@ function TagInput({
       {!reachedMax && (
         <input
           ref={inputRef}
+          id={fieldProps?.id}
+          name={fieldProps?.name}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
+          onBlur={handleInputBlur}
           placeholder={tags.length === 0 ? placeholder : ""}
           disabled={disabled}
+          aria-labelledby={fieldProps?.["aria-labelledby"]}
+          aria-describedby={fieldProps?.["aria-describedby"]}
+          aria-invalid={fieldProps?.["aria-invalid"]}
+          aria-required={fieldProps?.["aria-required"]}
           className="min-w-[120px] flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
         />
       )}

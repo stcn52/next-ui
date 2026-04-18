@@ -12,6 +12,7 @@ A modern React component library built on **shadcn/ui v3**, **Tailwind CSS v4**,
 - Advanced data patterns — virtual scrolling (100K+ rows), inline editing, URL state sync
 - Drag & drop with dnd-kit (sortable lists and kanban boards)
 - Form integration with react-hook-form + Zod validation
+- Schema-driven form engine with rule links, derived values, repeatable groups, and custom widget registry support
 - Keyboard shortcuts via react-hotkeys-hook
 - Shared layout animations (Motion)
 - Full Storybook documentation with interaction play tests
@@ -59,6 +60,67 @@ import { ConfigProvider } from "@stcn52/next-ui"
   {/* All components inherit size="lg" and Chinese locale */}
 </ConfigProvider>
 ```
+
+### Schema Form Engine
+
+`form-engine` can render schema-driven forms and let host apps register their own widgets:
+
+```tsx
+import { SchemaForm, createFieldWidgetRegistry, defineFieldWidget } from "@stcn52/next-ui"
+import { ColorPicker } from "./color-picker"
+
+const colorPickerWidget = defineFieldWidget(({ fieldApi, fieldProps, disabled }) => (
+  <ColorPicker
+    fieldProps={fieldProps}
+    value={fieldApi.state.value as string}
+    disabled={disabled}
+    onChange={(next) => fieldApi.handleChange(next)}
+  />
+))
+
+const widgets = createFieldWidgetRegistry({
+  "color-picker": colorPickerWidget,
+})
+
+<SchemaForm schema={schema} widgets={widgets} onSubmit={console.log} />
+```
+
+`fieldProps` contains the label/error wiring that project components should forward to their real input controls.
+`defineFieldWidget()` is optional, but it keeps widget definitions readable when you reuse them across forms.
+
+In JSON schemas, custom widgets are declared with `widget` and serializable `widgetProps`:
+
+```json
+{
+  "type": "input",
+  "name": "brandColor",
+  "label": "Brand color",
+  "widget": "color-picker",
+  "widgetProps": {
+    "showPresets": true
+  }
+}
+```
+
+Time-based widgets follow the same pattern and keep schema values serializable:
+
+```json
+{
+  "type": "input",
+  "name": "launchAt",
+  "label": "Launch window",
+  "widget": "date-time-picker",
+  "defaultValue": "2024-12-08T14:30:00",
+  "widgetProps": {
+    "hourCycle": 24,
+    "placeholder": "Choose launch window"
+  }
+}
+```
+
+For time-only inputs, `time-picker` keeps values as `HH:mm` strings.
+
+For upload workflows, keep `widgetProps` JSON-serializable and store runtime values as attachment metadata rather than raw `File` objects when you need to persist form state.
 
 ### Custom Locale
 

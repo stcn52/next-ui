@@ -18,6 +18,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ export interface RangeSliderProps {
   formatLabel?: (v: number) => string
   showTooltip?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -47,6 +49,7 @@ export function RangeSlider({
   formatLabel,
   showTooltip = true,
   className,
+  fieldProps,
 }: RangeSliderProps) {
   const isControlled = value !== undefined
   const initVal = defaultValue ?? [min, max]
@@ -111,7 +114,13 @@ export function RangeSlider({
   return (
     <div
       className={cn("relative select-none", disabled && "opacity-50 pointer-events-none", className)}
-      aria-label="区间滑块"
+      id={fieldProps?.id}
+      role="group"
+      aria-labelledby={fieldProps?.["aria-labelledby"]}
+      aria-describedby={fieldProps?.["aria-describedby"]}
+      aria-invalid={fieldProps?.["aria-invalid"]}
+      aria-required={fieldProps?.["aria-required"]}
+      onBlur={fieldProps?.onBlur}
     >
       {/* Track */}
       <div

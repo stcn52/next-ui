@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/overlays/popover"
 import { useLocale } from "@/components/config-provider"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 export interface ComboboxOption {
   value: string
@@ -34,6 +35,8 @@ function Combobox({
   searchPlaceholder,
   emptyMessage,
   className,
+  disabled = false,
+  fieldProps,
 }: {
   options: ComboboxOption[]
   value?: string
@@ -42,6 +45,8 @@ function Combobox({
   searchPlaceholder?: string
   emptyMessage?: string
   className?: string
+  disabled?: boolean
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }) {
   const locale = useLocale()
   const [open, setOpen] = React.useState(false)
@@ -56,15 +61,23 @@ function Combobox({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label={selectedLabel ? `${selectedLabel} selected` : resolvedPlaceholder}
+            aria-label={fieldProps ? undefined : (selectedLabel ? `${selectedLabel} selected` : resolvedPlaceholder)}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             className={cn(
               "w-[200px] justify-between font-normal",
               !value && "text-muted-foreground",
               className
             )}
+            disabled={disabled}
+            onBlur={fieldProps?.onBlur}
           />
         }
       >

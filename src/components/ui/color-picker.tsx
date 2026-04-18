@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/inputs/input"
 import { Label } from "@/components/ui/inputs/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ---------------------------------------------------------------------------
 // Utilities
@@ -80,6 +81,7 @@ interface ColorPickerProps {
   /** Disabled state */
   disabled?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 /**
@@ -102,6 +104,7 @@ function ColorPicker({
   maxRecent = 8,
   disabled = false,
   className,
+  fieldProps,
 }: ColorPickerProps) {
   const isControlled = controlledValue !== undefined
   const [internalHex, setInternalHex] = React.useState(defaultValue)
@@ -164,13 +167,19 @@ function ColorPicker({
     <div data-slot="color-picker" className={cn("inline-flex items-center gap-2", className)}>
       <Popover open={!disabled && open} onOpenChange={!disabled ? setOpen : undefined}>
         <PopoverTrigger
+          id={fieldProps?.id}
+          name={fieldProps?.name}
           className={cn(
             "inline-flex items-center justify-center size-9 rounded-lg border border-input p-0.5",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             disabled && "opacity-50 cursor-not-allowed",
           )}
           disabled={disabled}
-          aria-label="打开颜色选择器"
+          aria-labelledby={fieldProps?.["aria-labelledby"]}
+          aria-describedby={fieldProps?.["aria-describedby"]}
+          aria-invalid={fieldProps?.["aria-invalid"]}
+          aria-required={fieldProps?.["aria-required"]}
+          onBlur={fieldProps?.onBlur}
         >
           <span
             className="block size-full rounded"

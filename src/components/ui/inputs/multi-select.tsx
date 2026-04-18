@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 import { cn } from "@/lib/utils"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ export interface MultiSelectProps {
   disabled?: boolean
   clearable?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ export function MultiSelect({
   disabled = false,
   clearable = true,
   className,
+  fieldProps,
 }: MultiSelectProps) {
   const isControlled = value !== undefined
   const [internal, setInternal] = React.useState<string[]>(defaultValue)
@@ -105,11 +108,17 @@ export function MultiSelect({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label={placeholder}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             disabled={disabled}
+            onBlur={fieldProps?.onBlur}
             className={cn(
               "min-h-9 h-auto py-1.5 px-3 justify-start text-left font-normal w-full",
               disabled && "opacity-60",

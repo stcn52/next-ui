@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/date/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ export interface DateTimePickerProps {
   placeholder?: string
   hourCycle?: 12 | 24
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── Time Spinner ────────────────────────────────────────────────────────────
@@ -99,6 +101,7 @@ export function DateTimePicker({
   placeholder = "选择日期与时间",
   hourCycle = 24,
   className,
+  fieldProps,
 }: DateTimePickerProps) {
   // Uncontrolled fallback
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(defaultValue)
@@ -184,11 +187,17 @@ export function DateTimePicker({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label={placeholder}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             disabled={disabled}
+            onBlur={fieldProps?.onBlur}
             className={cn(
               "h-8 min-w-[220px] justify-start text-left font-normal",
               !current && "text-muted-foreground",

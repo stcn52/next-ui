@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/overlays/popover"
 import { useLocale } from "@/components/config-provider"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 /**
  * DateRangePicker — 弹出式日期范围选择器。
@@ -33,6 +34,8 @@ function DateRangePicker({
   placeholder,
   numberOfMonths = 2,
   className,
+  disabled = false,
+  fieldProps,
   ...props
 }: {
   dateRange?: DateRange
@@ -40,6 +43,8 @@ function DateRangePicker({
   placeholder?: string
   numberOfMonths?: number
   className?: string
+  disabled?: boolean
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 } & Omit<
   React.ComponentProps<typeof Calendar>,
   "mode" | "selected" | "onSelect" | "numberOfMonths"
@@ -59,13 +64,21 @@ function DateRangePicker({
       <PopoverTrigger
         render={
           <Button
+            id={fieldProps?.id}
+            name={fieldProps?.name}
             variant="outline"
-            aria-label={label ?? resolvedPlaceholder}
+            aria-label={fieldProps ? undefined : (label ?? resolvedPlaceholder)}
+            aria-labelledby={fieldProps?.["aria-labelledby"]}
+            aria-describedby={fieldProps?.["aria-describedby"]}
+            aria-invalid={fieldProps?.["aria-invalid"]}
+            aria-required={fieldProps?.["aria-required"]}
             className={cn(
               "w-[300px] justify-start text-left font-normal",
               !dateRange?.from && "text-muted-foreground",
               className
             )}
+            disabled={disabled}
+            onBlur={fieldProps?.onBlur}
           />
         }
       >

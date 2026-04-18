@@ -25,6 +25,7 @@ import * as React from "react"
 import { AtSignIcon, PaperclipIcon, XIcon, ImageIcon, FileIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/display/avatar"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 import { cn } from "@/lib/utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -37,6 +38,9 @@ export interface MentionUser {
 }
 
 export interface CommentEditorProps {
+  value?: string
+  defaultValue?: string
+  onChange?: (content: string) => void
   placeholder?: string
   maxLength?: number
   mentionUsers?: MentionUser[]
@@ -46,6 +50,7 @@ export interface CommentEditorProps {
   disabled?: boolean
   autoFocus?: boolean
   className?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }
 
 // ─── MentionDropdown ─────────────────────────────────────────────────────────
@@ -119,6 +124,9 @@ function AttachmentChip({ file, onRemove }: { file: File; onRemove: () => void }
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function CommentEditor({
+  value,
+  defaultValue = "",
+  onChange,
   placeholder = "写下你的评论……支持 @提及 用户",
   maxLength = 2000,
   mentionUsers = [],
@@ -128,20 +136,28 @@ export function CommentEditor({
   disabled = false,
   autoFocus = false,
   className,
+  fieldProps,
 }: CommentEditorProps) {
-  const [content, setContent] = React.useState("")
+  const isControlled = value !== undefined
+  const [internalContent, setInternalContent] = React.useState(defaultValue)
   const [attachments, setAttachments] = React.useState<File[]>([])
   const [mentionQuery, setMentionQuery] = React.useState<string | null>(null)
   const [mentionOpen, setMentionOpen] = React.useState(false)
   const taRef = React.useRef<HTMLTextAreaElement>(null)
   const fileRef = React.useRef<HTMLInputElement>(null)
+  const content = isControlled ? value! : internalContent
 
   const overLimit = content.length > maxLength
+
+  const updateContent = (next: string) => {
+    if (!isControlled) setInternalContent(next)
+    onChange?.(next)
+  }
 
   /** Detect @mention trigger while user types */
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value
-    setContent(val)
+    updateContent(val)
 
     // Check last word for @
     const cursor = e.target.selectionStart
@@ -164,7 +180,7 @@ export function CommentEditor({
     // Replace the partial @mention
     const replaced = before.replace(/@(\w*)$/, `@${user.username} `)
     const next = replaced + after
-    setContent(next)
+    updateContent(next)
     setMentionOpen(false)
     setMentionQuery(null)
     setTimeout(() => {
@@ -183,7 +199,7 @@ export function CommentEditor({
   const handleSubmit = () => {
     if (!content.trim() || overLimit) return
     onSubmit?.(content, attachments)
-    setContent("")
+    updateContent("")
     setAttachments([])
   }
 
@@ -195,6 +211,11 @@ export function CommentEditor({
       e.preventDefault()
       handleSubmit()
     }
+  }
+
+  const handleBlur = () => {
+    setTimeout(() => setMentionOpen(false), 150)
+    fieldProps?.onBlur?.()
   }
 
   return (
@@ -216,11 +237,17 @@ export function CommentEditor({
           value={content}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onBlur={() => setTimeout(() => setMentionOpen(false), 150)}
+          onBlur={handleBlur}
           placeholder={placeholder}
           disabled={disabled}
           autoFocus={autoFocus}
-          aria-label="评论内容"
+          id={fieldProps?.id}
+          name={fieldProps?.name}
+          aria-label={fieldProps ? undefined : "评论内容"}
+          aria-labelledby={fieldProps?.["aria-labelledby"]}
+          aria-describedby={fieldProps?.["aria-describedby"]}
+          aria-invalid={fieldProps?.["aria-invalid"]}
+          aria-required={fieldProps?.["aria-required"]}
           aria-multiline="true"
           className="w-full resize-none bg-transparent px-3 pt-3 pb-1 text-sm placeholder:text-muted-foreground focus:outline-none min-h-[96px] max-h-[300px]"
         />
@@ -248,7 +275,7 @@ export function CommentEditor({
           title="@提及用户"
           aria-label="@提及用户"
           onClick={() => {
-            setContent((c) => c + "@")
+            updateContent(`${content}@`)
             setMentionOpen(true)
             setMentionQuery("")
             taRef.current?.focus()

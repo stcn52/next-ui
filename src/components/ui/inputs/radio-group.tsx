@@ -2,12 +2,26 @@ import { Radio as RadioPrimitive } from "@base-ui/react/radio"
 import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
 
 import { cn } from "@/lib/utils"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
-function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
+function RadioGroup({
+  className,
+  fieldProps,
+  ...props
+}: RadioGroupPrimitive.Props & {
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
+}) {
   return (
     <RadioGroupPrimitive
       data-slot="radio-group"
       className={cn("grid w-full gap-2", className)}
+      id={fieldProps?.id}
+      name={fieldProps?.name}
+      aria-labelledby={fieldProps?.["aria-labelledby"]}
+      aria-describedby={fieldProps?.["aria-describedby"]}
+      aria-invalid={fieldProps?.["aria-invalid"]}
+      aria-required={fieldProps?.["aria-required"]}
+      onBlur={fieldProps?.onBlur}
       {...props}
     />
   )

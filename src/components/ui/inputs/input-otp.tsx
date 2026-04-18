@@ -3,13 +3,16 @@ import { OTPInput, OTPInputContext } from "input-otp"
 
 import { cn } from "@/lib/utils"
 import { MinusIcon } from "lucide-react"
+import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 function InputOTP({
   className,
   containerClassName,
+  fieldProps,
   ...props
 }: React.ComponentProps<typeof OTPInput> & {
   containerClassName?: string
+  fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
 }) {
   return (
     <OTPInput
@@ -20,6 +23,13 @@ function InputOTP({
       )}
       spellCheck={false}
       className={cn("disabled:cursor-not-allowed", className)}
+      id={fieldProps?.id}
+      name={fieldProps?.name}
+      aria-labelledby={fieldProps?.["aria-labelledby"]}
+      aria-describedby={fieldProps?.["aria-describedby"]}
+      aria-invalid={fieldProps?.["aria-invalid"]}
+      aria-required={fieldProps?.["aria-required"]}
+      onBlur={fieldProps?.onBlur}
       {...props}
     />
   )
