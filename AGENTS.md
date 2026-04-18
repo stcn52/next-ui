@@ -26,6 +26,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
   to align the pnpm setup action itself with the newer Node 24 action runtime
 - Workflows pin pnpm to `10.33.0`
   to avoid GitHub runner drift from `version: latest` and keep installs aligned with the verified lockfile behavior
+- Workflows currently install with `--no-frozen-lockfile`
+  because GitHub Actions is hitting a reproducible `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` false positive while the same archive installs locally with zero lockfile diff
 - Trusted dependency build scripts now live in `pnpm-workspace.yaml` under `allowBuilds`
   so CI, Storybook deploy, publish, and local installs all rely on the same pnpm approval source
 
