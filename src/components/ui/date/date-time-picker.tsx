@@ -14,13 +14,13 @@
 
 import * as React from "react"
 import { format } from "date-fns"
-import { zhCN } from "date-fns/locale"
 import { CalendarIcon, ClockIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/date/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 import { Separator } from "@/components/ui/display/separator"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/config-provider"
 import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -54,11 +54,10 @@ function TimeSpinner({ value, min, max, label, onChange }: TimeSpinnerProps) {
     <div className="flex flex-col items-center select-none" role="group" aria-label={label}>
       <Button
         variant="ghost"
-        size="icon"
-        className="size-7 rounded-md"
+        size="icon-sm"
         onClick={increment}
         tabIndex={-1}
-        aria-label={`${label} 增加`}
+        aria-label={`${label} +`}
       >
         <ChevronUpIcon className="size-3.5" />
       </Button>
@@ -69,7 +68,7 @@ function TimeSpinner({ value, min, max, label, onChange }: TimeSpinnerProps) {
         aria-valuemin={min}
         aria-valuemax={max}
         tabIndex={0}
-        className="w-10 text-center text-base font-mono font-semibold py-1 rounded cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
+        className="min-w-11 rounded border border-border bg-background px-2 py-1 text-center font-mono text-sm font-medium tabular-nums cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
         onKeyDown={(e) => {
           if (e.key === "ArrowUp") { e.preventDefault(); increment() }
           if (e.key === "ArrowDown") { e.preventDefault(); decrement() }
@@ -79,11 +78,10 @@ function TimeSpinner({ value, min, max, label, onChange }: TimeSpinnerProps) {
       </div>
       <Button
         variant="ghost"
-        size="icon"
-        className="size-7 rounded-md"
+        size="icon-sm"
         onClick={decrement}
         tabIndex={-1}
-        aria-label={`${label} 减少`}
+        aria-label={`${label} -`}
       >
         <ChevronDownIcon className="size-3.5" />
       </Button>
@@ -98,11 +96,12 @@ export function DateTimePicker({
   defaultValue,
   onChange,
   disabled = false,
-  placeholder = "选择日期与时间",
+  placeholder,
   hourCycle = 24,
   className,
   fieldProps,
 }: DateTimePickerProps) {
+  const locale = useLocale()
   // Uncontrolled fallback
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(defaultValue)
   const isControlled = value !== undefined
@@ -178,9 +177,10 @@ export function DateTimePicker({
     }
   }
 
+  const resolvedPlaceholder = placeholder ?? locale.pickDateTime
   const formatted = current
-    ? format(current, hourCycle === 24 ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd hh:mm aa", { locale: zhCN })
-    : null
+    ? format(current, hourCycle === 24 ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd hh:mm aa")
+    : resolvedPlaceholder
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -200,13 +200,13 @@ export function DateTimePicker({
             disabled={disabled}
             onBlur={fieldProps?.onBlur}
             className={cn(
-              "h-8 min-w-[220px] justify-start text-left font-normal",
+              "min-w-0 max-w-full justify-start text-left font-normal",
               !current && "text-muted-foreground",
               className,
             )}
           >
             <CalendarIcon className="mr-2 size-4 shrink-0 opacity-60" />
-            {formatted ?? placeholder}
+            <span className="truncate">{formatted}</span>
           </Button>
         }
       />
@@ -220,16 +220,16 @@ export function DateTimePicker({
         />
         <Separator />
         {/* Time picker */}
-        <div className="flex items-center gap-1 px-3 py-2">
+        <div className="flex items-center gap-2 px-3 py-2">
           <ClockIcon className="mr-1.5 size-4 text-muted-foreground" />
-          <TimeSpinner value={displayHour} min={hourCycle === 12 ? 1 : 0} max={maxHour} label="小时" onChange={handleHourChange} />
-          <span className="text-lg font-mono font-bold text-muted-foreground px-1">:</span>
-          <TimeSpinner value={minute} min={0} max={59} label="分钟" onChange={handleMinuteChange} />
+          <TimeSpinner value={displayHour} min={hourCycle === 12 ? 1 : 0} max={maxHour} label={locale.hour} onChange={handleHourChange} />
+          <span className="px-1 text-sm font-medium text-muted-foreground">:</span>
+          <TimeSpinner value={minute} min={0} max={59} label={locale.minute} onChange={handleMinuteChange} />
           {hourCycle === 12 && (
             <Button
               variant="outline"
               size="sm"
-              className="ml-1.5 w-11 text-xs"
+              className="ml-1 min-w-11 px-2 text-sm"
               onClick={handlePeriodToggle}
             >
               {period}
@@ -238,7 +238,7 @@ export function DateTimePicker({
         </div>
         {current && (
           <div className="flex justify-end border-t px-3 py-1.5">
-            <Button size="sm" onClick={() => setOpen(false)}>确定</Button>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)}>{locale.done}</Button>
           </div>
         )}
       </PopoverContent>

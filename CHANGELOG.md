@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.2 (2026-04-19)
+
+### Fixes
+
+- Restored the localized `FileManagerPage` implementation that `0.3.1` tests expected, including the search field, new-tab affordance, and updated table shell
+- Restored localized `DateTimePicker` trigger and spinner labels so committed source matches the shipped locale dictionaries and test expectations
+
+### Tests
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build:lib`
+
 ## 0.3.1 (2026-04-19)
 
 ### Improvements
