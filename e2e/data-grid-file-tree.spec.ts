@@ -54,27 +54,58 @@ test.describe("DataTable — sorting and selection story", () => {
 test.describe("FileManager — default story", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/iframe.html?id=pages-filemanager--default&viewMode=story")
-    await expect(page.getByRole("heading", { name: "文件管理" })).toBeVisible()
+    await page.setViewportSize({ width: 1600, height: 980 })
+    await expect(page.getByPlaceholder("搜索文件/目录")).toBeVisible()
   })
 
   test("renders the main file list", async ({ page }) => {
-    await expect(page.getByPlaceholder("搜索文件…")).toBeVisible()
-    await expect(page.getByText("项目文档")).toBeVisible()
-    await expect(page.getByText("设计稿")).toBeVisible()
+    await expect(page.getByRole("cell", { name: "301" }).first()).toBeVisible()
+    await expect(page.getByText("gfw301.bak.zip")).toBeVisible()
+    await expect(page.getByText("在新窗口打开")).toBeVisible()
   })
 
   test("search narrows the list", async ({ page }) => {
-    const input = page.getByPlaceholder("搜索文件…")
-    await input.fill("项目")
+    const input = page.getByPlaceholder("搜索文件/目录")
+    await input.fill("gfwcli")
 
     const rows = page.locator('[data-slot="table-body"] tr')
     await expect(rows).toHaveCount(1)
-    await expect(page.getByText("项目文档")).toBeVisible()
+    await expect(page.getByText("gfwcli.zip")).toBeVisible()
   })
 
   test("grid view toggle switches layout", async ({ page }) => {
+    await page.keyboard.press("Escape")
     await page.getByRole("button", { name: "网格视图" }).click()
     await expect(page.getByRole("button", { name: "列表视图" })).toBeVisible()
-    await expect(page.getByText("项目文档")).toBeVisible()
+    await expect(page.getByText("301", { exact: true })).toBeVisible()
+  })
+
+  test("matches the visual baseline", async ({ page }) => {
+    await expect(page.locator("section").first()).toHaveScreenshot("file-manager-page.png", {
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
+    })
+  })
+})
+
+test.describe("FileManager — dark story", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/iframe.html?id=pages-filemanager--dark&viewMode=story")
+    await page.setViewportSize({ width: 1600, height: 980 })
+    await expect(page.getByPlaceholder("搜索文件/目录")).toBeVisible()
+  })
+
+  test("renders the dark file list", async ({ page }) => {
+    await expect(page.getByRole("cell", { name: "301" }).first()).toBeVisible()
+    await expect(page.getByText("在新窗口打开")).toBeVisible()
+  })
+
+  test("matches the dark visual baseline", async ({ page }) => {
+    await expect(page.locator("section").first()).toHaveScreenshot("file-manager-page-dark.png", {
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
+    })
   })
 })

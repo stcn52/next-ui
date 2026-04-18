@@ -8,7 +8,7 @@ test.describe("Composite Pages", () => {
     await expect(page.getByRole("heading", { name: "AI 编码助手" })).toBeVisible()
     await expect(page.getByText("翻译助手")).toBeVisible()
 
-    const textarea = page.getByPlaceholder("输入消息… (Enter 发送, Shift+Enter 换行)")
+    const textarea = page.getByPlaceholder("输入消息… (/ 命令, Enter 发送)")
     await expect(textarea).toBeVisible()
     await expect(page.getByRole("button", { name: "发送" })).toBeVisible()
   })
@@ -29,7 +29,7 @@ test.describe("Composite Pages", () => {
       await expect(attachmentPreview).toContainText("代码截图.png")
       await expect(attachmentPreview).toContainText("128KB")
     } else {
-      await expect(sender).toContainText("1 个附件")
+      await expect(sender).toContainText(/1\s*附件/)
     }
 
     // Verify footer text
