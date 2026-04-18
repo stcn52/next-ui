@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0 (2026-04-18)
+
+### New Features
+
+- Added a public schema-driven `form-engine` module built on TanStack Form
+- Added schema rules, derived fields, field links, repeatable groups, JSON helpers, and a playground story
+- Added widget registry helpers so host apps can bind custom controls into schema forms without forking library inputs
+
+### Improvements
+
+- Updated existing inputs such as ColorPicker, ChatSender, CommentEditor, Date/Time pickers, FileUpload, RichTextEditor, and several input primitives to accept shared form-engine field wiring
+- Expanded `DataGrid` with copy, CSV export, reset-view controls, and steadier spreadsheet editing behavior
+
+### Tests
+
+- `pnpm exec vitest run src/__tests__/form-engine.test.ts src/__tests__/form-engine-render.test.tsx src/__tests__/form-engine-json.test.tsx`
+- `pnpm exec vitest run src/__tests__/data-grid.test.tsx`
+
 ## 0.2.7 (2026-04-17)
 
 ### Fixes

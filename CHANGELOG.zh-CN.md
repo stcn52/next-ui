@@ -1,5 +1,23 @@
 # 更新日志
 
+## 0.3.0（2026-04-18）
+
+### 新增功能
+
+- 新增公开的 schema 驱动 `form-engine` 模块，底层基于 TanStack Form
+- 新增规则判断、派生字段、字段联动、可重复分组、JSON 辅助工具和 Playground Story
+- 新增 widget 注册能力，业务项目可以把自定义组件接入 schema 表单，而不需要 fork 现有输入组件
+
+### 改进
+
+- 为 ColorPicker、ChatSender、CommentEditor、日期/时间选择器、FileUpload、RichTextEditor 和多种输入原语补齐统一的 form-engine 字段绑定能力
+- 扩展 `DataGrid`，新增复制、CSV 导出、重置视图，以及更稳定的电子表格式编辑行为
+
+### 测试
+
+- `pnpm exec vitest run src/__tests__/form-engine.test.ts src/__tests__/form-engine-render.test.tsx src/__tests__/form-engine-json.test.tsx`
+- `pnpm exec vitest run src/__tests__/data-grid.test.tsx`
+
 ## 0.2.7（2026-04-17）
 
 ### 修复
