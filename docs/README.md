@@ -20,6 +20,16 @@
 
 ---
 
+### 发布与回归
+
+记录发布复盘、视觉回归约束和 CI 稳定性经验。
+
+👉 **[0.3.3 发布复盘](./release-0.3.3-retrospective.md)**
+
+👉 **[视觉回归指南](./visual-regression.md)**
+
+---
+
 ## 📊 统计
 
 - **Ant Design 文档**：10 份（156KB）
@@ -63,3 +73,4 @@ pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "dark story" --
 - ✅ 整理 Ant Design 文档到独立目录
 - ✅ 完成官方文档 100% 覆盖
 - ✅ 创建完整的设计系统文档
+- ✅ 补充 `0.3.3` 发布复盘与视觉回归稳定性记录
