@@ -6,8 +6,9 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current published version: `0.2.5`
-- Current latest git release: `v0.2.5`
+- Current published version: `0.2.7`
+- Current latest git tag: `v0.2.7`
+- Current latest GitHub Release: `v0.2.6`
 
 ## Workflow Map
 
@@ -23,6 +24,8 @@ This file gives future agents the current release and CI/CD picture for `/home/c
   to opt JavaScript actions into the Node 24 runtime ahead of GitHub's default switch
 - Workflows now use `pnpm/action-setup@v6`
   to align the pnpm setup action itself with the newer Node 24 action runtime
+- Workflows pin pnpm to `10.33.0`
+  to avoid GitHub runner drift from `version: latest` and keep installs aligned with the verified lockfile behavior
 - Trusted dependency build scripts now live in `pnpm-workspace.yaml` under `allowBuilds`
   so CI, Storybook deploy, publish, and local installs all rely on the same pnpm approval source
 
@@ -45,12 +48,12 @@ If the user asks to "push and publish together", do all of the following as one 
 
 ## Recent CI Signal
 
-Latest known remote status after the `0.2.1` release lane:
+Latest known release baseline:
 
-- `Publish to npm` for `v0.2.1`: success
-- `Deploy Storybook to GitHub Pages`: success
-- `CI` for the release commit first failed on an outdated E2E assertion
-- A follow-up `main` commit fixed that E2E assertion, and `CI` is green again
+- `v0.2.7` is tagged locally and published to npm
+- Latest GitHub Release currently visible is `v0.2.6`
+- `#22` is closed: the Node 24-compatible GitHub Actions runtime migration is in place
+- Current `main` CI failures are not from the Node 20 deprecation warning anymore; investigate install/lockfile drift separately if Actions turn red again
 - Do not assume `main` is green after future pushes; always re-check `gh run list`
 
 ## Release Notes Guidance
