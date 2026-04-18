@@ -6,9 +6,9 @@ This file gives future agents the current release and CI/CD picture for `/home/c
 
 - Branch: `main`
 - npm package: `@stcn52/next-ui`
-- Current published version: `0.2.7`
-- Current latest git tag: `v0.2.7`
-- Current latest GitHub Release: `v0.2.7`
+- Current published version: `0.3.0`
+- Current latest git tag: `v0.3.0`
+- Current latest GitHub Release: `v0.3.0`
 
 ## Workflow Map
 
@@ -52,9 +52,10 @@ If the user asks to "push and publish together", do all of the following as one 
 
 Latest known release baseline:
 
-- `v0.2.7` is tagged locally and published to npm
-- Latest GitHub Release currently visible is `v0.2.7`
+- `v0.3.0` is tagged and published to npm
+- Latest GitHub Release currently visible is `v0.3.0`
 - `#22` is closed: the Node 24-compatible GitHub Actions runtime migration is in place
+- The `v0.3.0` publish workflow succeeded, and the corresponding `main` CI + Storybook deploy for commit `a7c941b` are green
 - Current `main` CI failures are not from the Node 20 deprecation warning anymore; investigate install/lockfile drift separately if Actions turn red again
 - Do not assume `main` is green after future pushes; always re-check `gh run list`
 
