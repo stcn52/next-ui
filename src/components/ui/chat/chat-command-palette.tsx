@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/overlays/command"
 
 type ChatCommandAttachTo = "chat-sender" | "composer" | "standalone"
-type ChatCommandPaletteDensity = "default" | "compact"
+type ChatCommandPaletteDensity = "default" | "compact" | "dense"
 
 interface ChatCommandItem {
   key: string
@@ -67,25 +67,35 @@ function ChatCommandPalette({
   const search = query !== undefined ? slashQuery : internalQuery
   const resolvedDensity = density ?? (attachTo === "standalone" ? "default" : "compact")
   const resolvedShowDescription = showDescription ?? (resolvedDensity === "default")
-  const densityStyles = resolvedDensity === "compact"
-    ? {
-        root: "rounded-md",
-        input: "h-8 text-xs",
-        list: "max-h-48",
-        item: "min-h-8 gap-2 rounded-md px-2 py-1",
-        label: "text-xs",
-        description: "text-[10px]",
-        shortcut: "text-[10px]",
-      }
-    : {
-        root: "rounded-lg",
-        input: "",
-        list: "max-h-64",
-        item: "",
-        label: "",
-        description: "text-xs",
-        shortcut: "",
-      }
+  const densityStyles = {
+    default: {
+      root: "rounded-lg",
+      input: "",
+      list: "max-h-64",
+      item: "",
+      label: "",
+      description: "text-xs",
+      shortcut: "",
+    },
+    compact: {
+      root: "rounded-md",
+      input: "h-8 text-xs",
+      list: "max-h-48",
+      item: "min-h-8 gap-2 rounded-md px-2 py-1",
+      label: "text-xs",
+      description: "text-[10px]",
+      shortcut: "text-[10px]",
+    },
+    dense: {
+      root: "rounded-md",
+      input: "h-7 text-[11px]",
+      list: "max-h-40",
+      item: "min-h-7 gap-1.5 rounded-md px-1.5 py-1",
+      label: "text-[11px]",
+      description: "text-[9px]",
+      shortcut: "text-[9px]",
+    },
+  }[resolvedDensity]
 
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {

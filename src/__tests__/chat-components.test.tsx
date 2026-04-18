@@ -279,6 +279,16 @@ describe("ChatSender", () => {
     expect(spy).toHaveBeenCalledOnce()
   })
 
+  it("can collapse the stop button to icon-only", () => {
+    const spy = vi.fn()
+    render(<ChatSender loading onCancel={spy} showStopLabel={false} />)
+    const stop = screen.getByRole("button", { name: "停止生成" })
+    expect(stop).toBeTruthy()
+    expect(screen.queryByText("停止生成")).toBeNull()
+    fireEvent.click(stop)
+    expect(spy).toHaveBeenCalledOnce()
+  })
+
   it("renders footer text", () => {
     render(<ChatSender footerText="Disclaimer here" />)
     expect(screen.getByText("Disclaimer here")).toBeTruthy()
@@ -507,6 +517,20 @@ describe("ChatCommandPalette", () => {
     )
     expect(screen.getByText("切换模型")).toBeTruthy()
     expect(screen.queryByText("选择新的模型")).toBeNull()
+  })
+
+  it("supports dense mode for tighter embedded slash panels", () => {
+    const { container } = render(
+      <ChatCommandPalette
+        open
+        attachTo="chat-sender"
+        density="dense"
+        items={items}
+      />,
+    )
+    expect(container.querySelector('[data-slot="chat-command-palette"]')?.getAttribute("data-density")).toBe("dense")
+    expect(screen.queryByText("选择新的模型")).toBeNull()
+    expect(screen.getByText("切换模型")).toBeTruthy()
   })
 })
 

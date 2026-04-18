@@ -123,6 +123,8 @@ interface ChatSenderProps
   suggestionTriggerVisibility?: UtilityVisibility
   /** Density used by mention/suggestion overlays */
   overlayDensity?: Density
+  /** Whether the loading stop button keeps its text label */
+  showStopLabel?: boolean
   /** Whether default attachment and suggestion actions share a compact group */
   defaultActionLayout?: DefaultActionLayout
   /** Form-engine field wiring */
@@ -185,6 +187,7 @@ function ChatSender({
   suggestionLimit,
   suggestionTriggerVisibility = "auto",
   overlayDensity,
+  showStopLabel = true,
   defaultActionLayout,
   fieldProps,
   minRows,
@@ -939,7 +942,7 @@ function ChatSender({
                     aria-label="停止生成"
                   >
                     <Square className="size-3" />
-                    停止生成
+                    {showStopLabel && "停止生成"}
                   </Button>
                 ) : (
                   <Button

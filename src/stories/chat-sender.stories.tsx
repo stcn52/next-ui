@@ -338,6 +338,44 @@ export const LayoutControls: Story = {
   },
 }
 
+export const CompactActionRail: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("/")
+    const [loading, setLoading] = useState(false)
+
+    return (
+      <div className="w-[440px] space-y-2">
+        <div className="rounded-lg border bg-muted/30 p-2 text-[11px] text-muted-foreground">
+          用于高密度聊天页：slash 激活时隐藏快捷提示入口，停止按钮收成 icon-only，命令面板也切到 dense。
+        </div>
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          density="dense"
+          minRows={1}
+          maxRows={3}
+          loading={loading}
+          onCancel={() => setLoading(false)}
+          onSubmit={() => setLoading(true)}
+          suggestions={["继续压缩", "补回归", "整理结论"]}
+          suggestionTriggerVisibility="hidden"
+          overlayDensity="dense"
+          showStopLabel={false}
+          attachmentDisplay="summary"
+          attachmentSummaryPlacement="input"
+          attachmentSummaryDetail="compact"
+          attachments={[{ id: "1", name: "issue-compact.md", type: "file", status: "done" }]}
+          footerText="保留主输入区"
+          footerTextPlacement="input"
+          statusActionsPlacement="input"
+          statusActions={<span className="text-[9px] text-muted-foreground">上下文 12k</span>}
+          showDefaultAttachmentButton
+        />
+      </div>
+    )
+  },
+}
+
 /* ------------------------------------------------------------------ */
 /*  @Mention                                                           */
 /* ------------------------------------------------------------------ */

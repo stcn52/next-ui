@@ -602,7 +602,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           <ChatCommandPalette
             open
             attachTo="standalone"
-            density="compact"
+            density={ultraCompact ? "dense" : "compact"}
             showDescription={false}
             items={COMMAND_ITEMS}
             onSelect={handleCommandSelect}
@@ -755,6 +755,8 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                   open
                   query={draft}
                   attachTo="chat-sender"
+                  density={ultraCompact ? "dense" : "compact"}
+                  showDescription={false}
                   items={COMMAND_ITEMS}
                   onSelect={handleCommandSelect}
                 />
@@ -774,8 +776,10 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               statusActionsPlacement="input"
               footerTextPlacement="input"
               suggestionLimit={2}
+              suggestionTriggerVisibility={showInlineCommandPalette ? "hidden" : "auto"}
               overlayDensity={ultraCompact ? "dense" : "compact"}
               loading={isStreaming}
+              showStopLabel={!ultraCompact}
               onSubmit={handleSend}
               onCancel={handleStopStreaming}
               suggestions={QUICK_REPLIES}
