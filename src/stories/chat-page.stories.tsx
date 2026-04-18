@@ -9,9 +9,18 @@ import {
   type BubbleProps,
   TypingIndicator,
 } from "@/components/ui/chat/chat-bubble"
+import {
+  ChatCommandPalette,
+  type ChatCommandItem,
+} from "@/components/ui/chat/chat-command-palette"
 import { ChatPresence } from "@/components/ui/chat/chat-presence"
 import { ChatConversations, type ConversationItem } from "@/components/ui/chat/chat-conversations"
 import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat/chat-sender"
+import {
+  PromptLibrary,
+  type PromptLibraryApplyResult,
+  type PromptLibraryItem,
+} from "@/components/ui/prompt-library"
 import {
   Dialog,
   DialogContent,
@@ -43,6 +52,8 @@ interface ChatMessage {
   streaming?: boolean
   model?: string
 }
+
+type ToolPanel = "prompts" | "commands" | null
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
@@ -109,6 +120,119 @@ const MENTION_ITEMS: MentionItem[] = [
   { key: "code", label: "代码块", description: "引用代码片段" },
   { key: "doc", label: "文档", description: "引用技术文档" },
   { key: "web", label: "网页", description: "引用网页内容" },
+]
+
+const COMMAND_ITEMS: ChatCommandItem[] = [
+  {
+    key: "model-gpt-4o",
+    label: "切换到 GPT-4o",
+    description: "回到默认通用编码模型",
+    group: "模型",
+    icon: <Bot className="size-4" />,
+    keywords: ["model", "gpt", "4o"],
+  },
+  {
+    key: "model-claude-4",
+    label: "切换到 Claude Opus 4",
+    description: "适合长上下文分析和重构建议",
+    group: "模型",
+    icon: <Sparkles className="size-4" />,
+    keywords: ["model", "claude", "opus"],
+  },
+  {
+    key: "context-file",
+    label: "注入当前文件",
+    description: "把当前文件加入上下文并附到输入区",
+    group: "上下文",
+    icon: <FileText className="size-4" />,
+    keywords: ["file", "context", "attachment"],
+  },
+  {
+    key: "context-ticket",
+    label: "注入工单约束",
+    description: "插入布局压缩和高密度目标说明",
+    group: "上下文",
+    icon: <FileUp className="size-4" />,
+    keywords: ["ticket", "requirement", "layout"],
+  },
+  {
+    key: "prompt-compact-layout",
+    label: "打开布局优化模板",
+    description: "切到 PromptLibrary 的紧凑布局模板",
+    group: "提示词",
+    icon: <Sparkles className="size-4" />,
+    keywords: ["prompt", "layout", "compact"],
+  },
+  {
+    key: "prompt-tests",
+    label: "插入测试补齐提示",
+    description: "直接生成补测试的请求草稿",
+    group: "提示词",
+    icon: <FileText className="size-4" />,
+    keywords: ["test", "coverage", "regression"],
+  },
+  {
+    key: "clear-chat",
+    label: "重置当前会话",
+    description: "清空中间对话并回到欢迎引导",
+    group: "会话",
+    icon: <X className="size-4" />,
+    keywords: ["clear", "reset", "chat"],
+  },
+]
+
+const PROMPT_ITEMS: PromptLibraryItem[] = [
+  {
+    key: "compact-layout",
+    title: "收缩聊天布局",
+    description: "减少无效留白，同时保留高频操作入口",
+    category: "页面架构",
+    content:
+      "请针对 {{component}} 做高密度布局优化，重点处理 {{goal}}。要求保留高频操作、避免信息隐藏过深，并给出建议的间距和交互调整。",
+    variables: [
+      { key: "component", label: "组件名", placeholder: "例如 ChatPage", defaultValue: "ChatPage" },
+      {
+        key: "goal",
+        label: "优化目标",
+        placeholder: "例如 侧栏和消息区占位过大",
+        defaultValue: "侧栏和消息区占位过大",
+      },
+    ],
+  },
+  {
+    key: "command-workflow",
+    title: "设计命令工作流",
+    description: "为 slash 命令、模型切换和上下文注入设计交互",
+    category: "交互设计",
+    content:
+      "请为 {{surface}} 设计 slash 命令交互，覆盖 {{features}}，并说明如何在紧凑布局下保持 discoverability。",
+    variables: [
+      { key: "surface", label: "交互面", placeholder: "例如 ChatSender", defaultValue: "ChatSender" },
+      {
+        key: "features",
+        label: "功能集合",
+        placeholder: "例如 模型切换、上下文注入、模板调用",
+        defaultValue: "模型切换、上下文注入、模板调用",
+      },
+    ],
+  },
+  {
+    key: "regression-check",
+    title: "补齐回归验证",
+    description: "生成适合组件工单的测试请求",
+    category: "工程交付",
+    content:
+      "请为 {{scope}} 补齐回归测试，重点覆盖 {{risk}}，并列出最容易回归的交互边界。",
+    variables: [
+      { key: "scope", label: "范围", placeholder: "例如 Chat 组件", defaultValue: "Chat 组件" },
+      {
+        key: "risk",
+        label: "风险点",
+        placeholder: "例如 紧凑布局、折叠分组、slash 命令",
+        defaultValue: "紧凑布局、折叠分组、slash 命令",
+      },
+    ],
+  },
 ]
 
 /* ------------------------------------------------------------------ */
@@ -203,7 +327,7 @@ type Story = StoryObj
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
-function ChatPage() {
+function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
   const [activeConv, setActiveConv] = useState("1")
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES)
   const [draft, setDraft] = useState("")
@@ -212,8 +336,50 @@ function ChatPage() {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [activeTool, setActiveTool] = useState<ToolPanel>(ultraCompact ? null : "prompts")
+  const [selectedPromptKey, setSelectedPromptKey] = useState(PROMPT_ITEMS[0]?.key ?? "")
+  const [quickCommandOpen, setQuickCommandOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const streamIdRef = useRef(0)
+  const showInlineCommandPalette = quickCommandOpen || draft.trimStart().startsWith("/")
+  const inlineCommandQuery = draft.trimStart().startsWith("/") ? draft : "/"
+  const pageStyles = ultraCompact
+    ? {
+        shell: "h-[39rem] max-w-[88rem] rounded-md",
+        sidebar: "w-60",
+        header: "px-3 py-2",
+        titleRow: "gap-2",
+        subtitle: "hidden",
+        actions: "gap-1",
+        searchBar: "px-3 py-1",
+        messages: "gap-1.5 px-2.5 py-2",
+        sender: "px-2.5 pb-2 pt-1",
+        senderDensity: "dense" as const,
+        senderFooterText: undefined,
+        showKeyboardHint: false,
+        toolRail: "w-10 gap-1 py-2",
+        toolPanelDocked: "w-[18rem]",
+        toolPanelOverlay: "right-11 top-12 bottom-[4.5rem] w-[18rem]",
+        toolPanelPadding: "p-2",
+      }
+    : {
+        shell: "h-[41rem] max-w-[96rem] rounded-lg",
+        sidebar: "w-64",
+        header: "px-4 py-2.5",
+        titleRow: "gap-2.5",
+        subtitle: "text-xs text-muted-foreground",
+        actions: "gap-1.5",
+        searchBar: "px-4 py-1.5",
+        messages: "gap-2 px-3 py-2.5",
+        sender: "px-3 pb-2.5 pt-1.5",
+        senderDensity: "compact" as const,
+        senderFooterText: "AI 回复仅供参考，请以实际为准",
+        showKeyboardHint: true,
+        toolRail: "w-11 gap-1.5 py-2.5",
+        toolPanelDocked: "w-[22rem]",
+        toolPanelOverlay: "right-12 top-14 bottom-[5.25rem] w-[19rem]",
+        toolPanelPadding: "p-2.5",
+      }
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -320,10 +486,137 @@ function ChatPage() {
     void navigator.clipboard?.writeText(text)
   }, [])
 
+  const handleToolToggle = useCallback((tool: Exclude<ToolPanel, null>) => {
+    setActiveTool((current) => (current === tool ? null : tool))
+  }, [])
+
+  const handlePromptApply = useCallback((result: PromptLibraryApplyResult) => {
+    setDraft(result.rendered)
+    setQuickCommandOpen(false)
+    setActiveTool(null)
+  }, [])
+
+  const handleCommandSelect = useCallback((item: ChatCommandItem) => {
+    if (item.key === "model-gpt-4o") {
+      setModel("gpt-4o")
+      setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "model-claude-4") {
+      setModel("claude-4")
+      setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "context-file") {
+      setAttachments((prev) => (
+        prev.some((attachment) => attachment.name === "chat-page.tsx")
+          ? prev
+          : [
+              ...prev,
+              {
+                id: `att-file-${Date.now()}`,
+                name: "chat-page.tsx",
+                type: "file",
+                size: "14KB",
+                status: "done",
+              },
+            ]
+      ))
+      setDraft((current) => {
+        const normalized = current.trim()
+        return !normalized || normalized.startsWith("/")
+          ? "请结合当前文件继续分析布局问题。"
+          : current
+      })
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "context-ticket") {
+      setDraft("请结合现有工单，继续优化 Chat 布局，重点压缩无效留白并保留高频操作。")
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "prompt-compact-layout") {
+      setDraft((current) => (current.trimStart().startsWith("/") ? "" : current))
+      setSelectedPromptKey("compact-layout")
+      setActiveTool("prompts")
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "prompt-tests") {
+      setDraft("请基于当前 Chat 组件补齐回归测试，覆盖紧凑布局、折叠分组和 slash 命令。")
+      setQuickCommandOpen(false)
+      return
+    }
+
+    if (item.key === "clear-chat") {
+      setMessages(INITIAL_MESSAGES.slice(0, 2))
+      setAttachments([])
+      setDraft("")
+      setSearchQuery("")
+      setQuickCommandOpen(false)
+      return
+    }
+  }, [])
+
   const isStreaming = isTyping || messages.some((m) => m.streaming)
 
+  const toolPanel = activeTool ? (
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-background/95 shadow-sm backdrop-blur">
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <div className="min-w-0">
+          <p className="truncate text-xs font-medium">
+            {activeTool === "prompts" ? "提示词工作台" : "命令工作台"}
+          </p>
+          <p className="truncate text-[10px] text-muted-foreground">
+            {activeTool === "prompts"
+              ? "应用模板后会直接写入输入框"
+              : "可搜索命令，也可在输入框里直接输入 /"}
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="关闭工具面板"
+          onClick={() => setActiveTool(null)}
+        >
+          <X className="size-3.5" />
+        </Button>
+      </div>
+      <div className={pageStyles.toolPanelPadding}>
+        {activeTool === "prompts" ? (
+          <div className="h-full overflow-y-auto">
+            <PromptLibrary
+              items={PROMPT_ITEMS}
+              density="compact"
+              groupable
+              selectedKey={selectedPromptKey}
+              onSelect={(item) => setSelectedPromptKey(item.key)}
+              onApply={handlePromptApply}
+            />
+          </div>
+        ) : (
+          <ChatCommandPalette
+            open
+            attachTo="standalone"
+            items={COMMAND_ITEMS}
+            onSelect={handleCommandSelect}
+            className="max-w-none"
+          />
+        )}
+      </div>
+    </div>
+  ) : null
+
   return (
-    <div className="mx-auto flex h-[41rem] max-w-[90rem] overflow-hidden rounded-lg border bg-background shadow-sm">
+    <div className={`mx-auto flex overflow-hidden border bg-background shadow-sm ${pageStyles.shell}`}>
       {/* Conversations sidebar */}
       <ChatConversations
         items={CONVERSATIONS}
@@ -334,126 +627,212 @@ function ChatPage() {
         collapsibleGroups
         defaultCollapsedGroups={["更早"]}
         showDescription={false}
-        className="w-68 shrink-0 border-r"
+        className={`${pageStyles.sidebar} shrink-0 border-r`}
       />
 
       {/* Chat area */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Chat header */}
-        <div className="flex items-center justify-between border-b px-4 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <Avatar className="size-7.5">
-              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
-                <Bot className="size-3.5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="truncate text-sm font-semibold">AI 编码助手</h3>
-                <ChatPresence
-                  status="online"
-                  thinking={isTyping}
-                  readState="read"
-                  className="hidden sm:flex"
-                />
+      <div className="relative flex min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* Chat header */}
+          <div className={`flex items-center justify-between border-b ${pageStyles.header}`}>
+            <div className={`flex items-center ${pageStyles.titleRow}`}>
+              <Avatar className="size-7.5">
+                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
+                  <Bot className="size-3.5" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="truncate text-sm font-semibold">AI 编码助手</h3>
+                  <ChatPresence
+                    status="online"
+                    thinking={isTyping}
+                    readState="read"
+                    className="hidden sm:flex"
+                  />
+                </div>
+                {pageStyles.subtitle && (
+                  <p className={pageStyles.subtitle}>命令、模板和上下文都收进右侧工具轨</p>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">基于大语言模型 · 随时为你解答</p>
+            </div>
+            <div className={`flex items-center ${pageStyles.actions}`}>
+              <ModelSelector value={model} onChange={setModel} />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="搜索消息"
+                onClick={() => setSearchOpen((open) => !open)}
+              >
+                <Search className="size-3.5" />
+              </Button>
+              {!ultraCompact && (
+                <Badge variant="outline" className="hidden gap-1 sm:inline-flex">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  在线
+                </Badge>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <ModelSelector value={model} onChange={setModel} />
-            <Button variant="ghost" size="icon-sm" aria-label="搜索消息" onClick={() => setSearchOpen((o) => !o)}>
-              <Search className="size-3.5" />
-            </Button>
-            <Badge variant="outline" className="hidden gap-1 sm:inline-flex">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
-              在线
-            </Badge>
+
+          {/* Message search bar */}
+          {searchOpen && (
+            <div className={`flex items-center gap-2 border-b ${pageStyles.searchBar}`}>
+              <Search className="size-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="搜索聊天记录…"
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                autoFocus
+              />
+              {searchQuery && (
+                <span className="shrink-0 text-[10px] text-muted-foreground">
+                  {filteredMessages.filter((m) => m.role !== "system").length} 条结果
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="关闭搜索"
+                onClick={() => {
+                  setSearchOpen(false)
+                  setSearchQuery("")
+                }}
+              >
+                <X className="size-3" />
+              </Button>
+            </div>
+          )}
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+            <div className={`flex flex-col ${pageStyles.messages}`}>
+              {filteredMessages.map((m) => {
+                const props: BubbleProps = {
+                  role: m.role,
+                  content: m.content,
+                  timestamp: m.timestamp,
+                  status: m.status,
+                  thinking: m.thinking,
+                  streaming: m.streaming,
+                  density: "compact",
+                  header: m.model && m.role === "assistant" ? (
+                    <span className="text-[10px] text-muted-foreground">模型: {m.model}</span>
+                  ) : undefined,
+                }
+                return (
+                  <Bubble
+                    key={m.id}
+                    {...props}
+                    onCopy={() => handleCopy(m.content)}
+                    onRegenerate={m.role === "assistant" ? () => handleRegenerate(m.id) : undefined}
+                    onEdit={m.role === "user" ? (content) => handleEdit(m.id, content) : undefined}
+                  />
+                )
+              })}
+              {isTyping && (
+                <div className="flex items-start gap-2">
+                  <Avatar className="mt-0.5 size-7.5 shrink-0">
+                    <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
+                      <Bot className="size-3.5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="rounded-2xl rounded-bl-md bg-muted">
+                    <TypingIndicator />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sender */}
+          <div className={pageStyles.sender}>
+            {showInlineCommandPalette && (
+              <div className="mb-1.5">
+                <ChatCommandPalette
+                  open
+                  query={inlineCommandQuery}
+                  attachTo="chat-sender"
+                  items={COMMAND_ITEMS}
+                  onSelect={handleCommandSelect}
+                />
+              </div>
+            )}
+            <ChatSender
+              value={draft}
+              onChange={setDraft}
+              placeholder="输入消息… (/ 命令, Enter 发送)"
+              density={pageStyles.senderDensity}
+              minRows={1}
+              maxRows={ultraCompact ? 4 : 5}
+              showKeyboardHint={pageStyles.showKeyboardHint}
+              attachmentDisplay="summary"
+              attachmentSummaryPlacement="input"
+              loading={isStreaming}
+              onSubmit={handleSend}
+              onCancel={handleStopStreaming}
+              suggestions={QUICK_REPLIES}
+              onSuggestionClick={(s) => setDraft(s)}
+              attachments={attachments}
+              onRemoveAttachment={handleRemoveAttachment}
+              mentions={MENTION_ITEMS}
+              prefix={<AttachmentDialog />}
+              trailingActions={(
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="打开快捷命令"
+                  className={quickCommandOpen ? "bg-muted text-foreground" : undefined}
+                  onClick={() => setQuickCommandOpen((open) => !open)}
+                >
+                  <span className="text-[11px] font-semibold">/</span>
+                </Button>
+              )}
+              onAttach={handleAddAttachment}
+              statusActions={<span className="text-[10px] text-muted-foreground">模型: {model}</span>}
+              footerText={pageStyles.senderFooterText}
+            />
           </div>
         </div>
 
-        {/* Message search bar */}
-        {searchOpen && (
-          <div className="flex items-center gap-2 border-b px-4 py-1.5">
-            <Search className="size-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜索聊天记录…"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              autoFocus
-            />
-            {searchQuery && (
-              <span className="shrink-0 text-[10px] text-muted-foreground">
-                {filteredMessages.filter((m) => m.role !== "system").length} 条结果
-              </span>
-            )}
-            <Button variant="ghost" size="icon-sm" aria-label="关闭搜索" onClick={() => { setSearchOpen(false); setSearchQuery("") }}>
-              <X className="size-3" />
-            </Button>
+        <div className={`flex shrink-0 flex-col items-center border-l bg-muted/20 ${pageStyles.toolRail}`}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="打开提示词库"
+            className={activeTool === "prompts" ? "bg-background text-foreground shadow-sm" : undefined}
+            onClick={() => handleToolToggle("prompts")}
+          >
+            <Sparkles className="size-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="打开命令面板"
+            className={activeTool === "commands" ? "bg-background text-foreground shadow-sm" : undefined}
+            onClick={() => handleToolToggle("commands")}
+          >
+            <Bot className="size-3.5" />
+          </Button>
+          <div className="mt-auto px-1 text-center text-[10px] leading-4 text-muted-foreground">
+            {activeTool === "prompts" ? "模板" : activeTool === "commands" ? "命令" : "工具"}
+          </div>
+        </div>
+
+        {!ultraCompact && activeTool && (
+          <div className={`${pageStyles.toolPanelDocked} shrink-0 border-l bg-muted/10 p-2.5`}>
+            {toolPanel}
           </div>
         )}
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="flex flex-col gap-2.5 px-3 py-2.5">
-            {filteredMessages.map((m) => {
-              const props: BubbleProps = {
-                role: m.role,
-                content: m.content,
-                timestamp: m.timestamp,
-                status: m.status,
-                thinking: m.thinking,
-                streaming: m.streaming,
-                density: "compact",
-                header: m.model && m.role === "assistant" ? (
-                  <span className="text-[10px] text-muted-foreground">模型: {m.model}</span>
-                ) : undefined,
-              }
-              return <Bubble key={m.id} {...props} onCopy={() => handleCopy(m.content)} onRegenerate={m.role === "assistant" ? () => handleRegenerate(m.id) : undefined} onEdit={m.role === "user" ? (c: string) => handleEdit(m.id, c) : undefined} />
-            })}
-            {isTyping && (
-              <div className="flex items-start gap-2">
-                <Avatar className="mt-0.5 size-7.5 shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
-                    <Bot className="size-3.5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="rounded-2xl rounded-bl-md bg-muted">
-                  <TypingIndicator />
-                </div>
-              </div>
-            )}
+        {ultraCompact && activeTool && (
+          <div className={`pointer-events-none absolute z-20 ${pageStyles.toolPanelOverlay}`}>
+            <div className="pointer-events-auto h-full">{toolPanel}</div>
           </div>
-        </div>
-
-        {/* Sender */}
-        <div className="px-3 pb-2.5 pt-1.5">
-          <ChatSender
-            value={draft}
-            onChange={setDraft}
-            placeholder="输入消息… (Enter 发送, Shift+Enter 换行)"
-            density="compact"
-            minRows={1}
-            maxRows={5}
-            showKeyboardHint
-            attachmentDisplay="summary"
-            attachmentSummaryPlacement="input"
-            loading={isStreaming}
-            onSubmit={handleSend}
-            onCancel={handleStopStreaming}
-            suggestions={QUICK_REPLIES}
-            onSuggestionClick={(s) => setDraft(s)}
-            attachments={attachments}
-            onRemoveAttachment={handleRemoveAttachment}
-            mentions={MENTION_ITEMS}
-            prefix={<AttachmentDialog />}
-            onAttach={handleAddAttachment}
-            statusActions={<span className="text-[10px] text-muted-foreground">模型: {model}</span>}
-            footerText="AI 回复仅供参考，请以实际为准"
-          />
-        </div>
+        )}
       </div>
     </div>
   )
@@ -585,15 +964,37 @@ export const Default: Story = {
     await expect(canvas.getByText(/useDebounceSearch/)).toBeInTheDocument()
     await expect(canvas.getByText("帮我写一个 React 自定义 Hook，用来做防抖搜索。")).toBeInTheDocument()
 
-    // Type and send
-    const textarea = canvas.getByPlaceholderText("输入消息… (Enter 发送, Shift+Enter 换行)")
-    await userEvent.type(textarea, "谢谢，非常有用！")
-    await expect(textarea).toHaveValue("谢谢，非常有用！")
+    // Apply a prompt template into the sender
+    await expect(canvas.getByText("收缩聊天布局")).toBeInTheDocument()
+    await userEvent.clear(canvas.getByPlaceholderText("组件名"))
+    await userEvent.type(canvas.getByPlaceholderText("组件名"), "ChatPage")
+    await userEvent.clear(canvas.getByPlaceholderText("优化目标"))
+    await userEvent.type(canvas.getByPlaceholderText("优化目标"), "工具面板和消息区空间分配")
+    await userEvent.click(canvas.getByRole("button", { name: "应用模板" }))
 
-    // Click send
-    const sendBtn = canvas.getByRole("button", { name: "发送" })
-    await userEvent.click(sendBtn)
-    await expect(canvas.getByText("谢谢，非常有用！")).toBeInTheDocument()
+    const textarea = canvas.getByPlaceholderText("输入消息… (/ 命令, Enter 发送)")
+    await expect(textarea).toHaveValue(
+      "请针对 ChatPage 做高密度布局优化，重点处理 工具面板和消息区空间分配。要求保留高频操作、避免信息隐藏过深，并给出建议的间距和交互调整。",
+    )
+
+    // Trigger slash command and inject current file
+    await userEvent.clear(textarea)
+    await userEvent.type(textarea, "/")
+    await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
+    await userEvent.click(canvas.getByText("注入当前文件"))
+    await expect(canvas.getByText("1 个附件")).toBeInTheDocument()
+  },
+}
+
+export const UltraCompact: Story = {
+  render: () => <ChatPage ultraCompact />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole("button", { name: "打开提示词库" })).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: "打开命令面板" }))
+    await expect(canvas.getByPlaceholderText("搜索命令…")).toBeInTheDocument()
+    await userEvent.click(canvas.getByRole("button", { name: "打开提示词库" }))
+    await expect(canvas.getByText("提示词模板")).toBeInTheDocument()
   },
 }
 

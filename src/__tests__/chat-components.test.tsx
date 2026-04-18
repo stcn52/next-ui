@@ -452,6 +452,12 @@ describe("PromptLibrary", () => {
     )
   })
 
+  it("supports compact density for embedded tool panels", () => {
+    const { container } = render(<PromptLibrary items={items} density="compact" />)
+    expect(container.querySelector('[data-slot="prompt-library"]')).toBeTruthy()
+    expect(screen.getByText("提示词模板")).toBeTruthy()
+  })
+
   it("renders templates with helper function", () => {
     expect(renderPromptTemplate("Hello {{name}}", { name: "World" })).toBe("Hello World")
   })
