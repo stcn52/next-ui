@@ -249,7 +249,7 @@ function CodeWorkspace({
   return (
     <div
       data-slot="code-workspace"
-      className={cn("overflow-hidden rounded-xl border bg-card shadow-sm", className)}
+      className={cn("overflow-hidden rounded-lg border bg-card shadow-sm", className)}
       {...props}
     >
       <Tabs defaultValue="explorer" className="gap-0">

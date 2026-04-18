@@ -584,7 +584,7 @@ export function DataGrid<TData, TValue = unknown>({
                         ...getPinStyle(header.column),
                       }}
                       className={cn(
-                        "h-9 py-0 px-2 border-r last:border-r-0",
+                        "h-8 py-0 px-2 border-r last:border-r-0",
                         header.column.id === "__row_num__" && "w-10",
                         header.column.id === "__select__" && "w-9",
                         spreadsheet && !isSpecial && "font-mono text-[10px] text-center tracking-widest",

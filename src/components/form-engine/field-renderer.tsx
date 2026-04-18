@@ -134,7 +134,7 @@ function renderGroupField({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-7 gap-1.5"
+                  className="h-8 gap-1.5"
                   disabled={!canRemove}
                   onClick={() => form.removeFieldValue(path, index)}
                 >

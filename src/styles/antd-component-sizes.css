@@ -1,0 +1,324 @@
+/**
+ * Ant Design 组件尺寸系统
+ * 为所有组件提供统一的尺寸规范（small, middle, large）
+ */
+
+@layer theme {
+  :root {
+    /* ============== 组件尺寸基础值 ============== */
+
+    /* 按钮尺寸 (Button) */
+    --btn-height-sm: 1.5rem;      /* 24px */
+    --btn-height: 2rem;           /* 32px */
+    --btn-height-lg: 2.5rem;      /* 40px */
+
+    --btn-padding-horizontal-sm: 0.4375rem;  /* 7px */
+    --btn-padding-horizontal: 0.9375rem;     /* 15px */
+    --btn-padding-horizontal-lg: 0.9375rem;  /* 15px */
+
+    --btn-font-size-sm: 0.875rem;   /* 14px */
+    --btn-font-size: 0.875rem;      /* 14px */
+    --btn-font-size-lg: 1rem;       /* 16px */
+
+    --btn-border-radius-sm: var(--radius-sm);  /* 4px */
+    --btn-border-radius: var(--radius);        /* 6px */
+    --btn-border-radius-lg: var(--radius);     /* 6px */
+
+    --btn-icon-only-width-sm: 1.5rem;   /* 24px */
+    --btn-icon-only-width: 2rem;        /* 32px */
+    --btn-icon-only-width-lg: 2.5rem;   /* 40px */
+
+    /* 输入框尺寸 (Input, Select, DatePicker) */
+    --input-height-sm: 1.5rem;    /* 24px */
+    --input-height: 2rem;         /* 32px */
+    --input-height-lg: 2.5rem;    /* 40px */
+
+    --input-padding-horizontal-sm: 0.4375rem;  /* 7px */
+    --input-padding-horizontal: 0.6875rem;     /* 11px */
+    --input-padding-horizontal-lg: 0.6875rem;  /* 11px */
+
+    --input-padding-vertical-sm: 0;
+    --input-padding-vertical: 0.25rem;    /* 4px */
+    --input-padding-vertical-lg: 0.4375rem; /* 7px */
+
+    --input-font-size-sm: 0.875rem;   /* 14px */
+    --input-font-size: 0.875rem;      /* 14px */
+    --input-font-size-lg: 1rem;       /* 16px */
+
+    --input-border-radius-sm: var(--radius-sm);  /* 4px */
+    --input-border-radius: var(--radius);        /* 6px */
+    --input-border-radius-lg: var(--radius);     /* 6px */
+
+    /* 选择器尺寸 (Select) */
+    --select-height-sm: 1.5rem;   /* 24px */
+    --select-height: 2rem;        /* 32px */
+    --select-height-lg: 2.5rem;   /* 40px */
+
+    --select-padding-horizontal-sm: 0.4375rem;
+    --select-padding-horizontal: 0.6875rem;
+    --select-padding-horizontal-lg: 0.6875rem;
+
+    /* 开关尺寸 (Switch) */
+    --switch-height-sm: 1rem;     /* 16px */
+    --switch-height: 1.375rem;    /* 22px */
+    --switch-min-width-sm: 1.75rem;   /* 28px */
+    --switch-min-width: 2.75rem;      /* 44px */
+    --switch-inner-margin-sm: 0.125rem;  /* 2px */
+    --switch-inner-margin: 0.125rem;     /* 2px */
+
+    /* 复选框/单选框尺寸 (Checkbox, Radio) */
+    --checkbox-size-sm: 0.875rem;   /* 14px */
+    --checkbox-size: 1rem;          /* 16px */
+    --checkbox-size-lg: 1rem;       /* 16px */
+
+    /* 标签尺寸 (Tag) */
+    --tag-height-sm: 1.125rem;    /* 18px */
+    --tag-height: 1.5rem;         /* 24px */
+    --tag-height-lg: 2rem;        /* 32px */
+
+    --tag-padding-horizontal-sm: 0.4375rem;  /* 7px */
+    --tag-padding-horizontal: 0.5rem;        /* 8px */
+    --tag-padding-horizontal-lg: 0.75rem;    /* 12px */
+
+    --tag-font-size-sm: 0.75rem;    /* 12px */
+    --tag-font-size: 0.875rem;      /* 14px */
+    --tag-font-size-lg: 0.875rem;   /* 14px */
+
+    /* 头像尺寸 (Avatar) */
+    --avatar-size-xs: 1.5rem;     /* 24px */
+    --avatar-size-sm: 2rem;       /* 32px */
+    --avatar-size: 2.5rem;        /* 40px */
+    --avatar-size-lg: 3.75rem;    /* 60px */
+    --avatar-size-xl: 5rem;       /* 80px */
+
+    --avatar-font-size-xs: 0.875rem;   /* 14px */
+    --avatar-font-size-sm: 1.125rem;   /* 18px */
+    --avatar-font-size: 1.375rem;      /* 22px */
+    --avatar-font-size-lg: 2.25rem;    /* 36px */
+    --avatar-font-size-xl: 3rem;       /* 48px */
+
+    /* 徽章尺寸 (Badge) */
+    --badge-height: 1.25rem;      /* 20px */
+    --badge-height-sm: 0.875rem;  /* 14px */
+    --badge-dot-size: 0.375rem;   /* 6px */
+    --badge-font-size: 0.75rem;   /* 12px */
+    --badge-font-size-sm: 0.75rem; /* 12px */
+
+    /* 分页尺寸 (Pagination) */
+    --pagination-item-size-sm: 1.5rem;   /* 24px */
+    --pagination-item-size: 2rem;        /* 32px */
+    --pagination-item-size-lg: 2.5rem;   /* 40px */
+
+    --pagination-font-size-sm: 0.875rem;
+    --pagination-font-size: 0.875rem;
+    --pagination-font-size-lg: 1rem;
+
+    /* 步骤条尺寸 (Steps) */
+    --steps-icon-size-sm: 2rem;    /* 32px */
+    --steps-icon-size: 2rem;       /* 32px */
+    --steps-icon-size-lg: 2.5rem;  /* 40px */
+
+    --steps-dot-size: 0.5rem;      /* 8px */
+
+    /* 进度条尺寸 (Progress) */
+    --progress-line-stroke-width-sm: 0.375rem;  /* 6px */
+    --progress-line-stroke-width: 0.5rem;       /* 8px */
+    --progress-line-stroke-width-lg: 0.625rem;  /* 10px */
+
+    --progress-circle-stroke-width: 0.375rem;   /* 6px */
+
+    /* 滑块尺寸 (Slider) */
+    --slider-rail-size: 0.25rem;        /* 4px */
+    --slider-handle-size: 0.875rem;     /* 14px */
+    --slider-handle-size-hover: 1rem;   /* 16px */
+
+    /* 评分尺寸 (Rate) */
+    --rate-star-size-sm: 0.875rem;   /* 14px */
+    --rate-star-size: 1.25rem;       /* 20px */
+    --rate-star-size-lg: 2.25rem;    /* 36px */
+
+    /* 表格尺寸 (Table) */
+    --table-padding-vertical-sm: 0.5rem;    /* 8px */
+    --table-padding-vertical: 0.75rem;      /* 12px */
+    --table-padding-vertical-lg: 1rem;      /* 16px */
+
+    --table-padding-horizontal-sm: 0.5rem;  /* 8px */
+    --table-padding-horizontal: 0.75rem;    /* 12px */
+    --table-padding-horizontal-lg: 1rem;    /* 16px */
+
+    --table-font-size-sm: 0.75rem;    /* 12px */
+    --table-font-size: 0.875rem;      /* 14px */
+    --table-font-size-lg: 0.875rem;   /* 14px */
+
+    /* 卡片尺寸 (Card) */
+    --card-padding-sm: 0.75rem;    /* 12px */
+    --card-padding: 1.5rem;        /* 24px */
+    --card-padding-lg: 1.5rem;     /* 24px */
+
+    --card-head-height-sm: 2.25rem;   /* 36px */
+    --card-head-height: 3rem;         /* 48px */
+    --card-head-height-lg: 3.5rem;    /* 56px */
+
+    /* 抽屉尺寸 (Drawer) */
+    --drawer-header-padding: 1rem 1.5rem;      /* 16px 24px */
+    --drawer-body-padding: 1.5rem;             /* 24px */
+    --drawer-footer-padding: 0.625rem 1rem;    /* 10px 16px */
+
+    /* 模态框尺寸 (Modal) */
+    --modal-header-padding: 1rem 1.5rem;       /* 16px 24px */
+    --modal-body-padding: 1.5rem;              /* 24px */
+    --modal-footer-padding: 0.625rem 1rem;     /* 10px 16px */
+
+    /* 消息提示尺寸 (Message, Notification) */
+    --message-padding: 0.625rem 1rem;          /* 10px 16px */
+    --notification-padding: 1rem 1.5rem;       /* 16px 24px */
+
+    /* 工具提示尺寸 (Tooltip, Popover) */
+    --tooltip-padding: 0.375rem 0.5rem;        /* 6px 8px */
+    --popover-padding: 0.75rem 1rem;           /* 12px 16px */
+
+    /* 下拉菜单尺寸 (Dropdown) */
+    --dropdown-padding-vertical: 0.25rem;      /* 4px */
+    --dropdown-item-padding: 0.3125rem 0.75rem; /* 5px 12px */
+    --dropdown-item-height: 2rem;              /* 32px */
+
+    /* 菜单尺寸 (Menu) */
+    --menu-item-height: 2.5rem;                /* 40px */
+    --menu-item-padding: 0 1rem;               /* 0 16px */
+    --menu-inline-indent: 1.5rem;              /* 24px */
+    --menu-collapsed-width: 5rem;              /* 80px */
+
+    /* 面包屑尺寸 (Breadcrumb) */
+    --breadcrumb-font-size-sm: 0.75rem;    /* 12px */
+    --breadcrumb-font-size: 0.875rem;      /* 14px */
+    --breadcrumb-font-size-lg: 1rem;       /* 16px */
+    --breadcrumb-separator-margin: 0 0.5rem; /* 0 8px */
+
+    /* 标签页尺寸 (Tabs) */
+    --tabs-height-sm: 2rem;        /* 32px */
+    --tabs-height: 2.75rem;        /* 44px */
+    --tabs-height-lg: 3.5rem;      /* 56px */
+
+    --tabs-padding-horizontal-sm: 0.75rem;  /* 12px */
+    --tabs-padding-horizontal: 1rem;        /* 16px */
+    --tabs-padding-horizontal-lg: 1rem;     /* 16px */
+
+    /* 时间轴尺寸 (Timeline) */
+    --timeline-dot-size: 0.625rem;         /* 10px */
+    --timeline-dot-border-width: 0.125rem; /* 2px */
+
+    /* 树形控件尺寸 (Tree) */
+    --tree-node-height: 1.5rem;            /* 24px */
+    --tree-node-padding: 0.25rem 0.5rem;   /* 4px 8px */
+    --tree-indent: 1.5rem;                 /* 24px */
+
+    /* 穿梭框尺寸 (Transfer) */
+    --transfer-item-height: 2rem;          /* 32px */
+    --transfer-item-padding: 0.375rem 0.75rem; /* 6px 12px */
+
+    /* 上传尺寸 (Upload) */
+    --upload-picture-card-size: 6.5rem;    /* 104px */
+    --upload-picture-card-size-sm: 4rem;   /* 64px */
+    --upload-picture-card-size-lg: 8rem;   /* 128px */
+  }
+}
+
+/* ============== 组件尺寸工具类 ============== */
+@layer components {
+  /* 按钮尺寸类 */
+  .btn-sm {
+    height: var(--btn-height-sm);
+    padding: 0 var(--btn-padding-horizontal-sm);
+    font-size: var(--btn-font-size-sm);
+    border-radius: var(--btn-border-radius-sm);
+  }
+
+  .btn {
+    height: var(--btn-height);
+    padding: 0 var(--btn-padding-horizontal);
+    font-size: var(--btn-font-size);
+    border-radius: var(--btn-border-radius);
+  }
+
+  .btn-lg {
+    height: var(--btn-height-lg);
+    padding: 0 var(--btn-padding-horizontal-lg);
+    font-size: var(--btn-font-size-lg);
+    border-radius: var(--btn-border-radius-lg);
+  }
+
+  /* 输入框尺寸类 */
+  .input-sm {
+    height: var(--input-height-sm);
+    padding: var(--input-padding-vertical-sm) var(--input-padding-horizontal-sm);
+    font-size: var(--input-font-size-sm);
+    border-radius: var(--input-border-radius-sm);
+  }
+
+  .input {
+    height: var(--input-height);
+    padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+    font-size: var(--input-font-size);
+    border-radius: var(--input-border-radius);
+  }
+
+  .input-lg {
+    height: var(--input-height-lg);
+    padding: var(--input-padding-vertical-lg) var(--input-padding-horizontal-lg);
+    font-size: var(--input-font-size-lg);
+    border-radius: var(--input-border-radius-lg);
+  }
+
+  /* 标签尺寸类 */
+  .tag-sm {
+    height: var(--tag-height-sm);
+    padding: 0 var(--tag-padding-horizontal-sm);
+    font-size: var(--tag-font-size-sm);
+    line-height: var(--tag-height-sm);
+  }
+
+  .tag {
+    height: var(--tag-height);
+    padding: 0 var(--tag-padding-horizontal);
+    font-size: var(--tag-font-size);
+    line-height: var(--tag-height);
+  }
+
+  .tag-lg {
+    height: var(--tag-height-lg);
+    padding: 0 var(--tag-padding-horizontal-lg);
+    font-size: var(--tag-font-size-lg);
+    line-height: var(--tag-height-lg);
+  }
+
+  /* 头像尺寸类 */
+  .avatar-xs {
+    width: var(--avatar-size-xs);
+    height: var(--avatar-size-xs);
+    font-size: var(--avatar-font-size-xs);
+  }
+
+  .avatar-sm {
+    width: var(--avatar-size-sm);
+    height: var(--avatar-size-sm);
+    font-size: var(--avatar-font-size-sm);
+  }
+
+  .avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    font-size: var(--avatar-font-size);
+  }
+
+  .avatar-lg {
+    width: var(--avatar-size-lg);
+    height: var(--avatar-size-lg);
+    font-size: var(--avatar-font-size-lg);
+  }
+
+  .avatar-xl {
+    width: var(--avatar-size-xl);
+    height: var(--avatar-size-xl);
+    font-size: var(--avatar-font-size-xl);
+  }
+}

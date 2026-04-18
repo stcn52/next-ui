@@ -34,6 +34,7 @@ function DatePicker({
   const locale = useLocale()
   const [open, setOpen] = React.useState(false)
   const resolvedPlaceholder = placeholder ?? locale.pickADate
+  const label = date ? format(date, "yyyy-MM-dd") : resolvedPlaceholder
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -43,13 +44,13 @@ function DatePicker({
             id={fieldProps?.id}
             name={fieldProps?.name}
             variant="outline"
-            aria-label={fieldProps ? undefined : (date ? format(date, "PPP") : resolvedPlaceholder)}
+            aria-label={fieldProps ? undefined : label}
             aria-labelledby={fieldProps?.["aria-labelledby"]}
             aria-describedby={fieldProps?.["aria-describedby"]}
             aria-invalid={fieldProps?.["aria-invalid"]}
             aria-required={fieldProps?.["aria-required"]}
             className={cn(
-              "w-[240px] justify-start text-left font-normal",
+              "min-w-0 max-w-full justify-start text-left font-normal",
               !date && "text-muted-foreground",
               className
             )}
@@ -59,7 +60,7 @@ function DatePicker({
         }
       >
         <CalendarIcon />
-        {date ? format(date, "PPP") : <span>{resolvedPlaceholder}</span>}
+        <span className="truncate">{label}</span>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar

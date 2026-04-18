@@ -11,6 +11,7 @@ const meta: Meta<typeof DatePicker> = {
 
 export default meta
 type Story = StoryObj<typeof DatePicker>
+const fixedDate = new Date("2024-12-08T00:00:00")
 
 export const Default: Story = {
   render: () => {
@@ -25,7 +26,7 @@ export const Default: Story = {
 
 export const WithPreselectedDate: Story = {
   render: () => {
-    const [date, setDate] = useState<Date | undefined>(new Date())
+    const [date, setDate] = useState<Date | undefined>(fixedDate)
     return <DatePicker date={date} onDateChange={setDate} />
   },
 }

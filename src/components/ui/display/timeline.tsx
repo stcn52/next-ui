@@ -16,7 +16,7 @@ function Timeline({ className, horizontal, ...props }: TimelineProps) {
       data-slot="timeline"
       className={cn(
         "relative",
-        horizontal ? "flex items-start gap-8" : "space-y-0",
+        horizontal ? "flex items-start gap-4" : "space-y-0",
         className,
       )}
       {...props}

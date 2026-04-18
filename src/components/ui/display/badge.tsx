@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { useSize, type Size } from "@/components/config-provider"
 
 const badgeVariants = cva(
-  "group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden rounded-md border border-transparent font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
+  "group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden rounded-md border border-transparent font-medium whitespace-nowrap transition-[background-color,border-color,color,box-shadow] duration-100 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
   {
     variants: {
       variant: {

@@ -18,6 +18,7 @@ import { ClockIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays/popover"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/config-provider"
 import type { FieldControlProps } from "@/components/form-engine/widget-adapter"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -59,8 +60,8 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
   const dec = () => onChange(value > min ? value - 1 : max)
 
   return (
-    <div className="flex flex-col items-center gap-0.5" role="group" aria-label={label}>
-      <Button variant="ghost" size="icon" className="size-8 rounded-md" onClick={inc} tabIndex={-1} aria-label={`${label} 增加`}>
+    <div className="flex flex-col items-center gap-1" role="group" aria-label={label}>
+      <Button variant="ghost" size="icon-sm" onClick={inc} tabIndex={-1} aria-label={`${label} +`}>
         <ChevronUpIcon className="size-3.5" />
       </Button>
       <div
@@ -70,7 +71,7 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
         aria-valuemin={min}
         aria-valuemax={max}
         tabIndex={0}
-        className="w-10 rounded-md py-0.5 text-center font-mono text-lg font-bold select-none cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
+        className="min-w-11 rounded border border-border bg-background px-2 py-1 text-center font-mono text-sm font-medium tabular-nums select-none cursor-default focus:outline-none focus:ring-2 focus:ring-ring"
         onKeyDown={(e) => {
           if (e.key === "ArrowUp") { e.preventDefault(); inc() }
           if (e.key === "ArrowDown") { e.preventDefault(); dec() }
@@ -78,7 +79,7 @@ function Spinner({ value, min, max, label, onChange }: SpinnerProps) {
       >
         {String(value).padStart(2, "0")}
       </div>
-      <Button variant="ghost" size="icon" className="size-8 rounded-md" onClick={dec} tabIndex={-1} aria-label={`${label} 减少`}>
+      <Button variant="ghost" size="icon-sm" onClick={dec} tabIndex={-1} aria-label={`${label} -`}>
         <ChevronDownIcon className="size-3.5" />
       </Button>
     </div>
@@ -93,10 +94,11 @@ export function TimePicker({
   onChange,
   hourCycle = 24,
   disabled = false,
-  placeholder = "选择时间",
+  placeholder,
   className,
   fieldProps,
 }: TimePickerProps) {
+  const locale = useLocale()
   const isControlled = value !== undefined
   const [internalVal, setInternalVal] = React.useState(defaultValue)
   const current = isControlled ? value! : internalVal
@@ -107,6 +109,7 @@ export function TimePicker({
   const maxH = hourCycle === 12 ? 12 : 23
 
   const [open, setOpen] = React.useState(false)
+  const resolvedPlaceholder = placeholder ?? locale.pickTime
 
   const emit = React.useCallback(
     (newH: number, newM: number) => {
@@ -140,7 +143,7 @@ export function TimePicker({
     ? hourCycle === 12
       ? `${String(displayH).padStart(2, "0")}:${String(m).padStart(2, "0")} ${period}`
       : current
-    : null
+    : resolvedPlaceholder
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -152,6 +155,7 @@ export function TimePicker({
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-label={fieldProps ? undefined : label}
             aria-labelledby={fieldProps?.["aria-labelledby"]}
             aria-describedby={fieldProps?.["aria-describedby"]}
             aria-invalid={fieldProps?.["aria-invalid"]}
@@ -159,29 +163,29 @@ export function TimePicker({
             disabled={disabled}
             onBlur={fieldProps?.onBlur}
             className={cn(
-              "justify-start text-left font-normal h-9 min-w-[140px]",
-              !label && "text-muted-foreground",
+              "min-w-0 max-w-full justify-start text-left font-normal",
+              label === resolvedPlaceholder && "text-muted-foreground",
               className,
             )}
           >
             <ClockIcon className="mr-2 size-4 shrink-0 opacity-60" />
-            {label ?? placeholder}
+            <span className="truncate">{label}</span>
           </Button>
         }
       />
       <PopoverContent className="w-auto p-3" align="start">
-        <div className="flex items-center gap-1.5">
-          <Spinner value={displayH} min={hourCycle === 12 ? 1 : 0} max={maxH} label="小时" onChange={handleHour} />
-          <span className="text-xl font-bold text-muted-foreground">:</span>
-          <Spinner value={m} min={0} max={59} label="分钟" onChange={handleMinute} />
+        <div className="flex items-center gap-2">
+          <Spinner value={displayH} min={hourCycle === 12 ? 1 : 0} max={maxH} label={locale.hour} onChange={handleHour} />
+          <span className="text-sm font-medium text-muted-foreground">:</span>
+          <Spinner value={m} min={0} max={59} label={locale.minute} onChange={handleMinute} />
           {hourCycle === 12 && (
-            <Button variant="outline" size="sm" onClick={handlePeriod} className="ml-2 w-12 text-xs">
+            <Button variant="outline" size="sm" onClick={handlePeriod} className="ml-1 min-w-11 px-2 text-sm">
               {period}
             </Button>
           )}
         </div>
-        <div className="mt-2 flex justify-end">
-          <Button size="sm" onClick={() => setOpen(false)}>确定</Button>
+        <div className="mt-3 flex justify-end">
+          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>{locale.done}</Button>
         </div>
       </PopoverContent>
     </Popover>

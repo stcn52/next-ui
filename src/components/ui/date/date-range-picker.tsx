@@ -55,8 +55,8 @@ function DateRangePicker({
 
   const label = React.useMemo(() => {
     if (!dateRange?.from) return null
-    if (!dateRange.to) return format(dateRange.from, "PP")
-    return `${format(dateRange.from, "PP")} – ${format(dateRange.to, "PP")}`
+    if (!dateRange.to) return format(dateRange.from, "yyyy-MM-dd")
+    return `${format(dateRange.from, "yyyy-MM-dd")} ~ ${format(dateRange.to, "yyyy-MM-dd")}`
   }, [dateRange])
 
   return (
@@ -73,7 +73,7 @@ function DateRangePicker({
             aria-invalid={fieldProps?.["aria-invalid"]}
             aria-required={fieldProps?.["aria-required"]}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "min-w-0 max-w-full justify-start text-left font-normal",
               !dateRange?.from && "text-muted-foreground",
               className
             )}
@@ -83,7 +83,7 @@ function DateRangePicker({
         }
       >
         <CalendarIcon />
-        {label ?? <span>{resolvedPlaceholder}</span>}
+        <span className="truncate">{label ?? resolvedPlaceholder}</span>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar

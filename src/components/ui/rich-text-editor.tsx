@@ -242,7 +242,7 @@ export function RichTextEditor({
             pressed={preview}
             onPressedChange={setPreview}
             aria-label={preview ? "切换到编辑模式" : "切换到预览模式"}
-            className="gap-1.5 text-xs h-7 px-2"
+            className="gap-1.5 text-xs h-6 px-2"
           >
             {preview ? <EditIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
             {preview ? "编辑" : "预览"}

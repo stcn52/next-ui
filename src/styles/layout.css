@@ -1,0 +1,179 @@
+/**
+ * Layout CSS variables and global styles
+ */
+
+/* Layout CSS Variables */
+:root {
+  /* Slot heights */
+  --g-slots-layout-top-height: 0px;
+  --g-slots-layout-bottom-height: 0px;
+
+  /* Header */
+  --g-header-height: 60px;
+  --g-header-actual-height: 60px;
+
+  /* Main sidebar */
+  --g-main-sidebar-width: 70px;
+  --g-main-sidebar-actual-width: 70px;
+  --g-main-sidebar-bg: hsl(var(--card));
+  --g-main-sidebar-menu-color: hsl(var(--muted-foreground));
+  --g-main-sidebar-menu-hover-color: hsl(var(--foreground));
+  --g-main-sidebar-menu-hover-bg: hsl(var(--muted));
+  --g-main-sidebar-menu-active-color: hsl(var(--primary));
+  --g-main-sidebar-menu-active-bg: hsl(var(--primary) / 0.1);
+
+  /* Sub sidebar */
+  --g-sub-sidebar-width: 220px;
+  --g-sub-sidebar-collapse-width: 64px;
+  --g-sub-sidebar-actual-width: 220px;
+  --g-sub-sidebar-bg: hsl(var(--card));
+  --g-sub-sidebar-menu-color: hsl(var(--muted-foreground));
+  --g-sub-sidebar-menu-hover-color: hsl(var(--foreground));
+  --g-sub-sidebar-menu-hover-bg: hsl(var(--muted));
+  --g-sub-sidebar-menu-active-color: hsl(var(--primary));
+  --g-sub-sidebar-menu-active-bg: hsl(var(--primary) / 0.1);
+
+  /* Header menu */
+  --g-header-menu-color: hsl(var(--muted-foreground));
+  --g-header-menu-hover-color: hsl(var(--foreground));
+  --g-header-menu-hover-bg: hsl(var(--muted));
+  --g-header-menu-active-color: hsl(var(--primary));
+  --g-header-menu-active-bg: hsl(var(--primary) / 0.1);
+
+  /* Topbar */
+  --g-topbar-height: 50px;
+  --g-topbar-actual-height: 50px;
+  --g-tabbar-height: 40px;
+  --g-tabbar-actual-height: 40px;
+  --g-toolbar-height: 50px;
+  --g-toolbar-actual-height: 50px;
+
+  /* Main container */
+  --g-main-container-padding-top: 0px;
+  --g-main-container-padding-bottom: 0px;
+
+  /* App layout */
+  --g-app-layout-center-width: 1200px;
+}
+
+/* Dark mode overrides */
+.dark {
+  --g-main-sidebar-bg: hsl(var(--card));
+  --g-sub-sidebar-bg: hsl(var(--card));
+}
+
+/* Layout transitions */
+.layout-transition {
+  transition-property: width, height, transform, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar transitions */
+.main-sidebar-enter-active,
+.main-sidebar-leave-active,
+.sub-sidebar-enter-active,
+.sub-sidebar-leave-active,
+.header-enter-active,
+.header-leave-active {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-sidebar-enter-from,
+.main-sidebar-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.sub-sidebar-enter-from,
+.sub-sidebar-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.header-enter-from,
+.header-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* Sub sidebar slide transitions */
+.sub-sidebar-y-start-enter-active,
+.sub-sidebar-y-start-leave-active,
+.sub-sidebar-y-end-enter-active,
+.sub-sidebar-y-end-leave-active,
+.sub-sidebar-x-start-enter-active,
+.sub-sidebar-x-start-leave-active,
+.sub-sidebar-x-end-enter-active,
+.sub-sidebar-x-end-leave-active {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sub-sidebar-y-start-enter-from {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.sub-sidebar-y-start-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.sub-sidebar-y-end-enter-from {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.sub-sidebar-y-end-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.sub-sidebar-x-start-enter-from {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.sub-sidebar-x-start-leave-to {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.sub-sidebar-x-end-enter-from {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.sub-sidebar-x-end-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+/* Mobile mask */
+.mobile-mask {
+  @apply fixed inset-0 z-[1009] bg-black/50 backdrop-blur-sm;
+  @apply invisible opacity-0 transition-opacity duration-300;
+}
+
+.mobile-mask.show {
+  @apply visible opacity-100;
+}
+
+/* Scrollbar styles */
+.layout-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.layout-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+.layout-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+.layout-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}

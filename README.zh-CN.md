@@ -196,6 +196,24 @@ pnpm perf:chat
 pnpm analyze
 ```
 
+### 视觉快照基线
+
+Playwright 的页面级视觉回归基线位于 `e2e/*.spec.ts-snapshots/`。
+当前 FileManager 已覆盖默认态与暗色态，对应目录为 `e2e/data-grid-file-tree.spec.ts-snapshots/`。
+团队流程和评审约定可参考 [docs/visual-regression.md](./docs/visual-regression.md)。
+
+建议优先使用窄范围命令，只更新受影响的基线：
+
+```bash
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "FileManager"
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "FileManager" --update-snapshots
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "dark story" --update-snapshots
+```
+
+只有在视觉改动是预期行为且已经完成评审时才更新快照。
+如果基线发生变化，请在 PR 中像审代码一样检查更新后的 `.png` 文件。
+如果后续新增页面级视觉回归用例，优先使用来自 `iframe.html?id=...` 的稳定 Storybook story ID，保证 CI 中可复现。
+
 性能基准命令支持参数：
 
 ```bash

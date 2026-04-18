@@ -69,3 +69,13 @@ export const Types: Story = {
     </div>
   ),
 }
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3 w-64">
+      <Input size="sm" placeholder="Small (24px)" />
+      <Input size="md" placeholder="Medium (28px)" />
+      <Input size="lg" placeholder="Large (40px)" />
+    </div>
+  ),
+}

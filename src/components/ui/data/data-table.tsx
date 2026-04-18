@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { SearchIcon } from "lucide-react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -23,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/display/table"
 import { Button } from "@/components/ui/button"
+import { GridPagination } from "@/components/ui/data-grid/pagination"
 import { Input } from "@/components/ui/inputs/input"
 import { useLocale, formatMessage } from "@/components/config-provider"
 
@@ -70,29 +72,41 @@ function DataTable<TData, TValue>({
   })
 
   const resolvedPlaceholder = filterPlaceholder ?? locale.filter
+  const filteredRowCount = table.getFilteredRowModel().rows.length
+  const selectedRowCount = table.getFilteredSelectedRowModel().rows.length
+  const hasActiveFilter = columnFilters.length > 0
+  const pageIndex = table.getState().pagination.pageIndex
+  const pageCount = Math.max(table.getPageCount(), 1)
+  const pageSummary = formatMessage(locale.pageOf, {
+    page: pageIndex + 1,
+    total: pageCount,
+  })
 
   return (
     <div data-slot="data-table" className="flex flex-col gap-3">
       {filterColumn && (
         <div className="flex items-center">
-          <Input
-            placeholder={resolvedPlaceholder}
-            aria-label={`Filter results by ${filterColumn}`}
-            value={
-              (table
-                .getColumn(filterColumn)
-                ?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table
-                .getColumn(filterColumn)
-                ?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+          <div className="relative max-w-sm flex-1">
+            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={resolvedPlaceholder}
+              aria-label={`Filter results by ${filterColumn}`}
+              value={
+                (table
+                  .getColumn(filterColumn)
+                  ?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table
+                  .getColumn(filterColumn)
+                  ?.setFilterValue(event.target.value)
+              }
+              className="pl-8"
+            />
+          </div>
         </div>
       )}
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-md border bg-background">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -131,42 +145,48 @@ function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-16 text-center"
+                  className="h-36"
                 >
-                  {locale.noResults}
+                  <div className="flex flex-col items-center justify-center gap-2 py-4 text-center">
+                    <p className="text-sm font-medium text-foreground">{locale.noResults}</p>
+                    <p className="max-w-sm text-sm text-muted-foreground">
+                      {hasActiveFilter ? (locale.adjustFilter ?? locale.noResults) : locale.noResults}
+                    </p>
+                    {hasActiveFilter && filterColumn && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.getColumn(filterColumn)?.setFilterValue("")}
+                      >
+                        {locale.clear}
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2">
-        <div className="text-sm text-muted-foreground" role="status" aria-live="polite">
-          {formatMessage(locale.rowsSelected, {
-            count: table.getFilteredSelectedRowModel().rows.length,
-            total: table.getFilteredRowModel().rows.length,
-          })}
+      <div className="flex flex-col gap-3 rounded-md border border-border/60 bg-muted/20 px-3 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2" role="status" aria-live="polite">
+          <div className="text-sm text-muted-foreground">
+            {selectedRowCount > 0
+              ? `${pageSummary} · ${formatMessage(locale.rowsSelected, {
+                  count: selectedRowCount,
+                  total: filteredRowCount,
+                })}`
+              : filteredRowCount > 0
+                ? pageSummary
+                : locale.noResults}
+          </div>
+          {filteredRowCount > 0 && (
+            <div className="text-sm text-muted-foreground tabular-nums">
+              {filteredRowCount} / {data.length}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            aria-label={locale.goToPreviousPage}
-          >
-            {locale.previous}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            aria-label={locale.goToNextPage}
-          >
-            {locale.next}
-          </Button>
-        </div>
+        <GridPagination table={table} />
       </div>
     </div>
   )

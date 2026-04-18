@@ -32,33 +32,37 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
   const pageCount = table.getPageCount()
   const rowCount = table.getFilteredRowModel().rows.length
   const totalPageCount = pageCount || 1
+  const pageLabel = formatMessage(locale.pageOf ?? "Page {page} of {total}", {
+    page: pageIndex + 1,
+    total: totalPageCount,
+  })
 
   return (
-    <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
+    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
       {/* Row info */}
-      <span className="text-xs">
-        {rowCount > 0
-          ? formatMessage(locale.pageOf ?? "Page {page} of {total}", {
-              page: pageIndex + 1,
-              total: totalPageCount,
-            })
-          : locale.noResults}
-      </span>
+      <div className="flex min-w-[140px] flex-col">
+        <span className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+          {locale.page}
+        </span>
+        <span className="text-sm text-foreground">
+          {rowCount > 0 ? pageLabel : locale.noResults}
+        </span>
+      </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         {/* Page size */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs">{locale.rowsPerPage ?? "Rows per page"}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">{locale.rowsPerPage ?? "Rows per page"}</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => table.setPageSize(Number(v))}
           >
-            <SelectTrigger className="h-7 w-16 text-xs">
+            <SelectTrigger className="w-[88px]" size="sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {PAGE_SIZES.map((s) => (
-                <SelectItem key={s} value={String(s)} className="text-xs">
+                <SelectItem key={s} value={String(s)}>
                   {s}
                 </SelectItem>
               ))}
@@ -67,11 +71,10 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1">
           <Button
             variant="outline"
-            size="icon"
-            className="size-8"
+            size="icon-sm"
             onClick={() => table.firstPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label={locale.goToFirstPage ?? "Go to first page"}
@@ -80,8 +83,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           </Button>
           <Button
             variant="outline"
-            size="icon"
-            className="size-8"
+            size="icon-sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label={locale.goToPreviousPage}
@@ -89,14 +91,13 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
             <ChevronLeftIcon className="size-3.5" />
           </Button>
 
-          <span className="text-xs px-2 tabular-nums">
+          <span className="min-w-[68px] px-2 text-center text-sm tabular-nums text-foreground">
             {pageIndex + 1} / {totalPageCount}
           </span>
 
           <Button
             variant="outline"
-            size="icon"
-            className="size-8"
+            size="icon-sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label={locale.goToNextPage}
@@ -105,8 +106,7 @@ export function GridPagination<TData>({ table }: GridPaginationProps<TData>) {
           </Button>
           <Button
             variant="outline"
-            size="icon"
-            className="size-8"
+            size="icon-sm"
             onClick={() => table.lastPage()}
             disabled={!table.getCanNextPage()}
             aria-label={locale.goToLastPage ?? "Go to last page"}

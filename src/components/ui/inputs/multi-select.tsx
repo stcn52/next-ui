@@ -120,7 +120,7 @@ export function MultiSelect({
             disabled={disabled}
             onBlur={fieldProps?.onBlur}
             className={cn(
-              "min-h-9 h-auto py-1.5 px-3 justify-start text-left font-normal w-full",
+              "min-h-8 h-auto py-1.5 px-3 justify-start text-left font-normal w-full",
               disabled && "opacity-60",
               className,
             )}

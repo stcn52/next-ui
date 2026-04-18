@@ -1,0 +1,4 @@
+interface:
+  display_name: "AntD 组件重构审核"
+  short_description: "按 docs/antd 新标准重构并审核组件与页面。"
+  default_prompt: "使用 $antd-refactor-audit 按 docs/antd 的新设计标准审核并重构这个组件，先列出差距，再直接修改并完成验证。"

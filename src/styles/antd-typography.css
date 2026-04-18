@@ -1,0 +1,252 @@
+/**
+ * Ant Design 字体系统
+ * 基于官方规范：https://ant.design/docs/spec/font-cn
+ */
+
+@layer base {
+  :root {
+    /* ==================== 字体家族 ==================== */
+
+    /* 默认字体 */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+                   'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+                   'Noto Color Emoji';
+
+    /* 中文字体 */
+    --font-family-zh: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                      'PingFang SC', 'Microsoft YaHei', '微软雅黑',
+                      'Hiragino Sans GB', 'Heiti SC', sans-serif;
+
+    /* 代码字体 */
+    --font-family-code: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo,
+                        Courier, monospace;
+
+    /* ==================== 字体大小 ==================== */
+
+    /* 基础字号 */
+    --font-size-sm: 12px;        /* 辅助文字、标签 */
+    --font-size: 14px;           /* 正文（默认） */
+    --font-size-base: 14px;      /* 正文（别名） */
+    --font-size-lg: 16px;        /* 小标题、重要文本 */
+    --font-size-xl: 20px;        /* 标题 */
+
+    /* 标题字号 */
+    --font-size-h5: 14px;        /* 五级标题 */
+    --font-size-h4: 16px;        /* 四级标题 */
+    --font-size-h3: 20px;        /* 三级标题 */
+    --font-size-h2: 24px;        /* 二级标题 */
+    --font-size-h1: 38px;        /* 一级标题 */
+    --font-size-display: 56px;   /* 展示标题 */
+
+    /* ==================== 行高 ==================== */
+
+    /* 基础行高 */
+    --line-height-sm: 20px;      /* 对应 12px */
+    --line-height: 22px;         /* 对应 14px（默认） */
+    --line-height-base: 22px;    /* 对应 14px（别名） */
+    --line-height-lg: 24px;      /* 对应 16px */
+    --line-height-xl: 28px;      /* 对应 20px */
+
+    /* 标题行高 */
+    --line-height-h5: 22px;      /* 对应 14px */
+    --line-height-h4: 24px;      /* 对应 16px */
+    --line-height-h3: 28px;      /* 对应 20px */
+    --line-height-h2: 32px;      /* 对应 24px */
+    --line-height-h1: 46px;      /* 对应 38px */
+    --line-height-display: 64px; /* 对应 56px */
+
+    /* ==================== 字重 ==================== */
+
+    --font-weight: 400;          /* Regular - 正文、描述 */
+    --font-weight-strong: 500;   /* Medium - 标题、强调 */
+    --font-weight-semibold: 600; /* Semibold - 英文加粗 */
+  }
+}
+
+/* ==================== 字体工具类 ==================== */
+
+/* 字体家族 */
+.font-sans {
+  font-family: var(--font-family);
+}
+
+.font-zh {
+  font-family: var(--font-family-zh);
+}
+
+.font-mono {
+  font-family: var(--font-family-code);
+}
+
+/* 等宽数字 */
+.font-tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 字体大小 */
+.text-xs {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.text-base {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+.text-lg {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-lg);
+}
+
+.text-xl {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-xl);
+}
+
+/* 标题样式 */
+.text-h5 {
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-h5);
+  font-weight: var(--font-weight-strong);
+}
+
+.text-h4 {
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-h4);
+  font-weight: var(--font-weight-strong);
+}
+
+.text-h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  font-weight: var(--font-weight-strong);
+}
+
+.text-h2 {
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  font-weight: var(--font-weight-strong);
+}
+
+.text-h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: var(--font-weight-strong);
+}
+
+.text-display {
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  font-weight: var(--font-weight-strong);
+}
+
+/* 字重 */
+.font-normal {
+  font-weight: var(--font-weight);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-strong);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ==================== 语义化标签默认样式 ==================== */
+
+h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: var(--font-weight-strong);
+  margin: 0;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  font-weight: var(--font-weight-strong);
+  margin: 0;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  font-weight: var(--font-weight-strong);
+  margin: 0;
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-h4);
+  font-weight: var(--font-weight-strong);
+  margin: 0;
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-h5);
+  font-weight: var(--font-weight-strong);
+  margin: 0;
+}
+
+p {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: var(--font-weight);
+  margin: 0;
+}
+
+small {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+code {
+  font-family: var(--font-family-code);
+  font-size: 0.875em;
+}
+
+/* ==================== 文本颜色（无障碍对比度） ==================== */
+
+.text-primary {
+  color: rgba(0, 0, 0, 0.88);  /* 主要文本 - AAA 级 */
+}
+
+.text-secondary {
+  color: rgba(0, 0, 0, 0.65);  /* 次要文本 - AA 级 */
+}
+
+.text-tertiary {
+  color: rgba(0, 0, 0, 0.45);  /* 辅助文本 - AA 级 */
+}
+
+.text-disabled {
+  color: rgba(0, 0, 0, 0.25);  /* 禁用文本 */
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .text-primary {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .text-secondary {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .text-tertiary {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .text-disabled {
+    color: rgba(255, 255, 255, 0.25);
+  }
+}

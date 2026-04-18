@@ -377,7 +377,7 @@ export function SettingsPage() {
       </nav>
 
       {/* Content area */}
-      <main className="flex-1 overflow-auto px-6 py-4">
+      <main className="flex-1 overflow-auto px-4 py-4">
         <div className="mb-4">
           <h2 className="text-lg font-semibold">
             {TABS.find((t) => t.id === activeTab)?.label}

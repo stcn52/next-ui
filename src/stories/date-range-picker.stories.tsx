@@ -12,6 +12,8 @@ const meta: Meta<typeof DateRangePicker> = {
 
 export default meta
 type Story = StoryObj<typeof DateRangePicker>
+const fixedFrom = new Date("2024-12-08T00:00:00")
+const fixedTo = new Date("2024-12-15T00:00:00")
 
 export const Default: Story = {
   render: () => {
@@ -26,10 +28,7 @@ export const Default: Story = {
 
 export const WithPreselectedRange: Story = {
   render: () => {
-    const from = new Date()
-    const to = new Date(from)
-    to.setDate(to.getDate() + 7)
-    const [range, setRange] = useState<DateRange | undefined>({ from, to })
+    const [range, setRange] = useState<DateRange | undefined>({ from: fixedFrom, to: fixedTo })
     return <DateRangePicker dateRange={range} onDateRangeChange={setRange} />
   },
 }

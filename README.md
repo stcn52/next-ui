@@ -239,6 +239,24 @@ pnpm test:e2e     # Run Playwright E2E tests
 pnpm perf:chat    # Run chat E2E benchmark (default 3 runs)
 ```
 
+### Visual snapshots
+
+Playwright page-level visual baselines live in `e2e/*.spec.ts-snapshots/`.
+The FileManager coverage currently stores both light and dark screenshots in `e2e/data-grid-file-tree.spec.ts-snapshots/`.
+See [docs/visual-regression.md](./docs/visual-regression.md) for the team workflow and review rules.
+
+Use narrow filters first so we do not rewrite unrelated baselines:
+
+```bash
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "FileManager"
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "FileManager" --update-snapshots
+pnpm exec playwright test e2e/data-grid-file-tree.spec.ts --grep "dark story" --update-snapshots
+```
+
+Only update snapshots when the visual change is intentional and reviewed.
+When a baseline changes, review the updated `.png` files in the pull request just like code.
+If you add a new page-level snapshot test, prefer a stable Storybook story ID from `iframe.html?id=...` so the baseline remains reproducible in CI.
+
 Performance benchmark options:
 
 ```bash
