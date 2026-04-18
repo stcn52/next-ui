@@ -245,6 +245,21 @@ describe("ChatSender", () => {
     expect(screen.queryByRole("button", { name: "打开快捷提示" })).toBeNull()
   })
 
+  it("can collapse extra suggestions behind a more chip", () => {
+    render(
+      <ChatSender
+        suggestions={["Option A", "Option B", "Option C"]}
+        suggestionsVariant="inline"
+        suggestionLimit={2}
+      />,
+    )
+    expect(screen.getByText("Option A")).toBeTruthy()
+    expect(screen.getByText("Option B")).toBeTruthy()
+    expect(screen.queryByText("Option C")).toBeNull()
+    fireEvent.click(screen.getByText("更多 1"))
+    expect(screen.getByText("Option C")).toBeTruthy()
+  })
+
   it("shows stop button when loading", () => {
     const spy = vi.fn()
     render(<ChatSender loading onCancel={spy} />)
@@ -363,6 +378,33 @@ describe("ChatSender", () => {
     expect(screen.getByText("模型: GPT-4o")).toBeTruthy()
     expect(document.querySelector('[data-slot="chat-sender-inline-meta"]')).toBeTruthy()
     expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
+  })
+
+  it("groups default actions together on compact layouts", () => {
+    render(
+      <ChatSender
+        density="compact"
+        suggestions={["Option A", "Option B"]}
+      />,
+    )
+    expect(document.querySelector('[data-slot="chat-sender-default-actions"]')).toBeTruthy()
+  })
+
+  it("renders compact attachment summary detail when requested", () => {
+    render(
+      <ChatSender
+        attachments={[
+          { id: "1", name: "design.png", type: "image", status: "done" },
+          { id: "2", name: "notes.md", type: "file", status: "uploading", progress: 20 },
+          { id: "3", name: "spec.pdf", type: "file", status: "error" },
+        ]}
+        attachmentDisplay="summary"
+        attachmentSummaryDetail="compact"
+      />,
+    )
+    expect(screen.getByText("3 附件")).toBeTruthy()
+    expect(screen.getByText("传 1")).toBeTruthy()
+    expect(screen.getByText("错 1")).toBeTruthy()
   })
 })
 

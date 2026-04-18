@@ -35,8 +35,10 @@ type SuggestionsVariant = "inline" | "overlay"
 type AttachmentLayout = "scroll" | "wrap"
 type AttachmentDisplay = "preview" | "summary"
 type AttachmentSummaryPlacement = "utility" | "input"
+type AttachmentSummaryDetail = "full" | "compact"
 type UtilityVisibility = "auto" | "always" | "hidden"
 type MetaPlacement = "utility" | "input"
+type DefaultActionLayout = "separate" | "grouped"
 
 interface ChatSenderProps
   extends Omit<
@@ -101,6 +103,8 @@ interface ChatSenderProps
   attachmentSummary?: React.ReactNode
   /** Where summary-mode attachments are rendered */
   attachmentSummaryPlacement?: AttachmentSummaryPlacement
+  /** Detail level for the built-in attachment summary */
+  attachmentSummaryDetail?: AttachmentSummaryDetail
   /** Custom prefix content (left of textarea) */
   prefix?: React.ReactNode
   /** Custom suffix content (right of textarea) */
@@ -113,6 +117,10 @@ interface ChatSenderProps
   showKeyboardHint?: boolean
   /** Controls when the utility row is rendered */
   utilityVisibility?: UtilityVisibility
+  /** How many suggestion chips are shown before collapsing into a more toggle */
+  suggestionLimit?: number
+  /** Whether default attachment and suggestion actions share a compact group */
+  defaultActionLayout?: DefaultActionLayout
   /** Form-engine field wiring */
   fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
   /**
@@ -163,12 +171,15 @@ function ChatSender({
   statusActionsPlacement,
   attachmentSummary,
   attachmentSummaryPlacement,
+  attachmentSummaryDetail,
   prefix,
   suffix,
   footerText,
   footerTextPlacement,
   showKeyboardHint = false,
   utilityVisibility = "auto",
+  suggestionLimit,
+  defaultActionLayout,
   fieldProps,
   minRows,
   maxRows = 6,
@@ -182,6 +193,7 @@ function ChatSender({
   const [isComposing, setIsComposing] = React.useState(false)
   const [showMentions, setShowMentions] = React.useState(false)
   const [showSuggestions, setShowSuggestions] = React.useState(false)
+  const [showAllSuggestions, setShowAllSuggestions] = React.useState(false)
   const [mentionQuery, setMentionQuery] = React.useState("")
   const [activeMentionIndex, setActiveMentionIndex] = React.useState(0)
   const [isDragOver, setIsDragOver] = React.useState(false)
@@ -196,13 +208,17 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1.5",
       inlineMetaText: "max-w-28 text-[10px]",
       inlineMetaChip: "px-2 py-0.5 text-[10px]",
+      attachmentSummaryCount: "max-w-20",
+      attachmentSummaryStatus: "px-1.5 py-0.5 text-[9px]",
       attachment: "gap-2 pb-1",
       attachmentItemPadding: "px-2.5 py-1.5",
       meta: "gap-2 pt-1.5",
       chip: "px-2.5 py-1",
+      suggestionChip: "px-2.5 py-1",
       metaText: "text-[10px]",
       controlButtonSize: "icon" as const,
       stopButtonSize: "sm" as const,
@@ -212,13 +228,17 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1",
       inlineMetaText: "max-w-24 text-[10px]",
       inlineMetaChip: "px-1.5 py-0.5 text-[10px]",
+      attachmentSummaryCount: "max-w-18",
+      attachmentSummaryStatus: "px-1 py-0.5 text-[9px]",
       attachment: "gap-1.5 pb-0.5",
       attachmentItemPadding: "px-2 py-1",
       meta: "gap-1.5 pt-1",
       chip: "px-2 py-0.5",
+      suggestionChip: "px-2 py-0.5",
       metaText: "text-[10px]",
       controlButtonSize: "icon-sm" as const,
       stopButtonSize: "xs" as const,
@@ -228,13 +248,17 @@ function ChatSender({
       cardContent: "gap-1 p-1.5",
       inputRow: "gap-1",
       textarea: "text-xs leading-5",
+      actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1",
       inlineMetaText: "max-w-20 text-[9px]",
       inlineMetaChip: "px-1.5 py-0.5 text-[9px]",
+      attachmentSummaryCount: "max-w-16",
+      attachmentSummaryStatus: "px-1 py-0.5 text-[8px]",
       attachment: "gap-1 pb-0.5",
       attachmentItemPadding: "px-1.5 py-0.5",
       meta: "gap-1 pt-1",
       chip: "px-2 py-0.5",
+      suggestionChip: "px-1.5 py-0.5",
       metaText: "text-[9px]",
       controlButtonSize: "icon-sm" as const,
       stopButtonSize: "xs" as const,
@@ -244,10 +268,25 @@ function ChatSender({
   const resolvedMaxRows = Math.max(maxRows, resolvedMinRows)
   const resolvedAttachmentSummaryPlacement =
     attachmentSummaryPlacement ?? (density === "dense" ? "input" : "utility")
+  const resolvedAttachmentSummaryDetail =
+    attachmentSummaryDetail ?? (density === "default" ? "full" : "compact")
   const resolvedStatusActionsPlacement =
     statusActionsPlacement ?? (density === "dense" ? "input" : "utility")
   const resolvedFooterTextPlacement =
     footerTextPlacement ?? (density === "dense" ? "input" : "utility")
+  const resolvedSuggestionLimit = Math.max(
+    1,
+    suggestionLimit ??
+      (suggestionsVariant === "inline"
+        ? density === "dense"
+          ? 2
+          : 3
+        : density === "default"
+          ? 4
+          : 3),
+  )
+  const resolvedDefaultActionLayout =
+    defaultActionLayout ?? (density === "default" ? "separate" : "grouped")
   const attachmentCount = attachments?.length ?? 0
   const uploadingCount = attachments?.filter((attachment) => attachment.status === "uploading").length ?? 0
   const errorCount = attachments?.filter((attachment) => attachment.status === "error").length ?? 0
@@ -264,6 +303,7 @@ function ChatSender({
   const closePanels = React.useCallback(() => {
     setShowMentions(false)
     setShowSuggestions(false)
+    setShowAllSuggestions(false)
   }, [])
 
   React.useEffect(() => {
@@ -392,6 +432,7 @@ function ChatSender({
         setDraftValue(suggestion)
       }
       setShowSuggestions(false)
+      setShowAllSuggestions(false)
     },
     [onSuggestionClick, setDraftValue],
   )
@@ -448,6 +489,46 @@ function ChatSender({
         ? "suggestions"
         : null
 
+  const visibleSuggestions = showAllSuggestions
+    ? (suggestions ?? [])
+    : (suggestions ?? []).slice(0, resolvedSuggestionLimit)
+  const hiddenSuggestionCount = Math.max(0, (suggestions?.length ?? 0) - visibleSuggestions.length)
+
+  const renderSuggestionChip = React.useCallback(
+    (suggestion: string) => (
+      <button
+        key={suggestion}
+        type="button"
+        aria-label={`应用提示 ${suggestion}`}
+        onClick={() => handleSuggestionClick(suggestion)}
+        className={cn(
+          "rounded-full border bg-background text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+          densityStyles.suggestionChip,
+        )}
+      >
+        {suggestion}
+      </button>
+    ),
+    [densityStyles.suggestionChip, handleSuggestionClick],
+  )
+
+  const renderSuggestionOverflowChip = React.useCallback(
+    () =>
+      hiddenSuggestionCount > 0 ? (
+        <button
+          type="button"
+          onClick={() => setShowAllSuggestions(true)}
+          className={cn(
+            "rounded-full border border-dashed bg-muted/40 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+            densityStyles.suggestionChip,
+          )}
+        >
+          更多 {hiddenSuggestionCount}
+        </button>
+      ) : null,
+    [densityStyles.suggestionChip, hiddenSuggestionCount],
+  )
+
   const attachmentSummaryNode =
     attachmentCount > 0 ? (
       attachmentSummary ?? (
@@ -460,9 +541,40 @@ function ChatSender({
           )}
         >
           <Paperclip className="size-3" />
-          <span>{attachmentCount} 个附件</span>
-          {uploadingCount > 0 && <span>上传中 {uploadingCount}</span>}
-          {errorCount > 0 && <span className="text-destructive">失败 {errorCount}</span>}
+          <span
+            className={cn(
+              "truncate",
+              densityStyles.attachmentSummaryCount,
+            )}
+          >
+            {resolvedAttachmentSummaryDetail === "compact"
+              ? `${attachmentCount} 附件`
+              : `${attachmentCount} 个附件`}
+          </span>
+          {uploadingCount > 0 && (
+            <span
+              className={cn(
+                "rounded-full bg-background/80 text-muted-foreground",
+                densityStyles.attachmentSummaryStatus,
+              )}
+            >
+              {resolvedAttachmentSummaryDetail === "compact"
+                ? `传 ${uploadingCount}`
+                : `上传中 ${uploadingCount}`}
+            </span>
+          )}
+          {errorCount > 0 && (
+            <span
+              className={cn(
+                "rounded-full bg-destructive/10 text-destructive",
+                densityStyles.attachmentSummaryStatus,
+              )}
+            >
+              {resolvedAttachmentSummaryDetail === "compact"
+                ? `错 ${errorCount}`
+                : `失败 ${errorCount}`}
+            </span>
+          )}
         </div>
       )
     ) : null
@@ -507,6 +619,43 @@ function ChatSender({
         ? false
         : hasUtilityContent
 
+  const defaultActionCount = Number(showAttachmentButton) + Number(hasOverlaySuggestions)
+  const shouldGroupDefaultActions =
+    resolvedDefaultActionLayout === "grouped" && defaultActionCount > 1
+
+  const attachmentTrigger = showAttachmentButton ? (
+    <Button
+      type="button"
+      variant="ghost"
+      size={densityStyles.controlButtonSize}
+      className="shrink-0"
+      aria-label="添加附件"
+      disabled={disabled}
+      onClick={onAttach}
+    >
+      <Paperclip className="size-4" />
+    </Button>
+  ) : null
+
+  const suggestionTrigger = hasOverlaySuggestions ? (
+    <Button
+      type="button"
+      variant="ghost"
+      size={densityStyles.controlButtonSize}
+      className="shrink-0"
+      aria-label="打开快捷提示"
+      aria-expanded={showSuggestions}
+      disabled={disabled}
+      onClick={() => {
+        setShowSuggestions((current) => !current)
+        setShowMentions(false)
+        setShowAllSuggestions(false)
+      }}
+    >
+      <Lightbulb className="size-3.5" />
+    </Button>
+  ) : null
+
   return (
     <div
       ref={rootRef}
@@ -534,16 +683,8 @@ function ChatSender({
     >
       {hasInlineSuggestions && (
         <div className={cn("flex flex-wrap", densityStyles.attachment)}>
-          {suggestions?.map((suggestion) => (
-            <button
-              key={suggestion}
-              type="button"
-              onClick={() => handleSuggestionClick(suggestion)}
-              className="rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {suggestion}
-            </button>
-          ))}
+          {visibleSuggestions.map(renderSuggestionChip)}
+          {renderSuggestionOverflowChip()}
         </div>
       )}
 
@@ -583,17 +724,8 @@ function ChatSender({
             className="absolute inset-x-0 bottom-full z-20 mb-2 rounded-md border bg-popover p-1 shadow-sm"
           >
             <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
-              {suggestions?.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  aria-label={`应用提示 ${suggestion}`}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className="rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {suggestion}
-                </button>
-              ))}
+              {visibleSuggestions.map(renderSuggestionChip)}
+              {renderSuggestionOverflowChip()}
             </div>
           </div>
         )}
@@ -690,35 +822,19 @@ function ChatSender({
               data-slot="chat-sender-input-row"
               className={cn("flex items-end", densityStyles.inputRow)}
             >
-              {showAttachmentButton && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size={densityStyles.controlButtonSize}
-                  className="shrink-0"
-                  aria-label="添加附件"
-                  disabled={disabled}
-                  onClick={onAttach}
+              {shouldGroupDefaultActions ? (
+                <div
+                  data-slot="chat-sender-default-actions"
+                  className={cn("flex shrink-0 items-center", densityStyles.actionGroup)}
                 >
-                  <Paperclip className="size-4" />
-                </Button>
-              )}
-              {hasOverlaySuggestions && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size={densityStyles.controlButtonSize}
-                  className="shrink-0"
-                  aria-label="打开快捷提示"
-                  aria-expanded={showSuggestions}
-                  disabled={disabled}
-                  onClick={() => {
-                    setShowSuggestions((current) => !current)
-                    setShowMentions(false)
-                  }}
-                >
-                  <Lightbulb className="size-3.5" />
-                </Button>
+                  {attachmentTrigger}
+                  {suggestionTrigger}
+                </div>
+              ) : (
+                <>
+                  {attachmentTrigger}
+                  {suggestionTrigger}
+                </>
               )}
               {prefix}
               {leadingActions}
@@ -831,8 +947,10 @@ export type {
   Attachment,
   AttachmentDisplay,
   AttachmentLayout,
+  AttachmentSummaryDetail,
   AttachmentSummaryPlacement,
   ChatSenderProps,
+  DefaultActionLayout,
   Density,
   MetaPlacement,
   MentionItem,

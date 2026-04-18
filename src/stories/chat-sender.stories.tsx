@@ -65,6 +65,7 @@ export const WithSuggestions: Story = {
           value={value}
           onChange={setValue}
           suggestions={["解释一下", "生成测试", "优化代码", "添加类型"]}
+          suggestionLimit={3}
           onSuggestionClick={(s) => setValue(s)}
         />
       </div>
@@ -89,8 +90,9 @@ export const InlineSuggestions: Story = {
         <ChatSender
           value={value}
           onChange={setValue}
-          suggestions={["继续写完", "补测试", "提炼 API"]}
+          suggestions={["继续写完", "补测试", "提炼 API", "输出边界说明"]}
           suggestionsVariant="inline"
+          suggestionLimit={2}
           onSuggestionClick={(suggestion) => setValue(suggestion)}
         />
       </div>
@@ -278,8 +280,10 @@ export const DenseSummaryMode: Story = {
           density="dense"
           attachmentDisplay="summary"
           attachmentSummaryPlacement="input"
+          attachmentSummaryDetail="compact"
           attachments={SAMPLE_ATTACHMENTS}
           suggestions={["继续处理", "补充边界", "输出结论"]}
+          suggestionLimit={2}
           footerText="Dense 模式会优先保留输入区空间"
           footerTextPlacement="input"
           statusActionsPlacement="input"
@@ -307,7 +311,7 @@ export const LayoutControls: Story = {
     return (
       <div className="w-[520px] space-y-3">
         <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-          这个变体展示更紧凑的 sender：输入框按内容增长，附件摘要和模型信息都内联到底部操作区。
+          这个变体展示更紧凑的 sender：默认动作合并成一组，建议项按需展开，附件摘要和模型信息都内联到底部操作区。
         </div>
         <ChatSender
           value={value}
@@ -317,13 +321,15 @@ export const LayoutControls: Story = {
           maxRows={4}
           attachmentDisplay="summary"
           attachmentSummaryPlacement="input"
+          attachmentSummaryDetail="compact"
           statusActionsPlacement="input"
           footerTextPlacement="input"
           attachments={[
             { id: "1", name: "context.md", type: "file", status: "done" },
             { id: "2", name: "wireframe.png", type: "image", status: "uploading", progress: 42 },
           ]}
-          suggestions={["继续压缩布局", "加上 slash 命令", "生成回归测试"]}
+          suggestions={["继续压缩布局", "加上 slash 命令", "生成回归测试", "精简附件摘要"]}
+          suggestionLimit={2}
           footerText="仅保留必要说明"
           statusActions={<span className="text-[10px] text-muted-foreground">上下文 18k</span>}
         />
