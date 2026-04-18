@@ -434,6 +434,23 @@ describe("ChatSender", () => {
     expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
   })
 
+  it("stacks inline meta under the editor for compact layouts", () => {
+    render(
+      <ChatSender
+        density="compact"
+        attachments={[{ id: "1", name: "design.png", type: "image", status: "done" }]}
+        attachmentDisplay="summary"
+        attachmentSummaryPlacement="input"
+        footerText="仅保留必要说明"
+        footerTextPlacement="input"
+      />,
+    )
+    expect(document.querySelector('[data-slot="chat-sender-editor-stack"]')).toBeTruthy()
+    expect(document.querySelector('[data-slot="chat-sender-editor-stack"] [data-slot="chat-sender-inline-meta"]')).toBeTruthy()
+    expect(screen.getByText("1 附件")).toBeTruthy()
+    expect(screen.getByText("仅保留必要说明")).toBeTruthy()
+  })
+
   it("groups default actions together on compact layouts", () => {
     render(
       <ChatSender
@@ -470,8 +487,15 @@ describe("ChatPresence", () => {
   })
 
   it("can collapse labels for dense header usage", () => {
-    render(<ChatPresence status="online" readState="read" density="dense" showStatusLabel={false} showReadLabel={false} />)
+    render(<ChatPresence status="online" readState="read" density="dense" layout="header" />)
     expect(screen.queryByText("在线")).toBeNull()
+    expect(screen.queryByText("已读")).toBeNull()
+    expect(document.querySelector('[data-slot="chat-presence"]')?.getAttribute("data-layout")).toBe("header")
+  })
+
+  it("keeps meaningful transient labels visible in header mode", () => {
+    render(<ChatPresence thinking readState="read" density="dense" layout="header" />)
+    expect(screen.getByText("思考中")).toBeTruthy()
     expect(screen.queryByText("已读")).toBeNull()
   })
 
@@ -495,7 +519,8 @@ describe("ChatPresence", () => {
     render(
       <ChatPresence
         variant="badge"
-        participantLimit={2}
+        layout="header"
+        density="dense"
         participants={[
           { key: "a", label: "Alice" },
           { key: "b", label: "Bob" },
@@ -505,9 +530,9 @@ describe("ChatPresence", () => {
       />,
     )
     expect(screen.getByLabelText("Alice")).toBeTruthy()
-    expect(screen.getByLabelText("Bob")).toBeTruthy()
+    expect(screen.queryByLabelText("Bob")).toBeNull()
     expect(screen.queryByLabelText("Chen")).toBeNull()
-    expect(screen.getByText("+2")).toBeTruthy()
+    expect(screen.getByText("+3")).toBeTruthy()
   })
 })
 
@@ -566,6 +591,44 @@ describe("ChatCommandPalette", () => {
     expect(screen.queryByText("选择新的模型")).toBeNull()
     expect(screen.getByText("切换模型")).toBeTruthy()
   })
+
+  it("supports embedded layout and hides shortcuts in compact tool panels", () => {
+    const { container } = render(
+      <ChatCommandPalette
+        defaultOpen
+        attachTo="standalone"
+        density="compact"
+        layout="embedded"
+        items={[
+          { key: "model", label: "切换模型", description: "选择新的模型", group: "模型", shortcut: "M" },
+          { key: "context", label: "注入上下文", description: "添加上下文", group: "上下文", shortcut: "C" },
+        ]}
+      />,
+    )
+    expect(container.querySelector('[data-slot="chat-command-palette"]')?.getAttribute("data-layout")).toBe("embedded")
+    expect(screen.queryByText("M")).toBeNull()
+    expect(screen.queryByText("C")).toBeNull()
+    expect(screen.getByPlaceholderText("搜索命令…")).toBeTruthy()
+  })
+
+  it("hides single-group headings in embedded slash results", () => {
+    render(
+      <ChatCommandPalette
+        open
+        attachTo="chat-sender"
+        density="dense"
+        layout="embedded"
+        query="/模型"
+        items={[
+          { key: "model", label: "切换模型", description: "选择新的模型", group: "模型" },
+          { key: "model-mini", label: "切换到 Mini", description: "选择轻量模型", group: "模型" },
+        ]}
+      />,
+    )
+    expect(screen.getByText("切换模型")).toBeTruthy()
+    expect(screen.getByText("切换到 Mini")).toBeTruthy()
+    expect(screen.queryByText("模型")).toBeNull()
+  })
 })
 
 describe("PromptLibrary", () => {
@@ -588,6 +651,13 @@ describe("PromptLibrary", () => {
       category: "内容",
       content: "请优化：{{text}}",
       variables: [{ key: "text", label: "原文" }],
+    },
+    {
+      key: "summary",
+      title: "快速总结",
+      description: "直接生成摘要",
+      category: "内容",
+      content: "请总结下面的聊天记录。",
     },
   ]
 
@@ -636,6 +706,51 @@ describe("PromptLibrary", () => {
     expect(screen.queryByText("定位问题根因")).toBeNull()
     expect(screen.queryByText("模板内容")).toBeNull()
     expect(screen.getByText("渲染预览")).toBeTruthy()
+  })
+
+  it("supports embedded layout for compact tool panels", () => {
+    const { container } = render(
+      <PromptLibrary
+        items={items}
+        density="compact"
+        layout="embedded"
+        showItemDescription={false}
+        showTemplateDescription={false}
+        showTemplateContent={false}
+      />,
+    )
+    expect(container.querySelector('[data-slot="prompt-library"]')?.getAttribute("data-layout")).toBe("embedded")
+    expect(container.querySelector('[data-slot="prompt-library-editor-pane"]')).toBeTruthy()
+    expect(container.querySelector('[data-slot="prompt-library-footer"]')).toBeNull()
+    expect(screen.getByRole("button", { name: "应用模板" })).toBeTruthy()
+  })
+
+  it("collapses template content into a disclosure for compact embedded layouts", () => {
+    render(
+      <PromptLibrary
+        items={items}
+        density="compact"
+        layout="embedded"
+        defaultSelectedKey="bug"
+      />,
+    )
+    expect(screen.getByText("查看模板内容")).toBeTruthy()
+    expect(screen.queryByText("模板内容")).toBeNull()
+    expect(screen.getByText("2 个变量")).toBeTruthy()
+  })
+
+  it("prioritizes quick apply state for embedded templates without variables", () => {
+    render(
+      <PromptLibrary
+        items={items}
+        density="compact"
+        layout="embedded"
+        defaultSelectedKey="summary"
+      />,
+    )
+    expect(screen.getByText("可直接应用")).toBeTruthy()
+    expect(document.querySelector('[data-slot="prompt-library-no-variables"]')).toBeTruthy()
+    expect(screen.queryByText("变量")).toBeNull()
   })
 
   it("renders templates with helper function", () => {

@@ -8,6 +8,7 @@ type PresenceStatus = "online" | "offline" | "away" | "busy"
 type PresenceReadState = "sent" | "delivered" | "read"
 type PresenceVariant = "inline" | "badge" | "stacked"
 type PresenceDensity = "default" | "compact" | "dense"
+type PresenceLayout = "default" | "header"
 
 interface PresenceParticipant {
   key: string
@@ -26,6 +27,7 @@ interface ChatPresenceProps extends Omit<React.ComponentProps<"div">, "children"
   participants?: PresenceParticipant[]
   variant?: PresenceVariant
   density?: PresenceDensity
+  layout?: PresenceLayout
   participantLimit?: number
   showStatusLabel?: boolean
   showReadLabel?: boolean
@@ -60,14 +62,17 @@ function ChatPresence({
   participants,
   variant = "inline",
   density = "default",
+  layout = "default",
   participantLimit,
-  showStatusLabel = true,
-  showReadLabel = true,
+  showStatusLabel,
+  showReadLabel,
   labels,
   className,
   ...props
 }: ChatPresenceProps) {
   const text = { ...defaultLabels, ...labels }
+  const isHeaderLayout = layout === "header"
+  const shouldForceStatusLabel = typing || thinking || (status === "offline" && Boolean(lastSeen))
   const stateLabel = typing
     ? text.typing
     : thinking
@@ -122,9 +127,25 @@ function ChatPresence({
       icon: "size-2.5",
     },
   }[density]
-  const shouldShowStatusLabel = showStatusLabel || typing || thinking || (status === "offline" && Boolean(lastSeen))
-  const shouldShowReadLabel = showReadLabel
-  const resolvedParticipantLimit = Math.max(1, participantLimit ?? (density === "dense" ? 2 : 3))
+  const resolvedShowStatusLabel =
+    showStatusLabel ?? (!isHeaderLayout || density === "default" || shouldForceStatusLabel)
+  const resolvedShowReadLabel = showReadLabel ?? !isHeaderLayout
+  const resolvedParticipantLimit = Math.max(
+    1,
+    participantLimit ?? (isHeaderLayout ? (density === "dense" ? 1 : 2) : density === "dense" ? 2 : 3),
+  )
+  const sharedRootClassName = cn(
+    "min-w-0",
+    densityStyles.wrapper,
+    isHeaderLayout && "gap-1.5 text-foreground",
+    className,
+  )
+  const sharedGroupClassName = cn(
+    "flex items-center",
+    densityStyles.group,
+    isHeaderLayout && "max-w-full shrink-0 rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5",
+  )
+  const sharedLabelClassName = cn(isHeaderLayout && "max-w-[10rem] truncate")
 
   const readIcon =
     readState === "sent" ? (
@@ -136,7 +157,10 @@ function ChatPresence({
     ) : null
 
   const participantsPreview = participants?.length ? (
-    <div className={cn("flex items-center", densityStyles.participantWrap)}>
+    <div
+      data-slot="chat-presence-participants"
+      className={cn("flex items-center", densityStyles.participantWrap, isHeaderLayout && "shrink-0")}
+    >
       {participants.slice(0, resolvedParticipantLimit).map((participant) => (
         <Avatar
           key={participant.key}
@@ -150,7 +174,14 @@ function ChatPresence({
         </Avatar>
       ))}
       {participants.length > resolvedParticipantLimit && (
-        <div className={cn("text-muted-foreground", densityStyles.participantMore)}>
+        <div
+          data-slot="chat-presence-participants-more"
+          className={cn(
+            "text-muted-foreground",
+            densityStyles.participantMore,
+            isHeaderLayout && "rounded-full bg-muted px-1 py-0.5",
+          )}
+        >
           +{participants.length - resolvedParticipantLimit}
         </div>
       )}
@@ -161,15 +192,23 @@ function ChatPresence({
     return (
       <div
         data-slot="chat-presence"
-        className={cn("flex items-center", densityStyles.wrapper, className)}
+        data-layout={layout}
+        className={cn("flex items-center", sharedRootClassName)}
         {...props}
       >
         {participantsPreview}
-        <Badge variant="outline" className={cn("rounded-full", densityStyles.badge)}>
+        <Badge
+          variant="outline"
+          className={cn(
+            "rounded-full",
+            densityStyles.badge,
+            isHeaderLayout && "border-border/60 bg-muted/40 text-foreground",
+          )}
+        >
           <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
-          {shouldShowStatusLabel && <span>{stateLabel}</span>}
+          {resolvedShowStatusLabel && <span className={sharedLabelClassName}>{stateLabel}</span>}
           {readIcon}
-          {readState && shouldShowReadLabel && <span>{text[readState]}</span>}
+          {readState && resolvedShowReadLabel && <span>{text[readState]}</span>}
         </Badge>
       </div>
     )
@@ -179,19 +218,20 @@ function ChatPresence({
     return (
       <div
         data-slot="chat-presence"
-        className={cn("flex items-start", densityStyles.stacked, className)}
+        data-layout={layout}
+        className={cn("flex items-start min-w-0", densityStyles.stacked, className)}
         {...props}
       >
         {participantsPreview}
         <div className={cn("flex flex-col", densityStyles.stackedColumn)}>
-          <div className={cn("flex items-center", densityStyles.stackedText)}>
+          <div className={cn("flex items-center", densityStyles.stackedText, isHeaderLayout && "min-w-0")}>
             <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
-            {shouldShowStatusLabel && <span>{stateLabel}</span>}
+            {resolvedShowStatusLabel && <span className={sharedLabelClassName}>{stateLabel}</span>}
           </div>
           {readState && (
             <div className={cn("flex items-center text-muted-foreground", densityStyles.readRow)}>
               {readIcon ?? <Circle className={densityStyles.icon} />}
-              {shouldShowReadLabel && <span>{text[readState]}</span>}
+              {resolvedShowReadLabel && <span>{text[readState]}</span>}
             </div>
           )}
         </div>
@@ -202,18 +242,19 @@ function ChatPresence({
   return (
     <div
       data-slot="chat-presence"
-      className={cn("flex items-center text-muted-foreground", densityStyles.wrapper, className)}
+      data-layout={layout}
+      className={cn("flex items-center text-muted-foreground", sharedRootClassName)}
       {...props}
     >
       {participantsPreview}
-      <div className={cn("flex items-center", densityStyles.group)}>
+      <div className={sharedGroupClassName}>
         <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
-        {shouldShowStatusLabel && <span>{stateLabel}</span>}
+        {resolvedShowStatusLabel && <span className={sharedLabelClassName}>{stateLabel}</span>}
       </div>
       {readState && (
-        <div className={cn("flex items-center", densityStyles.group)}>
+        <div className={sharedGroupClassName}>
           {readIcon ?? <Circle className={densityStyles.icon} />}
-          {shouldShowReadLabel && <span>{text[readState]}</span>}
+          {resolvedShowReadLabel && <span>{text[readState]}</span>}
         </div>
       )}
     </div>
@@ -225,6 +266,7 @@ export type {
   ChatPresenceProps,
   PresenceParticipant,
   PresenceDensity,
+  PresenceLayout,
   PresenceReadState,
   PresenceStatus,
   PresenceVariant,

@@ -20,11 +20,10 @@ export const Inline: Story = {
 
 export const DenseMinimal: Story = {
   args: {
+    layout: "header",
     status: "online",
     readState: "read",
     density: "dense",
-    showStatusLabel: false,
-    showReadLabel: false,
   },
 }
 
@@ -41,6 +40,21 @@ export const BadgeGroup: Story = {
       { key: "d", label: "Dana" },
     ],
     readState: "read",
+  },
+}
+
+export const HeaderAdaptive: Story = {
+  args: {
+    layout: "header",
+    status: "offline",
+    lastSeen: "5 分钟前",
+    readState: "read",
+    density: "compact",
+    participants: [
+      { key: "a", label: "Alice" },
+      { key: "b", label: "Bob" },
+      { key: "c", label: "Chen" },
+    ],
   },
 }
 

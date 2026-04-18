@@ -25,6 +25,13 @@ const ITEMS: PromptLibraryItem[] = [
       { key: "text", label: "原文", placeholder: "输入待润色的文案", required: true },
     ],
   },
+  {
+    key: "quick-summary",
+    title: "快速总结",
+    description: "无需填变量，直接生成紧凑摘要",
+    category: "内容",
+    content: "请基于当前聊天内容输出一段 80 字以内的中文摘要。",
+  },
 ]
 
 const meta: Meta<typeof PromptLibrary> = {
@@ -75,8 +82,35 @@ export const EmbeddedCompact: Story = {
   args: {
     items: ITEMS,
     density: "compact",
+    layout: "embedded",
     showItemDescription: false,
     showTemplateDescription: false,
     showTemplateContent: false,
+  },
+}
+
+export const EmbeddedSidebarCompare: Story = {
+  render: function Render() {
+    return (
+      <div className="grid w-[760px] gap-3 md:grid-cols-2">
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">compact 默认布局</p>
+          <PromptLibrary items={ITEMS} density="compact" />
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">compact embedded 工具面板布局</p>
+          <PromptLibrary items={ITEMS} density="compact" layout="embedded" />
+        </div>
+      </div>
+    )
+  },
+}
+
+export const EmbeddedNoVariables: Story = {
+  args: {
+    items: ITEMS,
+    density: "compact",
+    layout: "embedded",
+    defaultSelectedKey: "quick-summary",
   },
 }

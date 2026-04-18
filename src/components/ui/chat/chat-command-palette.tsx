@@ -12,6 +12,7 @@ import {
 
 type ChatCommandAttachTo = "chat-sender" | "composer" | "standalone"
 type ChatCommandPaletteDensity = "default" | "compact" | "dense"
+type ChatCommandPaletteLayout = "default" | "embedded"
 
 interface ChatCommandItem {
   key: string
@@ -33,7 +34,9 @@ interface ChatCommandPaletteProps
   trigger?: string
   attachTo?: ChatCommandAttachTo
   density?: ChatCommandPaletteDensity
+  layout?: ChatCommandPaletteLayout
   showDescription?: boolean
+  showShortcut?: boolean
   emptyText?: string
   searchPlaceholder?: string
   onOpenChange?: (open: boolean) => void
@@ -48,7 +51,9 @@ function ChatCommandPalette({
   trigger = "/",
   attachTo = "standalone",
   density,
+  layout,
   showDescription,
+  showShortcut,
   emptyText = "没有匹配的命令",
   searchPlaceholder = "搜索命令…",
   onOpenChange,
@@ -66,13 +71,20 @@ function ChatCommandPalette({
     : ""
   const search = query !== undefined ? slashQuery : internalQuery
   const resolvedDensity = density ?? (attachTo === "standalone" ? "default" : "compact")
-  const resolvedShowDescription = showDescription ?? (resolvedDensity === "default")
+  const resolvedLayout = layout ?? (attachTo === "standalone" ? "default" : "embedded")
+  const isEmbedded = resolvedLayout === "embedded"
+  const isAttached = attachTo !== "standalone"
+  const resolvedShowDescription = showDescription ?? (resolvedDensity === "default" && !isEmbedded)
+  const resolvedShowShortcut = showShortcut ?? (resolvedDensity === "default" && !isEmbedded)
   const densityStyles = {
     default: {
       root: "rounded-lg",
       input: "",
+      inputShell: "",
       list: "max-h-64",
+      group: "",
       item: "",
+      itemBody: "flex-col",
       label: "",
       description: "text-xs",
       shortcut: "",
@@ -80,8 +92,11 @@ function ChatCommandPalette({
     compact: {
       root: "rounded-md",
       input: "h-8 text-xs",
+      inputShell: "[&_svg]:size-3.5",
       list: "max-h-48",
+      group: "**:[[cmdk-group-heading]]:px-1 **:[[cmdk-group-heading]]:py-0.5 **:[[cmdk-group-heading]]:text-[10px]",
       item: "min-h-8 gap-2 rounded-md px-2 py-1",
+      itemBody: "flex-col",
       label: "text-xs",
       description: "text-[10px]",
       shortcut: "text-[10px]",
@@ -89,8 +104,11 @@ function ChatCommandPalette({
     dense: {
       root: "rounded-md",
       input: "h-7 text-[11px]",
+      inputShell: "[&_svg]:size-3",
       list: "max-h-40",
+      group: "**:[[cmdk-group-heading]]:px-1 **:[[cmdk-group-heading]]:py-0.5 **:[[cmdk-group-heading]]:text-[9px]",
       item: "min-h-7 gap-1.5 rounded-md px-1.5 py-1",
+      itemBody: "items-center",
       label: "text-[11px]",
       description: "text-[9px]",
       shortcut: "text-[9px]",
@@ -133,6 +151,8 @@ function ChatCommandPalette({
       return acc
     }, {})
   }, [filteredItems])
+  const groupEntries = Object.entries(groupedItems)
+  const showGroupHeading = groupEntries.length > 1
 
   const handleSelect = React.useCallback(
     (item: ChatCommandItem) => {
@@ -152,10 +172,15 @@ function ChatCommandPalette({
       data-slot="chat-command-palette"
       data-attach-to={attachTo}
       data-density={resolvedDensity}
+      data-layout={resolvedLayout}
       className={cn(
-        "border bg-popover shadow-sm",
+        isEmbedded
+          ? "border bg-background/95 shadow-xs"
+          : "border bg-popover shadow-sm",
         densityStyles.root,
         attachTo === "standalone" ? "w-full max-w-lg" : "w-full",
+        isEmbedded && isAttached && "border-border/60 bg-background/92 shadow-none",
+        isEmbedded && attachTo === "standalone" && "rounded-none border-0 bg-transparent shadow-none",
         className,
       )}
       onKeyDown={(event) => {
@@ -184,21 +209,39 @@ function ChatCommandPalette({
       }}
       {...props}
     >
-      <Command shouldFilter={false}>
+      <Command
+        shouldFilter={false}
+        className={cn(
+          isEmbedded && "rounded-none! bg-transparent p-0",
+        )}
+      >
         {query === undefined && (
           <CommandInput
             value={internalQuery}
             onValueChange={setInternalQuery}
             placeholder={searchPlaceholder}
-            className={densityStyles.input}
+            className={cn(
+              densityStyles.input,
+              densityStyles.inputShell,
+              isEmbedded && "rounded-md border-border/60 bg-muted/35",
+              isEmbedded && isAttached && "h-7 rounded-sm bg-muted/25 px-2 text-[11px]",
+            )}
           />
         )}
-        <CommandList className={densityStyles.list}>
+        <CommandList className={cn(densityStyles.list, isEmbedded && isAttached && "py-1")}>
           {filteredItems.length === 0 ? (
             <CommandEmpty>{emptyText}</CommandEmpty>
           ) : (
-            Object.entries(groupedItems).map(([group, groupItems]) => (
-              <CommandGroup key={group} heading={Object.keys(groupedItems).length > 1 ? group : undefined}>
+            groupEntries.map(([group, groupItems]) => (
+              <CommandGroup
+                key={group}
+                className={cn(
+                  densityStyles.group,
+                  isEmbedded && "px-0",
+                  isEmbedded && isAttached && "py-0.5",
+                )}
+                heading={showGroupHeading ? group : undefined}
+              >
                 {groupItems.map((item) => {
                   const itemIndex = filteredItems.findIndex((candidate) => candidate.key === item.key)
                   return (
@@ -208,10 +251,15 @@ function ChatCommandPalette({
                       disabled={item.disabled}
                       onSelect={() => handleSelect(item)}
                       onClick={() => handleSelect(item)}
-                      className={cn(densityStyles.item, activeIndex === itemIndex && "bg-muted")}
+                      className={cn(
+                        densityStyles.item,
+                        isEmbedded && "data-selected:bg-muted/80",
+                        isEmbedded && isAttached && resolvedDensity !== "default" && "min-h-7 rounded-sm px-1.5 py-1",
+                        activeIndex === itemIndex && "bg-muted",
+                      )}
                     >
                       {item.icon}
-                      <div className="flex min-w-0 flex-1 flex-col">
+                      <div className={cn("flex min-w-0 flex-1", densityStyles.itemBody)}>
                         <span className={cn("truncate", densityStyles.label)}>{item.label}</span>
                         {resolvedShowDescription && item.description && (
                           <span className={cn("truncate text-muted-foreground", densityStyles.description)}>
@@ -219,7 +267,9 @@ function ChatCommandPalette({
                           </span>
                         )}
                       </div>
-                      {item.shortcut && <CommandShortcut className={densityStyles.shortcut}>{item.shortcut}</CommandShortcut>}
+                      {item.shortcut && resolvedShowShortcut && (
+                        <CommandShortcut className={densityStyles.shortcut}>{item.shortcut}</CommandShortcut>
+                      )}
                     </CommandItem>
                   )
                 })}
@@ -237,5 +287,6 @@ export type {
   ChatCommandAttachTo,
   ChatCommandItem,
   ChatCommandPaletteDensity,
+  ChatCommandPaletteLayout,
   ChatCommandPaletteProps,
 }

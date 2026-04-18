@@ -37,6 +37,7 @@ interface PromptLibraryApplyResult {
 }
 
 type PromptLibraryDensity = "default" | "compact"
+type PromptLibraryLayout = "default" | "embedded"
 
 interface PromptLibraryProps
   extends Omit<React.ComponentProps<"div">, "onSelect"> {
@@ -44,6 +45,7 @@ interface PromptLibraryProps
   searchable?: boolean
   groupable?: boolean
   density?: PromptLibraryDensity
+  layout?: PromptLibraryLayout
   selectedKey?: string
   defaultSelectedKey?: string
   renderEmpty?: React.ReactNode
@@ -65,6 +67,7 @@ function PromptLibrary({
   searchable = true,
   groupable = true,
   density = "default",
+  layout = "default",
   selectedKey: controlledSelectedKey,
   defaultSelectedKey,
   renderEmpty,
@@ -143,6 +146,7 @@ function PromptLibrary({
       }
   const isControlled = controlledSelectedKey !== undefined
   const selectedKey = isControlled ? controlledSelectedKey : internalSelectedKey
+  const isEmbedded = layout === "embedded"
 
   const filteredItems = React.useMemo(() => {
     if (!search) return items
@@ -170,6 +174,10 @@ function PromptLibrary({
     items.find((item) => item.key === selectedKey) ??
     filteredItems[0] ??
     items[0]
+  const selectedVariables = selectedItem?.variables ?? []
+  const hasVariables = selectedVariables.length > 0
+  const groupEntries = Object.entries(groupedItems)
+  const showGroupHeading = groupEntries.length > 1
 
   const [values, setValues] = React.useState<Record<string, string>>({})
 
@@ -197,9 +205,231 @@ function PromptLibrary({
     [isControlled, onSelect],
   )
 
+  const handleApply = React.useCallback(() => {
+    if (!selectedItem) return
+    onApply?.(
+      {
+        raw: selectedItem.content,
+        rendered,
+        values,
+      },
+      selectedItem,
+    )
+  }, [onApply, rendered, selectedItem, values])
+
+  if (isEmbedded) {
+    const embeddedStyles = density === "compact"
+      ? {
+          pane: "overflow-hidden rounded-md border border-border/70 bg-card/55",
+          header: "border-b px-2 py-1.5",
+          body: "space-y-1.5 px-2 py-2",
+          editor: "overflow-hidden rounded-md border border-border/70 bg-background/95",
+          editorHeader: "flex items-start justify-between gap-2 border-b px-2 py-1.5",
+          editorBody: "grid gap-2 px-2 py-2",
+          list: "h-48",
+          previewArea: "min-h-16 text-xs",
+          badge: "inline-flex rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground",
+          disclosure: "rounded-md border border-dashed bg-muted/20 px-2 py-1.5",
+          applyButton: "h-7 shrink-0 px-2.5 text-xs",
+        }
+      : {
+          pane: "overflow-hidden rounded-lg border bg-card/70",
+          header: "border-b px-3 py-3",
+          body: "space-y-3 px-3 py-3",
+          editor: "overflow-hidden rounded-lg border bg-background/95",
+          editorHeader: "flex items-start justify-between gap-3 border-b px-3 py-3",
+          editorBody: "grid gap-3 px-3 py-3 lg:grid-cols-[0.9fr_1.1fr]",
+          list: "h-64",
+          previewArea: "min-h-28",
+          badge: "inline-flex rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground",
+          disclosure: "",
+          applyButton: "",
+        }
+
+    return (
+      <div
+        data-slot="prompt-library"
+        data-layout={layout}
+        className={cn("grid", densityStyles.root, className)}
+        {...props}
+      >
+        <section data-slot="prompt-library-list-pane" className={embeddedStyles.pane}>
+          <div className={embeddedStyles.header}>
+            <p className={cn("font-medium", densityStyles.title)}>提示词模板</p>
+            {density !== "compact" && (
+              <p className={cn("text-muted-foreground", densityStyles.description)}>
+                选择模板并填入变量后应用到输入框
+              </p>
+            )}
+          </div>
+          <div className={embeddedStyles.body}>
+            {searchable && (
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={searchPlaceholder}
+                size={density === "compact" ? "sm" : undefined}
+                className={densityStyles.searchInput}
+              />
+            )}
+            <ScrollArea className={embeddedStyles.list}>
+              {filteredItems.length === 0 ? (
+                <div
+                  className={cn(
+                    "rounded-md border border-dashed text-center text-muted-foreground",
+                    densityStyles.empty,
+                  )}
+                >
+                  {renderEmpty ?? "暂无匹配模板"}
+                </div>
+              ) : (
+                <div className={densityStyles.groups}>
+                  {groupEntries.map(([group, groupItems]) => (
+                    <div key={group} className={densityStyles.group}>
+                      {group && showGroupHeading && (
+                        <p className={cn("font-medium text-muted-foreground", densityStyles.groupLabel)}>
+                          {group}
+                        </p>
+                      )}
+                      {groupItems.map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => handleSelect(item)}
+                          className={cn(
+                            "w-full border text-left transition-colors",
+                            densityStyles.item,
+                            selectedItem?.key === item.key ? "border-primary bg-primary/5" : "hover:bg-muted/60",
+                          )}
+                        >
+                          <div className={cn("font-medium", densityStyles.itemTitle)}>{item.title}</div>
+                          {showItemDescription && item.description && (
+                            <p className={cn("text-muted-foreground", densityStyles.itemDescription)}>
+                              {item.description}
+                            </p>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </section>
+
+        <section data-slot="prompt-library-editor-pane" className={embeddedStyles.editor}>
+          <div className={embeddedStyles.editorHeader}>
+            <div className="min-w-0">
+              <p className={cn("truncate font-medium", densityStyles.title)}>
+                {selectedItem?.title ?? "请选择模板"}
+              </p>
+              {showTemplateDescription && selectedItem?.description && (
+                <p className={cn("truncate text-muted-foreground", densityStyles.description)}>
+                  {selectedItem.description}
+                </p>
+              )}
+              {selectedItem && (
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  <span className={embeddedStyles.badge}>
+                    {hasVariables ? `${selectedVariables.length} 个变量` : "可直接应用"}
+                  </span>
+                  {selectedItem.category && (
+                    <span className={embeddedStyles.badge}>{selectedItem.category}</span>
+                  )}
+                </div>
+              )}
+            </div>
+            <Button
+              type="button"
+              disabled={!selectedItem}
+              size={density === "compact" ? "sm" : undefined}
+              className={embeddedStyles.applyButton}
+              onClick={handleApply}
+            >
+              {applyLabel}
+            </Button>
+          </div>
+          <div className={cn(embeddedStyles.editorBody, !hasVariables && density === "compact" && "gap-1.5")}>
+            {hasVariables ? (
+              <div className={densityStyles.section}>
+                <div className={densityStyles.subSection}>
+                  <div className={cn("font-medium", densityStyles.sectionTitle)}>变量</div>
+                  <div className={densityStyles.subSection}>
+                    {selectedVariables.map((variable) => (
+                      <label key={variable.key} className={cn("block", densityStyles.variableLabel)}>
+                        <span className={cn("font-medium text-muted-foreground", densityStyles.variableText)}>
+                          {variable.label}
+                          {variable.required && " *"}
+                        </span>
+                        <Input
+                          value={values[variable.key] ?? ""}
+                          onChange={(event) =>
+                            setValues((current) => ({
+                              ...current,
+                              [variable.key]: event.target.value,
+                            }))
+                          }
+                          placeholder={variable.placeholder ?? variable.label}
+                          size={density === "compact" ? "sm" : undefined}
+                          className={densityStyles.previewInput}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                data-slot="prompt-library-no-variables"
+                className={cn(
+                  "rounded-md border border-dashed text-muted-foreground",
+                  densityStyles.noVariables,
+                )}
+              >
+                这个模板没有变量，可直接应用。
+              </div>
+            )}
+
+            <div className={densityStyles.section}>
+              {showTemplateContent && density === "compact" ? (
+                <details data-slot="prompt-library-template-disclosure" className={embeddedStyles.disclosure}>
+                  <summary className="cursor-pointer list-none text-[11px] font-medium text-muted-foreground">
+                    查看模板内容
+                  </summary>
+                  <Textarea
+                    value={selectedItem?.content ?? ""}
+                    readOnly
+                    className={cn("mt-1.5", embeddedStyles.previewArea)}
+                  />
+                </details>
+              ) : showTemplateContent && (
+                <div className={densityStyles.variableLabel}>
+                  <div className={cn("font-medium", densityStyles.sectionTitle)}>模板内容</div>
+                  <Textarea
+                    value={selectedItem?.content ?? ""}
+                    readOnly
+                    className={embeddedStyles.previewArea}
+                  />
+                </div>
+              )}
+              <div className={densityStyles.variableLabel}>
+                <div className={cn("font-medium", densityStyles.sectionTitle)}>
+                  {density === "compact" ? "预览" : "渲染预览"}
+                </div>
+                <Textarea value={rendered} readOnly className={embeddedStyles.previewArea} />
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   return (
     <div
       data-slot="prompt-library"
+      data-layout={layout}
       className={cn("grid", densityStyles.root, className)}
       {...props}
     >
@@ -232,9 +462,9 @@ function PromptLibrary({
               </div>
             ) : (
               <div className={densityStyles.groups}>
-                {Object.entries(groupedItems).map(([group, groupItems]) => (
+                {groupEntries.map(([group, groupItems]) => (
                   <div key={group} className={densityStyles.group}>
-                    {group && (
+                    {group && showGroupHeading && (
                       <p className={cn("font-medium text-muted-foreground", densityStyles.groupLabel)}>
                         {group}
                       </p>
@@ -332,23 +562,13 @@ function PromptLibrary({
             </div>
           </div>
         </CardContent>
-        <CardFooter className={densityStyles.footer}>
+        <CardFooter data-slot="prompt-library-footer" className={densityStyles.footer}>
           <Button
             type="button"
             disabled={!selectedItem}
             size={density === "compact" ? "sm" : undefined}
             className={densityStyles.applyButton}
-            onClick={() => {
-              if (!selectedItem) return
-              onApply?.(
-                {
-                  raw: selectedItem.content,
-                  rendered,
-                  values,
-                },
-                selectedItem,
-              )
-            }}
+            onClick={handleApply}
           >
             {applyLabel}
           </Button>
@@ -361,6 +581,7 @@ function PromptLibrary({
 export { PromptLibrary, renderPromptTemplate }
 export type {
   PromptLibraryDensity,
+  PromptLibraryLayout,
   PromptLibraryApplyResult,
   PromptLibraryItem,
   PromptLibraryProps,

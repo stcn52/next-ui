@@ -353,6 +353,8 @@ function ChatPage({
   const slashDraft = draft.trimStart()
   const showInlineCommandPalette = slashDraft.startsWith("/")
   const useAdaptiveLayout = !ultraCompact && (showInlineCommandPalette || attachments.length > 0)
+  const showCompactSearchChrome = ultraCompact || useAdaptiveLayout || searchOpen
+  const visibleTool = showInlineCommandPalette && activeTool === "commands" ? null : activeTool
   const pageStyles = ultraCompact
     ? {
         shell: "h-[37.5rem] max-w-[84rem] rounded-md",
@@ -371,7 +373,12 @@ function ChatPage({
         toolRail: "w-9 gap-0.5 py-1.5",
         toolPanelDocked: "w-[16.5rem]",
         toolPanelOverlay: "right-10 top-11 bottom-[4rem] w-[16.5rem]",
+        toolPanelDockPadding: "p-1.5",
         toolPanelPadding: "p-1.5",
+        showToolRailLabel: false,
+        showToolPanelSubtitle: false,
+        headerSearch: "w-[11.5rem] gap-1 rounded-md px-1.5 py-1",
+        headerSearchInput: "text-[11px]",
       }
     : useAdaptiveLayout
       ? {
@@ -391,7 +398,12 @@ function ChatPage({
           toolRail: "w-9 gap-0.5 py-1.5",
           toolPanelDocked: "w-[16.5rem]",
           toolPanelOverlay: "right-10 top-11 bottom-[4rem] w-[16.5rem]",
+          toolPanelDockPadding: "p-1.5",
           toolPanelPadding: "p-1.5",
+          showToolRailLabel: false,
+          showToolPanelSubtitle: false,
+          headerSearch: "w-[12.5rem] gap-1 rounded-md px-1.5 py-1",
+          headerSearchInput: "text-xs",
         }
     : {
         shell: "h-[40rem] max-w-[92rem] rounded-lg",
@@ -410,10 +422,15 @@ function ChatPage({
         toolRail: "w-10 gap-1 py-2",
         toolPanelDocked: "w-[19rem]",
         toolPanelOverlay: "right-11 top-13 bottom-[4.75rem] w-[18rem]",
+        toolPanelDockPadding: "p-2",
         toolPanelPadding: "p-2",
+        showToolRailLabel: true,
+        showToolPanelSubtitle: true,
+        headerSearch: "w-[15rem] gap-1.5 rounded-lg px-2 py-1.5",
+        headerSearchInput: "text-sm",
       }
   const useCompactSidebarChrome = ultraCompact || useAdaptiveLayout
-  const shouldOverlayToolPanel = Boolean(activeTool) && (ultraCompact || useAdaptiveLayout)
+  const shouldOverlayToolPanel = Boolean(visibleTool) && (ultraCompact || useAdaptiveLayout)
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -521,8 +538,14 @@ function ChatPage({
   }, [])
 
   const handleToolToggle = useCallback((tool: Exclude<ToolPanel, null>) => {
+    setSearchOpen(false)
+    setSearchQuery("")
+    if (tool === "commands" && showInlineCommandPalette) {
+      setActiveTool(null)
+      return
+    }
     setActiveTool((current) => (current === tool ? null : tool))
-  }, [])
+  }, [showInlineCommandPalette])
 
   const handlePromptApply = useCallback((result: PromptLibraryApplyResult) => {
     setDraft(result.rendered)
@@ -594,18 +617,26 @@ function ChatPage({
 
   const isStreaming = isTyping || messages.some((m) => m.streaming)
 
-  const toolPanel = activeTool ? (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-background/95 shadow-sm backdrop-blur">
-      <div className="flex items-center justify-between border-b px-2.5 py-1.5">
+  const toolPanel = visibleTool ? (
+    <div className={cn(
+      "flex h-full flex-col overflow-hidden border bg-background/95 backdrop-blur",
+      useCompactSidebarChrome ? "rounded-md shadow-xs" : "rounded-lg shadow-sm",
+    )}>
+      <div className={cn(
+        "flex items-center justify-between border-b",
+        useCompactSidebarChrome ? "px-2 py-1" : "px-2.5 py-1.5",
+      )}>
         <div className="min-w-0">
           <p className="truncate text-xs font-medium">
-            {activeTool === "prompts" ? "提示词工作台" : "命令工作台"}
+            {visibleTool === "prompts" ? "提示词工作台" : "命令工作台"}
           </p>
-          <p className="truncate text-[10px] text-muted-foreground">
-            {activeTool === "prompts"
-              ? "应用后直接写入输入框"
-              : "搜索或输入 / 触发命令"}
-          </p>
+          {pageStyles.showToolPanelSubtitle && (
+            <p className="truncate text-[10px] text-muted-foreground">
+              {visibleTool === "prompts"
+                ? "应用后直接写入输入框"
+                : "搜索或输入 / 触发命令"}
+            </p>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -617,11 +648,12 @@ function ChatPage({
         </Button>
       </div>
       <div className={pageStyles.toolPanelPadding}>
-        {activeTool === "prompts" ? (
+        {visibleTool === "prompts" ? (
           <div className="h-full overflow-y-auto">
             <PromptLibrary
               items={PROMPT_ITEMS}
               density="compact"
+              layout="embedded"
               groupable
               showItemDescription={false}
               showTemplateDescription={false}
@@ -636,6 +668,7 @@ function ChatPage({
             open
             attachTo="standalone"
             density={useCompactSidebarChrome ? "dense" : "compact"}
+            layout="embedded"
             showDescription={false}
             items={COMMAND_ITEMS}
             onSelect={handleCommandSelect}
@@ -683,64 +716,76 @@ function ChatPage({
                 <div className={cn("flex items-center", pageStyles.titleMeta)}>
                   <h3 className="min-w-0 truncate text-sm font-semibold">AI 编码助手</h3>
                   <ChatPresence
+                    layout="header"
                     status="online"
                     thinking={isTyping}
                     readState="read"
-                    density={ultraCompact ? "dense" : "compact"}
+                    density={showCompactSearchChrome ? "dense" : "compact"}
                     participantLimit={2}
                     showStatusLabel={isTyping}
                     showReadLabel={false}
-                    className="hidden sm:flex"
+                    className={cn("hidden sm:flex", searchOpen && "sm:hidden")}
                   />
                 </div>
-                {pageStyles.subtitle && (
+                {pageStyles.subtitle && !searchOpen && (
                   <p className={pageStyles.subtitle}>模板与命令收进右侧，输入 / 可就地触发</p>
                 )}
               </div>
             </div>
             <div className={`flex items-center ${pageStyles.actions}`}>
-              <ModelSelector value={model} onChange={setModel} />
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label="搜索消息"
-                onClick={() => setSearchOpen((open) => !open)}
-              >
-                <Search className="size-3.5" />
-              </Button>
+              {searchOpen ? (
+                <div className={cn(
+                  "flex items-center border bg-background shadow-sm",
+                  pageStyles.headerSearch,
+                )}>
+                  <Search className="size-3.5 shrink-0 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="搜索聊天记录…"
+                    className={cn(
+                      "min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
+                      pageStyles.headerSearchInput,
+                    )}
+                    autoFocus
+                  />
+                  {searchQuery && (
+                    <span className="hidden shrink-0 text-[10px] text-muted-foreground md:inline">
+                      {filteredMessages.filter((m) => m.role !== "system").length} 条
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="关闭搜索"
+                    className="shrink-0"
+                    onClick={() => {
+                      setSearchOpen(false)
+                      setSearchQuery("")
+                    }}
+                  >
+                    <X className="size-3" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <ModelSelector value={model} onChange={setModel} />
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="搜索消息"
+                    onClick={() => {
+                      setActiveTool(null)
+                      setSearchOpen(true)
+                    }}
+                  >
+                    <Search className="size-3.5" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
-
-          {/* Message search bar */}
-          {searchOpen && (
-            <div className={`flex items-center gap-2 border-b ${pageStyles.searchBar}`}>
-              <Search className="size-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="搜索聊天记录…"
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                autoFocus
-              />
-              {searchQuery && (
-                <span className="hidden shrink-0 text-[10px] text-muted-foreground sm:inline">
-                  {filteredMessages.filter((m) => m.role !== "system").length} 条结果
-                </span>
-              )}
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label="关闭搜索"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery("")
-                }}
-              >
-                <X className="size-3" />
-              </Button>
-            </div>
-          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto" ref={scrollRef}>
@@ -783,16 +828,18 @@ function ChatPage({
             </div>
           </div>
 
-          {/* Sender */}
-          <div className={pageStyles.sender}>
+      {/* Sender */}
+          <div className={cn("relative", pageStyles.sender)}>
             {showInlineCommandPalette && (
-              <div className="mb-1.5">
+              <div className="pointer-events-none absolute right-0 bottom-full left-0 z-10 mb-1">
                 <ChatCommandPalette
                   open
                   query={draft}
                   attachTo="chat-sender"
                   density={useCompactSidebarChrome ? "dense" : "compact"}
+                  layout="embedded"
                   showDescription={false}
+                  className="pointer-events-auto"
                   items={COMMAND_ITEMS}
                   onSelect={handleCommandSelect}
                 />
@@ -812,7 +859,7 @@ function ChatPage({
               statusActionsPlacement="input"
               footerTextPlacement="input"
               suggestionLimit={2}
-              suggestionTriggerVisibility={showInlineCommandPalette ? "hidden" : "auto"}
+              suggestionTriggerVisibility={showInlineCommandPalette || attachments.length > 0 ? "hidden" : "auto"}
               overlayDensity={useCompactSidebarChrome ? "dense" : "compact"}
               loading={isStreaming}
               showStopLabel={!useCompactSidebarChrome}
@@ -823,7 +870,7 @@ function ChatPage({
               attachments={attachments}
               onRemoveAttachment={handleRemoveAttachment}
               mentions={MENTION_ITEMS}
-              prefix={<AttachmentDialog />}
+              prefix={useCompactSidebarChrome ? undefined : <AttachmentDialog />}
               onAttach={handleAddAttachment}
               statusActions={
                 useCompactSidebarChrome ? undefined : (
@@ -840,7 +887,7 @@ function ChatPage({
             variant="ghost"
             size="icon-sm"
             aria-label="打开提示词库"
-            className={activeTool === "prompts" ? "bg-background text-foreground shadow-sm" : undefined}
+            className={visibleTool === "prompts" ? "bg-background text-foreground shadow-sm" : undefined}
             onClick={() => handleToolToggle("prompts")}
           >
             <Sparkles className="size-3.5" />
@@ -849,23 +896,25 @@ function ChatPage({
             variant="ghost"
             size="icon-sm"
             aria-label="打开命令面板"
-            className={activeTool === "commands" ? "bg-background text-foreground shadow-sm" : undefined}
+            className={visibleTool === "commands" ? "bg-background text-foreground shadow-sm" : undefined}
             onClick={() => handleToolToggle("commands")}
           >
             <Bot className="size-3.5" />
           </Button>
-          <div className="mt-auto px-1 text-center text-[10px] leading-4 text-muted-foreground">
-            {activeTool === "prompts" ? "模板" : activeTool === "commands" ? "命令" : "工具"}
-          </div>
+          {pageStyles.showToolRailLabel && (
+            <div className="mt-auto px-1 text-center text-[10px] leading-4 text-muted-foreground">
+              {visibleTool === "prompts" ? "模板" : visibleTool === "commands" ? "命令" : "工具"}
+            </div>
+          )}
         </div>
 
-        {!shouldOverlayToolPanel && activeTool && (
-          <div className={`${pageStyles.toolPanelDocked} shrink-0 border-l bg-muted/5 p-2`}>
+        {!shouldOverlayToolPanel && visibleTool && (
+          <div className={cn(pageStyles.toolPanelDocked, pageStyles.toolPanelDockPadding, "shrink-0 border-l bg-muted/5")}>
             {toolPanel}
           </div>
         )}
 
-        {shouldOverlayToolPanel && activeTool && (
+        {shouldOverlayToolPanel && visibleTool && (
           <div className={`pointer-events-none absolute z-20 ${pageStyles.toolPanelOverlay}`}>
             <div className="pointer-events-auto h-full">{toolPanel}</div>
           </div>
@@ -1019,7 +1068,11 @@ export const Default: Story = {
     await userEvent.type(textarea, "/")
     await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
     await userEvent.click(canvas.getByText("注入当前文件"))
-    await expect(canvas.getByText("1 个附件")).toBeInTheDocument()
+    await expect(canvas.getByText("1 附件")).toBeInTheDocument()
+
+    // Search stays inside the header instead of opening a dedicated row
+    await userEvent.click(canvas.getByRole("button", { name: "搜索消息" }))
+    await expect(canvas.getByPlaceholderText("搜索聊天记录…")).toBeInTheDocument()
   },
 }
 

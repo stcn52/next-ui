@@ -226,14 +226,22 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      editorStack: "gap-1",
       actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1.5",
+      inlineMetaStack: "gap-1 pt-0.5",
       inlineMetaText: "max-w-28 text-[10px]",
       inlineMetaChip: "px-2 py-0.5 text-[10px]",
       attachmentSummaryCount: "max-w-20",
       attachmentSummaryStatus: "px-1.5 py-0.5 text-[9px]",
       attachment: "gap-2 pb-1",
       attachmentItemPadding: "px-2.5 py-1.5",
+      attachmentItem: "gap-2 rounded-md",
+      attachmentMedia: "size-8 rounded",
+      attachmentTitle: "text-xs font-medium",
+      attachmentMeta: "text-[10px]",
+      attachmentProgress: "mt-1 w-24",
+      attachmentOverflow: "gap-1 rounded-md",
       meta: "gap-2 pt-1.5",
       chip: "px-2.5 py-1",
       suggestionChip: "px-2.5 py-1",
@@ -246,14 +254,22 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      editorStack: "gap-0.5",
       actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1",
+      inlineMetaStack: "gap-1 pt-0.5",
       inlineMetaText: "max-w-24 text-[10px]",
       inlineMetaChip: "px-1.5 py-0.5 text-[10px]",
       attachmentSummaryCount: "max-w-18",
       attachmentSummaryStatus: "px-1 py-0.5 text-[9px]",
       attachment: "gap-1.5 pb-0.5",
       attachmentItemPadding: "px-2 py-1",
+      attachmentItem: "gap-1.5 rounded-md",
+      attachmentMedia: "size-7 rounded-sm",
+      attachmentTitle: "text-[11px] font-medium",
+      attachmentMeta: "text-[9px]",
+      attachmentProgress: "mt-0.5 w-18",
+      attachmentOverflow: "gap-1 rounded-md",
       meta: "gap-1.5 pt-1",
       chip: "px-2 py-0.5",
       suggestionChip: "px-2 py-0.5",
@@ -266,14 +282,22 @@ function ChatSender({
       cardContent: "gap-1 p-1.5",
       inputRow: "gap-1",
       textarea: "text-xs leading-5",
+      editorStack: "gap-0.5",
       actionGroup: "gap-0.5 rounded-full border bg-muted/50 p-0.5",
       inlineMeta: "gap-1",
+      inlineMetaStack: "gap-0.5 pt-0.5",
       inlineMetaText: "max-w-20 text-[9px]",
       inlineMetaChip: "px-1.5 py-0.5 text-[9px]",
       attachmentSummaryCount: "max-w-16",
       attachmentSummaryStatus: "px-1 py-0.5 text-[8px]",
       attachment: "gap-1 pb-0.5",
       attachmentItemPadding: "px-1.5 py-0.5",
+      attachmentItem: "gap-1 rounded-sm",
+      attachmentMedia: "size-6 rounded-sm",
+      attachmentTitle: "text-[10px] font-medium",
+      attachmentMeta: "text-[8px]",
+      attachmentProgress: "mt-0.5 w-14",
+      attachmentOverflow: "gap-1 rounded-sm",
       meta: "gap-1 pt-1",
       chip: "px-2 py-0.5",
       suggestionChip: "px-1.5 py-0.5",
@@ -652,6 +676,9 @@ function ChatSender({
   const hasInputMeta = Boolean(
     showAttachmentSummaryInInput || showStatusActionsInInput || showFooterTextInInput,
   )
+  const shouldStackInlineMeta = hasInputMeta && density !== "default"
+  const stackedInputMetaSupport = Boolean(showAttachmentSummaryInInput || showFooterTextInInput)
+  const stackedInputMetaActions = Boolean(showStatusActionsInInput)
 
   const hasUtilityContent = Boolean(
     showAttachmentSummaryInUtility ||
@@ -676,6 +703,7 @@ function ChatSender({
     attachmentDisplay === "preview" && attachments
       ? Math.max(0, attachmentCount - visiblePreviewAttachments.length)
       : 0
+  const useCompactPreviewRail = attachmentDisplay === "preview" && density !== "default"
   const shouldShowLeadingActions = Boolean(leadingActions) && (
     resolvedLeadingActionsVisibility === "always" ||
       (resolvedLeadingActionsVisibility === "auto" &&
@@ -840,9 +868,11 @@ function ChatSender({
                   <div
                     key={attachment.id}
                     className={cn(
-                      "group/att relative flex min-w-0 items-center gap-2 rounded-md border bg-muted/50",
+                      "group/att relative flex min-w-0 border bg-muted/50",
+                      useCompactPreviewRail ? "items-start" : "items-center",
+                      densityStyles.attachmentItem,
                       densityStyles.attachmentItemPadding,
-                      attachmentLayout === "scroll" && "max-w-60 shrink-0",
+                      attachmentLayout === "scroll" && (useCompactPreviewRail ? "max-w-44 shrink-0" : "max-w-60 shrink-0"),
                     )}
                   >
                     {attachment.type === "image" ? (
@@ -850,7 +880,7 @@ function ChatSender({
                         <img
                           src={attachment.previewUrl}
                           alt={attachment.name}
-                          className="size-8 rounded object-cover"
+                          className={cn("object-cover", densityStyles.attachmentMedia)}
                         />
                       ) : (
                         <ImageIcon className="size-4 text-blue-500" />
@@ -859,12 +889,12 @@ function ChatSender({
                       <FileText className="size-4 text-green-500" />
                     )}
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-medium">{attachment.name}</p>
+                      <p className={cn("truncate", densityStyles.attachmentTitle)}>{attachment.name}</p>
                       {attachment.size && (
-                        <p className="text-[10px] text-muted-foreground">{attachment.size}</p>
+                        <p className={cn("text-muted-foreground", densityStyles.attachmentMeta)}>{attachment.size}</p>
                       )}
                       {attachment.status === "uploading" && (
-                        <div className="mt-1 w-24 overflow-hidden rounded bg-muted">
+                        <div className={cn("overflow-hidden rounded bg-muted", densityStyles.attachmentProgress)}>
                           <div
                             className="h-1 bg-primary transition-all"
                             style={{
@@ -875,13 +905,13 @@ function ChatSender({
                       )}
                       {attachment.status === "error" && (
                         <div className="mt-0.5 flex items-center gap-1">
-                          <p className="text-[10px] text-destructive">
+                          <p className={cn("text-destructive", densityStyles.attachmentMeta)}>
                             {attachment.error ?? "上传失败"}
                           </p>
                           {onRetryAttachment && (
                             <button
                               type="button"
-                              className="text-[10px] text-primary underline-offset-2 hover:underline"
+                              className={cn("text-primary underline-offset-2 hover:underline", densityStyles.attachmentMeta)}
                               onClick={() => onRetryAttachment(attachment.id)}
                             >
                               重试
@@ -907,13 +937,14 @@ function ChatSender({
                     data-slot="attachment-preview-overflow"
                     aria-label={`还有 ${hiddenPreviewAttachmentCount} 个附件已折叠`}
                     className={cn(
-                      "flex min-w-0 items-center gap-1 rounded-md border border-dashed bg-muted/40 text-muted-foreground",
+                      "flex min-w-0 items-center border border-dashed bg-muted/40 text-muted-foreground",
+                      densityStyles.attachmentOverflow,
                       densityStyles.attachmentItemPadding,
                       attachmentLayout === "scroll" && "shrink-0",
                     )}
                   >
                     <Paperclip className="size-3.5" />
-                    <span className="truncate text-xs font-medium">+{hiddenPreviewAttachmentCount} 附件</span>
+                    <span className={cn("truncate", densityStyles.attachmentTitle)}>+{hiddenPreviewAttachmentCount} 附件</span>
                   </div>
                 )}
               </div>
@@ -943,33 +974,68 @@ function ChatSender({
                   {leadingActions}
                 </div>
               )}
-              <Textarea
-                ref={textareaRef}
-                id={fieldProps?.id}
-                name={fieldProps?.name}
-                rows={resolvedMinRows}
-                placeholder={placeholder}
-                value={draft}
-                onChange={(event) => updateValue(event.target.value)}
-                onKeyDown={handleKeyDown}
-                onBlur={fieldProps?.onBlur}
-                onCompositionStart={() => setIsComposing(true)}
-                onCompositionEnd={(event) => {
-                  setIsComposing(false)
-                  updateValue(event.currentTarget.value)
-                }}
-                disabled={disabled}
-                aria-labelledby={fieldProps?.["aria-labelledby"]}
-                aria-describedby={fieldProps?.["aria-describedby"]}
-                aria-invalid={fieldProps?.["aria-invalid"]}
-                aria-required={fieldProps?.["aria-required"]}
-                style={autoResize ? undefined : { maxHeight: `${resolvedMaxRows * 1.5}rem` }}
-                className={cn(
-                  "flex-1 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0",
-                  densityStyles.textarea,
+              <div
+                data-slot="chat-sender-editor-stack"
+                className={cn("flex min-w-0 flex-1 flex-col", densityStyles.editorStack)}
+              >
+                <Textarea
+                  ref={textareaRef}
+                  id={fieldProps?.id}
+                  name={fieldProps?.name}
+                  rows={resolvedMinRows}
+                  placeholder={placeholder}
+                  value={draft}
+                  onChange={(event) => updateValue(event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={fieldProps?.onBlur}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={(event) => {
+                    setIsComposing(false)
+                    updateValue(event.currentTarget.value)
+                  }}
+                  disabled={disabled}
+                  aria-labelledby={fieldProps?.["aria-labelledby"]}
+                  aria-describedby={fieldProps?.["aria-describedby"]}
+                  aria-invalid={fieldProps?.["aria-invalid"]}
+                  aria-required={fieldProps?.["aria-required"]}
+                  style={autoResize ? undefined : { maxHeight: `${resolvedMaxRows * 1.5}rem` }}
+                  className={cn(
+                    "min-h-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0",
+                    densityStyles.textarea,
+                  )}
+                />
+                {hasInputMeta && shouldStackInlineMeta && (
+                  <div
+                    data-slot="chat-sender-inline-meta"
+                    className={cn(
+                      "flex min-w-0 items-start justify-between gap-x-1 gap-y-0.5",
+                      densityStyles.inlineMetaStack,
+                    )}
+                  >
+                    {stackedInputMetaSupport && (
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+                        {showAttachmentSummaryInInput}
+                        {showFooterTextInInput && (
+                          <span
+                            className={cn(
+                              "min-w-0 truncate text-muted-foreground/80",
+                              densityStyles.inlineMetaText,
+                            )}
+                          >
+                            {footerText}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {stackedInputMetaActions && (
+                      <div className="flex shrink-0 items-center gap-1 text-right">
+                        {showStatusActionsInInput}
+                      </div>
+                    )}
+                  </div>
                 )}
-              />
-              {hasInputMeta && (
+              </div>
+              {hasInputMeta && !shouldStackInlineMeta && (
                 <div
                   data-slot="chat-sender-inline-meta"
                   className={cn("flex min-w-0 shrink-0 items-center", densityStyles.inlineMeta)}

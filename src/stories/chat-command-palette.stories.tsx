@@ -58,7 +58,6 @@ export const Standalone: Story = {
         <ChatCommandPalette
           defaultOpen
           items={COMMANDS}
-          density="compact"
           onSelect={(item) => setLastCommand(item.label)}
         />
       </div>
@@ -85,6 +84,7 @@ export const SlashAttachedToSender: Story = {
             query={value}
             items={COMMANDS}
             density="compact"
+            layout="embedded"
             onSelect={(item) => {
               setSelected(item.label)
               setValue(`/${item.key} `)
@@ -104,5 +104,42 @@ export const SlashAttachedToSender: Story = {
     await expect(canvas.getByText("切换到 GPT-4o")).toBeInTheDocument()
     await userEvent.click(canvas.getByText("注入当前文件"))
     await expect(canvas.getByText("已选择命令: 注入当前文件")).toBeInTheDocument()
+  },
+}
+
+export const TightSenderOverlay: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("/注")
+    const [selected, setSelected] = useState("暂无")
+    return (
+      <div className="w-[420px] rounded-lg border bg-muted/20 p-2">
+        <div className="space-y-1.5 rounded-md border bg-background p-2">
+          <p className="text-[11px] text-muted-foreground">窄高 sender attached 回归场景</p>
+          <p className="text-[11px] text-muted-foreground">已选择命令: {selected}</p>
+          <ChatCommandPalette
+            attachTo="chat-sender"
+            query={value}
+            items={COMMANDS}
+            density="dense"
+            layout="embedded"
+            onSelect={(item) => {
+              setSelected(item.label)
+              setValue(`/${item.key} `)
+            }}
+          />
+          <ChatSender
+            density="compact"
+            value={value}
+            onChange={setValue}
+            placeholder="输入 / 打开命令面板"
+          />
+        </div>
+      </div>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByText("模型")).not.toBeInTheDocument()
+    await expect(canvas.getByText("注入当前文件")).toBeInTheDocument()
   },
 }
