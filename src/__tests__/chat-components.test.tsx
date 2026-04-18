@@ -358,6 +358,12 @@ describe("ChatPresence", () => {
     expect(screen.getByText("已读")).toBeTruthy()
   })
 
+  it("can collapse labels for dense header usage", () => {
+    render(<ChatPresence status="online" readState="read" density="dense" showStatusLabel={false} showReadLabel={false} />)
+    expect(screen.queryByText("在线")).toBeNull()
+    expect(screen.queryByText("已读")).toBeNull()
+  })
+
   it("renders participant stack in badge mode", () => {
     render(
       <ChatPresence

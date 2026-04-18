@@ -7,6 +7,7 @@ import { Check, CheckCheck, Circle } from "lucide-react"
 type PresenceStatus = "online" | "offline" | "away" | "busy"
 type PresenceReadState = "sent" | "delivered" | "read"
 type PresenceVariant = "inline" | "badge" | "stacked"
+type PresenceDensity = "default" | "compact" | "dense"
 
 interface PresenceParticipant {
   key: string
@@ -24,6 +25,9 @@ interface ChatPresenceProps extends Omit<React.ComponentProps<"div">, "children"
   lastSeen?: string
   participants?: PresenceParticipant[]
   variant?: PresenceVariant
+  density?: PresenceDensity
+  showStatusLabel?: boolean
+  showReadLabel?: boolean
   labels?: Partial<Record<PresenceStatus | PresenceReadState | "typing" | "thinking", string>>
 }
 
@@ -54,6 +58,9 @@ function ChatPresence({
   lastSeen,
   participants,
   variant = "inline",
+  density = "default",
+  showStatusLabel = true,
+  showReadLabel = true,
   labels,
   className,
   ...props
@@ -66,32 +73,81 @@ function ChatPresence({
       : status === "offline" && lastSeen
         ? `${text.offline} · ${lastSeen}`
         : text[status]
+  const densityStyles = {
+    default: {
+      wrapper: "gap-2 text-xs",
+      group: "gap-1.5",
+      badge: "gap-1.5 px-2.5 py-1 text-[10px]",
+      stacked: "gap-2",
+      stackedColumn: "gap-0.5",
+      stackedText: "gap-1.5 text-xs",
+      readRow: "gap-1 text-[10px]",
+      participantWrap: "-space-x-1",
+      participant: "size-5 border-2",
+      participantFallback: "text-[10px]",
+      participantMore: "ml-1 text-[10px]",
+      dot: "size-2",
+      icon: "size-3",
+    },
+    compact: {
+      wrapper: "gap-1.5 text-[11px]",
+      group: "gap-1",
+      badge: "gap-1 px-2 py-0.5 text-[10px]",
+      stacked: "gap-1.5",
+      stackedColumn: "gap-0.5",
+      stackedText: "gap-1 text-[11px]",
+      readRow: "gap-1 text-[10px]",
+      participantWrap: "-space-x-1",
+      participant: "size-4.5 border",
+      participantFallback: "text-[9px]",
+      participantMore: "ml-1 text-[9px]",
+      dot: "size-1.5",
+      icon: "size-3",
+    },
+    dense: {
+      wrapper: "gap-1 text-[10px]",
+      group: "gap-1",
+      badge: "gap-1 px-1.5 py-0.5 text-[9px]",
+      stacked: "gap-1",
+      stackedColumn: "gap-0.5",
+      stackedText: "gap-1 text-[10px]",
+      readRow: "gap-1 text-[9px]",
+      participantWrap: "-space-x-0.5",
+      participant: "size-4 border",
+      participantFallback: "text-[8px]",
+      participantMore: "ml-0.5 text-[8px]",
+      dot: "size-1.5",
+      icon: "size-2.5",
+    },
+  }[density]
+  const shouldShowStatusLabel = showStatusLabel || typing || thinking || (status === "offline" && Boolean(lastSeen))
+  const shouldShowReadLabel = showReadLabel
 
   const readIcon =
     readState === "sent" ? (
-      <Check className="size-3" />
+      <Check className={densityStyles.icon} />
     ) : readState === "delivered" ? (
-      <CheckCheck className="size-3" />
+      <CheckCheck className={densityStyles.icon} />
     ) : readState === "read" ? (
-      <CheckCheck className="size-3 text-sky-500" />
+      <CheckCheck className={cn(densityStyles.icon, "text-sky-500")} />
     ) : null
 
   const participantsPreview = participants?.length ? (
-    <div className="flex items-center -space-x-1">
+    <div className={cn("flex items-center", densityStyles.participantWrap)}>
       {participants.slice(0, 3).map((participant) => (
         <Avatar
           key={participant.key}
-          className="size-5 border-2 border-background"
+          className={cn("border-background", densityStyles.participant)}
           aria-label={participant.label}
         >
           {participant.avatar}
-          <AvatarFallback className="text-[10px]">
+          <AvatarFallback className={densityStyles.participantFallback}>
             {participant.fallback ?? participant.label.slice(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       ))}
       {participants.length > 3 && (
-        <div className="ml-1 text-[10px] text-muted-foreground">+{participants.length - 3}</div>
+        <div className={cn("text-muted-foreground", densityStyles.participantMore)}>+{participants.length - 3}</div>
       )}
     </div>
   ) : null
@@ -100,15 +156,15 @@ function ChatPresence({
     return (
       <div
         data-slot="chat-presence"
-        className={cn("flex items-center gap-2", className)}
+        className={cn("flex items-center", densityStyles.wrapper, className)}
         {...props}
       >
         {participantsPreview}
-        <Badge variant="outline" className="gap-1.5 rounded-full px-2.5 py-1 text-[10px]">
-          <span className={cn("size-2 rounded-full", statusDotClasses[status])} />
-          <span>{stateLabel}</span>
+        <Badge variant="outline" className={cn("rounded-full", densityStyles.badge)}>
+          <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
+          {shouldShowStatusLabel && <span>{stateLabel}</span>}
           {readIcon}
-          {readState && <span>{text[readState]}</span>}
+          {readState && shouldShowReadLabel && <span>{text[readState]}</span>}
         </Badge>
       </div>
     )
@@ -118,19 +174,19 @@ function ChatPresence({
     return (
       <div
         data-slot="chat-presence"
-        className={cn("flex items-start gap-2", className)}
+        className={cn("flex items-start", densityStyles.stacked, className)}
         {...props}
       >
         {participantsPreview}
-        <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className={cn("size-2 rounded-full", statusDotClasses[status])} />
-            <span>{stateLabel}</span>
+        <div className={cn("flex flex-col", densityStyles.stackedColumn)}>
+          <div className={cn("flex items-center", densityStyles.stackedText)}>
+            <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
+            {shouldShowStatusLabel && <span>{stateLabel}</span>}
           </div>
           {readState && (
-            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              {readIcon}
-              <span>{text[readState]}</span>
+            <div className={cn("flex items-center text-muted-foreground", densityStyles.readRow)}>
+              {readIcon ?? <Circle className={densityStyles.icon} />}
+              {shouldShowReadLabel && <span>{text[readState]}</span>}
             </div>
           )}
         </div>
@@ -141,18 +197,18 @@ function ChatPresence({
   return (
     <div
       data-slot="chat-presence"
-      className={cn("flex items-center gap-2 text-xs text-muted-foreground", className)}
+      className={cn("flex items-center text-muted-foreground", densityStyles.wrapper, className)}
       {...props}
     >
       {participantsPreview}
-      <div className="flex items-center gap-1.5">
-        <span className={cn("size-2 rounded-full", statusDotClasses[status])} />
-        <span>{stateLabel}</span>
+      <div className={cn("flex items-center", densityStyles.group)}>
+        <span className={cn("rounded-full", densityStyles.dot, statusDotClasses[status])} />
+        {shouldShowStatusLabel && <span>{stateLabel}</span>}
       </div>
       {readState && (
-        <div className="flex items-center gap-1">
-          {readIcon ?? <Circle className="size-3" />}
-          <span>{text[readState]}</span>
+        <div className={cn("flex items-center", densityStyles.group)}>
+          {readIcon ?? <Circle className={densityStyles.icon} />}
+          {shouldShowReadLabel && <span>{text[readState]}</span>}
         </div>
       )}
     </div>
@@ -163,6 +219,7 @@ export { ChatPresence }
 export type {
   ChatPresenceProps,
   PresenceParticipant,
+  PresenceDensity,
   PresenceReadState,
   PresenceStatus,
   PresenceVariant,

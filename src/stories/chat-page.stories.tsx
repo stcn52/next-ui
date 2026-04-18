@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState, useEffect } from "react"
 import type { Meta, StoryObj } from "@storybook/react"
 import { expect, userEvent, within } from "storybook/test"
+import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/display/avatar"
-import { Badge } from "@/components/ui/display/badge"
 import { Button } from "@/components/ui/button"
 import {
   Bubble,
@@ -351,6 +351,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         titleRow: "gap-2",
         subtitle: "hidden",
         actions: "gap-1",
+        titleMeta: "gap-1",
         searchBar: "px-3 py-1",
         messages: "gap-1.5 px-2.5 py-2",
         sender: "px-2.5 pb-2 pt-1",
@@ -369,6 +370,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         titleRow: "gap-2.5",
         subtitle: "text-xs text-muted-foreground",
         actions: "gap-1.5",
+        titleMeta: "gap-1.5",
         searchBar: "px-4 py-1.5",
         messages: "gap-2 px-3 py-2.5",
         sender: "px-3 pb-2.5 pt-1.5",
@@ -642,12 +644,15 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold">AI 编码助手</h3>
+                <div className={cn("flex items-center", pageStyles.titleMeta)}>
+                  <h3 className="min-w-0 truncate text-sm font-semibold">AI 编码助手</h3>
                   <ChatPresence
                     status="online"
                     thinking={isTyping}
                     readState="read"
+                    density={ultraCompact ? "dense" : "compact"}
+                    showStatusLabel={isTyping}
+                    showReadLabel={false}
                     className="hidden sm:flex"
                   />
                 </div>
@@ -666,12 +671,6 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               >
                 <Search className="size-3.5" />
               </Button>
-              {!ultraCompact && (
-                <Badge variant="outline" className="hidden gap-1 sm:inline-flex">
-                  <span className="size-1.5 rounded-full bg-emerald-500" />
-                  在线
-                </Badge>
-              )}
             </div>
           </div>
 

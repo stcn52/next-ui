@@ -18,6 +18,16 @@ export const Inline: Story = {
   },
 }
 
+export const DenseMinimal: Story = {
+  args: {
+    status: "online",
+    readState: "read",
+    density: "dense",
+    showStatusLabel: false,
+    showReadLabel: false,
+  },
+}
+
 export const BadgeGroup: Story = {
   args: {
     variant: "badge",
