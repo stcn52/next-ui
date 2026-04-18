@@ -34,6 +34,8 @@ type Density = "default" | "compact" | "dense"
 type SuggestionsVariant = "inline" | "overlay"
 type AttachmentLayout = "scroll" | "wrap"
 type AttachmentDisplay = "preview" | "summary"
+type AttachmentSummaryPlacement = "utility" | "input"
+type UtilityVisibility = "auto" | "always" | "hidden"
 
 interface ChatSenderProps
   extends Omit<
@@ -94,19 +96,32 @@ interface ChatSenderProps
   statusActions?: React.ReactNode
   /** Custom attachment summary node */
   attachmentSummary?: React.ReactNode
+  /** Where summary-mode attachments are rendered */
+  attachmentSummaryPlacement?: AttachmentSummaryPlacement
   /** Custom prefix content (left of textarea) */
   prefix?: React.ReactNode
   /** Custom suffix content (right of textarea) */
   suffix?: React.ReactNode
   /** Footer text below the sender */
   footerText?: string
+  /** Whether to show the keyboard hint in the utility row */
+  showKeyboardHint?: boolean
+  /** Controls when the utility row is rendered */
+  utilityVisibility?: UtilityVisibility
   /** Form-engine field wiring */
   fieldProps?: Pick<FieldControlProps, "id" | "name" | "aria-describedby" | "aria-invalid" | "aria-labelledby" | "aria-required" | "onBlur">
+  /**
+   * Minimum visible rows before auto-resize kicks in.
+   * Defaults to 2 for default/compact and 1 for dense.
+   */
+  minRows?: number
   /**
    * Maximum number of visible rows before the textarea enters scroll mode.
    * Defaults to 6.
    */
   maxRows?: number
+  /** Whether the textarea should grow with content until maxRows */
+  autoResize?: boolean
 }
 
 /* ------------------------------------------------------------------ */
@@ -141,15 +156,21 @@ function ChatSender({
   trailingActions,
   statusActions,
   attachmentSummary,
+  attachmentSummaryPlacement,
   prefix,
   suffix,
   footerText,
+  showKeyboardHint = false,
+  utilityVisibility = "auto",
   fieldProps,
+  minRows,
   maxRows = 6,
+  autoResize = true,
   className,
   ...props
 }: ChatSenderProps) {
   const rootRef = React.useRef<HTMLDivElement>(null)
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const [internalValue, setInternalValue] = React.useState(defaultValue)
   const [isComposing, setIsComposing] = React.useState(false)
   const [showMentions, setShowMentions] = React.useState(false)
@@ -167,7 +188,7 @@ function ChatSender({
       root: "gap-1.5",
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
-      textarea: "min-h-10",
+      textarea: "text-sm leading-6",
       attachment: "gap-2 pb-1",
       attachmentItemPadding: "px-2.5 py-1.5",
       meta: "gap-2 pt-1.5",
@@ -180,7 +201,7 @@ function ChatSender({
       root: "gap-1.5",
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
-      textarea: "min-h-9",
+      textarea: "text-sm leading-6",
       attachment: "gap-1.5 pb-0.5",
       attachmentItemPadding: "px-2 py-1",
       meta: "gap-1.5 pt-1",
@@ -193,7 +214,7 @@ function ChatSender({
       root: "gap-1",
       cardContent: "gap-1 p-1.5",
       inputRow: "gap-1",
-      textarea: "min-h-8",
+      textarea: "text-xs leading-5",
       attachment: "gap-1 pb-0.5",
       attachmentItemPadding: "px-1.5 py-0.5",
       meta: "gap-1 pt-1",
@@ -203,6 +224,10 @@ function ChatSender({
       stopButtonSize: "xs" as const,
     },
   }[density]
+  const resolvedMinRows = minRows ?? (density === "dense" ? 1 : 2)
+  const resolvedMaxRows = Math.max(maxRows, resolvedMinRows)
+  const resolvedAttachmentSummaryPlacement =
+    attachmentSummaryPlacement ?? (density === "dense" ? "input" : "utility")
   const attachmentCount = attachments?.length ?? 0
   const uploadingCount = attachments?.filter((attachment) => attachment.status === "uploading").length ?? 0
   const errorCount = attachments?.filter((attachment) => attachment.status === "error").length ?? 0
@@ -231,6 +256,35 @@ function ChatSender({
     document.addEventListener("pointerdown", handlePointerDown)
     return () => document.removeEventListener("pointerdown", handlePointerDown)
   }, [closePanels])
+
+  const syncTextareaHeight = React.useCallback(() => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    if (!autoResize) {
+      textarea.style.removeProperty("height")
+      textarea.style.removeProperty("overflow-y")
+      return
+    }
+
+    const styles = window.getComputedStyle(textarea)
+    const lineHeight = Number.parseFloat(styles.lineHeight) || (density === "dense" ? 20 : 24)
+    const paddingY =
+      Number.parseFloat(styles.paddingTop) + Number.parseFloat(styles.paddingBottom)
+    const borderY =
+      Number.parseFloat(styles.borderTopWidth) + Number.parseFloat(styles.borderBottomWidth)
+    const minHeight = lineHeight * resolvedMinRows + paddingY + borderY
+    const maxHeight = lineHeight * resolvedMaxRows + paddingY + borderY
+
+    textarea.style.height = "auto"
+    const nextHeight = Math.min(maxHeight, Math.max(minHeight, textarea.scrollHeight))
+    textarea.style.height = `${nextHeight}px`
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden"
+  }, [autoResize, density, resolvedMaxRows, resolvedMinRows])
+
+  React.useEffect(() => {
+    syncTextareaHeight()
+  }, [draft, syncTextareaHeight])
 
   const updateValue = React.useCallback(
     (nextValue: string) => {
@@ -380,7 +434,7 @@ function ChatSender({
         <div
           data-slot="attachment-summary"
           className={cn(
-            "inline-flex items-center gap-1 rounded-full border bg-muted/60 text-muted-foreground",
+            "inline-flex max-w-full items-center gap-1 rounded-full border bg-muted/60 text-muted-foreground",
             densityStyles.chip,
             densityStyles.metaText,
           )}
@@ -393,7 +447,26 @@ function ChatSender({
       )
     ) : null
 
-    const hasMetaRow = true
+  const showAttachmentSummaryInInput =
+    attachmentDisplay === "summary" &&
+    resolvedAttachmentSummaryPlacement === "input" &&
+    attachmentSummaryNode
+
+  const showAttachmentSummaryInUtility =
+    attachmentDisplay === "summary" &&
+    resolvedAttachmentSummaryPlacement === "utility" &&
+    attachmentSummaryNode
+
+  const hasUtilityContent = Boolean(
+    showAttachmentSummaryInUtility || footerText || statusActions || showKeyboardHint,
+  )
+
+  const hasMetaRow =
+    utilityVisibility === "always"
+      ? true
+      : utilityVisibility === "hidden"
+        ? false
+        : hasUtilityContent
 
   return (
     <div
@@ -574,7 +647,10 @@ function ChatSender({
               </div>
             )}
 
-            <div className={cn("flex items-end", densityStyles.inputRow)}>
+            <div
+              data-slot="chat-sender-input-row"
+              className={cn("flex items-end", densityStyles.inputRow)}
+            >
               {showAttachmentButton && (
                 <Button
                   type="button"
@@ -607,9 +683,12 @@ function ChatSender({
               )}
               {prefix}
               {leadingActions}
+              {showAttachmentSummaryInInput}
               <Textarea
+                ref={textareaRef}
                 id={fieldProps?.id}
                 name={fieldProps?.name}
+                rows={resolvedMinRows}
                 placeholder={placeholder}
                 value={draft}
                 onChange={(event) => updateValue(event.target.value)}
@@ -625,7 +704,7 @@ function ChatSender({
                 aria-describedby={fieldProps?.["aria-describedby"]}
                 aria-invalid={fieldProps?.["aria-invalid"]}
                 aria-required={fieldProps?.["aria-required"]}
-                style={{ maxHeight: `${maxRows * 1.5}rem` }}
+                style={autoResize ? undefined : { maxHeight: `${resolvedMaxRows * 1.5}rem` }}
                 className={cn(
                   "flex-1 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0",
                   densityStyles.textarea,
@@ -661,9 +740,12 @@ function ChatSender({
             </div>
 
             {hasMetaRow && (
-              <div className={cn("flex items-center", densityStyles.meta)}>
+              <div
+                data-slot="chat-sender-meta"
+                className={cn("flex items-center", densityStyles.meta)}
+              >
                 <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                  {attachmentDisplay === "summary" && attachmentSummaryNode}
+                  {showAttachmentSummaryInUtility}
                   {footerText && (
                     <p className={cn("truncate text-muted-foreground", densityStyles.metaText)}>
                       {footerText}
@@ -672,7 +754,7 @@ function ChatSender({
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   {statusActions}
-                  {!statusActions && (
+                  {!statusActions && showKeyboardHint && (
                     <p className={cn("text-muted-foreground/60 select-none", densityStyles.metaText)}>
                       ⇧↵ 换行
                     </p>
@@ -691,8 +773,10 @@ export type {
   Attachment,
   AttachmentDisplay,
   AttachmentLayout,
+  AttachmentSummaryPlacement,
   ChatSenderProps,
   Density,
   MentionItem,
   SuggestionsVariant,
+  UtilityVisibility,
 }

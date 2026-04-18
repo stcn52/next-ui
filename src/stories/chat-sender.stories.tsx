@@ -277,6 +277,7 @@ export const DenseSummaryMode: Story = {
           onChange={setValue}
           density="dense"
           attachmentDisplay="summary"
+          attachmentSummaryPlacement="input"
           attachments={SAMPLE_ATTACHMENTS}
           suggestions={["继续处理", "补充边界", "输出结论"]}
           footerText="Dense 模式会优先保留输入区空间"
@@ -292,6 +293,36 @@ export const DenseSummaryMode: Story = {
             </Button>
           }
           showDefaultAttachmentButton
+        />
+      </div>
+    )
+  },
+}
+
+export const LayoutControls: Story = {
+  render: function Render() {
+    const [value, setValue] = useState("请帮我继续收口这个工单")
+    return (
+      <div className="w-[520px] space-y-3">
+        <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
+          这个变体展示更紧凑的 sender：输入框按内容增长，附件摘要内联，底部说明按需显示。
+        </div>
+        <ChatSender
+          value={value}
+          onChange={setValue}
+          density="compact"
+          minRows={1}
+          maxRows={4}
+          showKeyboardHint
+          attachmentDisplay="summary"
+          attachmentSummaryPlacement="input"
+          attachments={[
+            { id: "1", name: "context.md", type: "file", status: "done" },
+            { id: "2", name: "wireframe.png", type: "image", status: "uploading", progress: 42 },
+          ]}
+          suggestions={["继续压缩布局", "加上 slash 命令", "生成回归测试"]}
+          footerText="紧凑模式下仅保留必要说明"
+          statusActions={<span className="text-[10px] text-muted-foreground">上下文 18k</span>}
         />
       </div>
     )

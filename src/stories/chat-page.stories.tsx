@@ -9,6 +9,7 @@ import {
   type BubbleProps,
   TypingIndicator,
 } from "@/components/ui/chat/chat-bubble"
+import { ChatPresence } from "@/components/ui/chat/chat-presence"
 import { ChatConversations, type ConversationItem } from "@/components/ui/chat/chat-conversations"
 import { ChatSender, type Attachment, type MentionItem } from "@/components/ui/chat/chat-sender"
 import {
@@ -116,20 +117,20 @@ const MENTION_ITEMS: MentionItem[] = [
 
 function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
-      <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white shadow-lg">
-        <Sparkles className="size-8" />
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-5">
+      <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white shadow-lg">
+        <Sparkles className="size-7" />
       </div>
       <div className="text-center">
-        <h2 className="text-xl font-semibold">你好，有什么可以帮你的？</h2>
+        <h2 className="text-lg font-semibold">你好，有什么可以帮你的？</h2>
         <p className="mt-1 text-sm text-muted-foreground">选择以下场景快速开始，或直接输入你的问题</p>
       </div>
-      <div className="grid w-full max-w-md grid-cols-2 gap-3">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2.5">
         {PROMPT_SUGGESTIONS.map((p) => (
           <button
             key={p.text}
             onClick={() => onPrompt(p.text)}
-            className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3 text-left text-sm transition-colors hover:bg-accent"
+            className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent"
           >
             <span className="text-lg">{p.icon}</span>
             <span>{p.text}</span>
@@ -144,7 +145,7 @@ function AttachmentDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label="添加附件">
+        <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label="添加附件">
           <FileUp className="size-4" />
         </Button>
       </DialogTrigger>
@@ -173,7 +174,7 @@ function AttachmentDialog() {
 function ModelSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-7 w-36 text-xs" aria-label="选择模型">
+      <SelectTrigger className="h-7 w-32 text-xs" aria-label="选择模型">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -322,38 +323,50 @@ function ChatPage() {
   const isStreaming = isTyping || messages.some((m) => m.streaming)
 
   return (
-    <div className="mx-auto flex h-175 max-w-7xl overflow-hidden rounded-xl border bg-background shadow-sm">
+    <div className="mx-auto flex h-[41rem] max-w-[90rem] overflow-hidden rounded-lg border bg-background shadow-sm">
       {/* Conversations sidebar */}
       <ChatConversations
         items={CONVERSATIONS}
         activeKey={activeConv}
         onChange={(key) => setActiveConv(key)}
         onNewChat={() => setActiveConv("new")}
-        className="w-72 shrink-0 border-r"
+        density="compact"
+        collapsibleGroups
+        defaultCollapsedGroups={["更早"]}
+        showDescription={false}
+        className="w-68 shrink-0 border-r"
       />
 
       {/* Chat area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Chat header */}
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <div className="flex items-center gap-3">
-            <Avatar className="size-8">
+        <div className="flex items-center justify-between border-b px-4 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <Avatar className="size-7.5">
               <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
                 <Bot className="size-3.5" />
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h3 className="text-sm font-semibold">AI 编码助手</h3>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="truncate text-sm font-semibold">AI 编码助手</h3>
+                <ChatPresence
+                  status="online"
+                  thinking={isTyping}
+                  readState="read"
+                  className="hidden sm:flex"
+                />
+              </div>
               <p className="text-xs text-muted-foreground">基于大语言模型 · 随时为你解答</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <ModelSelector value={model} onChange={setModel} />
-            <Button variant="ghost" size="icon" className="size-8" aria-label="搜索消息" onClick={() => setSearchOpen((o) => !o)}>
-              <Search className="size-4" />
+            <Button variant="ghost" size="icon-sm" aria-label="搜索消息" onClick={() => setSearchOpen((o) => !o)}>
+              <Search className="size-3.5" />
             </Button>
-            <Badge variant="outline" className="gap-1">
-              <span className="size-1.5 rounded-full bg-green-500" />
+            <Badge variant="outline" className="hidden gap-1 sm:inline-flex">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
               在线
             </Badge>
           </div>
@@ -361,8 +374,8 @@ function ChatPage() {
 
         {/* Message search bar */}
         {searchOpen && (
-          <div className="flex items-center gap-2 border-b px-5 py-2">
-            <Search className="size-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 border-b px-4 py-1.5">
+            <Search className="size-3.5 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
@@ -372,11 +385,11 @@ function ChatPage() {
               autoFocus
             />
             {searchQuery && (
-              <span className="text-xs text-muted-foreground">
+              <span className="shrink-0 text-[10px] text-muted-foreground">
                 {filteredMessages.filter((m) => m.role !== "system").length} 条结果
               </span>
             )}
-            <Button variant="ghost" size="icon" className="size-6" aria-label="关闭搜索" onClick={() => { setSearchOpen(false); setSearchQuery("") }}>
+            <Button variant="ghost" size="icon-sm" aria-label="关闭搜索" onClick={() => { setSearchOpen(false); setSearchQuery("") }}>
               <X className="size-3" />
             </Button>
           </div>
@@ -384,7 +397,7 @@ function ChatPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="flex flex-col gap-3 px-4 py-3">
+          <div className="flex flex-col gap-2.5 px-3 py-2.5">
             {filteredMessages.map((m) => {
               const props: BubbleProps = {
                 role: m.role,
@@ -393,6 +406,7 @@ function ChatPage() {
                 status: m.status,
                 thinking: m.thinking,
                 streaming: m.streaming,
+                density: "compact",
                 header: m.model && m.role === "assistant" ? (
                   <span className="text-[10px] text-muted-foreground">模型: {m.model}</span>
                 ) : undefined,
@@ -400,8 +414,8 @@ function ChatPage() {
               return <Bubble key={m.id} {...props} onCopy={() => handleCopy(m.content)} onRegenerate={m.role === "assistant" ? () => handleRegenerate(m.id) : undefined} onEdit={m.role === "user" ? (c: string) => handleEdit(m.id, c) : undefined} />
             })}
             {isTyping && (
-              <div className="flex items-start gap-2.5">
-                <Avatar className="mt-0.5 size-8 shrink-0">
+              <div className="flex items-start gap-2">
+                <Avatar className="mt-0.5 size-7.5 shrink-0">
                   <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
                     <Bot className="size-3.5" />
                   </AvatarFallback>
@@ -415,11 +429,17 @@ function ChatPage() {
         </div>
 
         {/* Sender */}
-        <div className="px-4 pb-3 pt-1.5">
+        <div className="px-3 pb-2.5 pt-1.5">
           <ChatSender
             value={draft}
             onChange={setDraft}
             placeholder="输入消息… (Enter 发送, Shift+Enter 换行)"
+            density="compact"
+            minRows={1}
+            maxRows={5}
+            showKeyboardHint
+            attachmentDisplay="summary"
+            attachmentSummaryPlacement="input"
             loading={isStreaming}
             onSubmit={handleSend}
             onCancel={handleStopStreaming}
@@ -430,6 +450,7 @@ function ChatPage() {
             mentions={MENTION_ITEMS}
             prefix={<AttachmentDialog />}
             onAttach={handleAddAttachment}
+            statusActions={<span className="text-[10px] text-muted-foreground">模型: {model}</span>}
             footerText="AI 回复仅供参考，请以实际为准"
           />
         </div>
@@ -489,10 +510,10 @@ function ChatWelcomePage() {
   const showWelcome = messages.length === 0
 
   return (
-    <div className="mx-auto flex h-175 max-w-3xl flex-col overflow-hidden rounded-xl border bg-background shadow-sm">
+    <div className="mx-auto flex h-[41rem] max-w-3xl flex-col overflow-hidden rounded-lg border bg-background shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b px-5 py-3">
-        <Avatar className="size-8">
+      <div className="flex items-center gap-2.5 border-b px-4 py-2.5">
+        <Avatar className="size-7.5">
           <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
             <Sparkles className="size-3.5" />
           </AvatarFallback>
@@ -508,13 +529,13 @@ function ChatWelcomePage() {
         <WelcomeScreen onPrompt={handleSend} />
       ) : (
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="flex flex-col gap-3 px-4 py-3">
+          <div className="flex flex-col gap-2.5 px-3 py-2.5">
             {messages.map((m) => (
-              <Bubble key={m.id} role={m.role} content={m.content} timestamp={m.timestamp} status={m.status} onCopy={() => handleCopy(m.content)} />
+              <Bubble key={m.id} role={m.role} content={m.content} timestamp={m.timestamp} status={m.status} density="compact" onCopy={() => handleCopy(m.content)} />
             ))}
             {isTyping && (
-              <div className="flex items-start gap-2.5">
-                <Avatar className="mt-0.5 size-8 shrink-0">
+              <div className="flex items-start gap-2">
+                <Avatar className="mt-0.5 size-7.5 shrink-0">
                   <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
                     <Bot className="size-3.5" />
                   </AvatarFallback>
@@ -529,11 +550,14 @@ function ChatWelcomePage() {
       )}
 
       {/* Sender */}
-      <div className="px-4 pb-3 pt-1.5">
+      <div className="px-3 pb-2.5 pt-1.5">
         <ChatSender
           value={draft}
           onChange={setDraft}
           placeholder="输入消息… (Enter 发送)"
+          density="compact"
+          minRows={1}
+          showKeyboardHint
           onSubmit={handleSend}
         />
       </div>

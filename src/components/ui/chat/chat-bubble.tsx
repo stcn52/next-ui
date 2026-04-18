@@ -29,6 +29,7 @@ type BubbleStatus = "sending" | "sent" | "error"
 type BubbleVariant = "filled" | "outlined" | "shadow" | "borderless"
 type BubbleShape = "default" | "round" | "corner"
 type BubblePlacement = "start" | "end"
+type BubbleDensity = "default" | "compact"
 
 interface BubbleProps {
   /** Message role */
@@ -47,6 +48,8 @@ interface BubbleProps {
   variant?: BubbleVariant
   /** Bubble shape */
   shape?: BubbleShape
+  /** Bubble density */
+  density?: BubbleDensity
   /** Bubble position (start = left, end = right) */
   placement?: BubblePlacement
   /** Avatar element override */
@@ -71,6 +74,8 @@ interface BubbleListProps extends React.ComponentProps<"div"> {
   items: BubbleProps[]
   /** Auto-scroll to bottom on new items */
   autoScroll?: boolean
+  /** Shared density for the list and child bubbles */
+  density?: BubbleDensity
 }
 
 /* ------------------------------------------------------------------ */
@@ -121,23 +126,42 @@ function RichContent({ content }: { content: string }) {
 /*  ThoughtChain                                                       */
 /* ------------------------------------------------------------------ */
 
-function ThoughtChain({ steps }: { steps: string[] }) {
+function ThoughtChain({ steps, density = "default" }: { steps: string[]; density?: BubbleDensity }) {
   const [open, setOpen] = React.useState(false)
+  const densityStyles = density === "compact"
+    ? {
+        trigger: "gap-1 px-1.5 py-0.5 text-[11px]",
+        icon: "size-3",
+        count: "text-[11px]",
+        container: "ml-1.5 mt-1 pl-2.5",
+        row: "gap-1 py-0.5",
+        marker: "size-3.5 text-[8px]",
+        text: "text-[11px]",
+      }
+    : {
+        trigger: "gap-1.5 px-2 py-1 text-xs",
+        icon: "size-3.5",
+        count: "text-xs",
+        container: "ml-2 mt-1 pl-3",
+        row: "gap-1.5 py-0.5",
+        marker: "size-4 text-[9px]",
+        text: "text-xs",
+      }
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="thought-chain" className="mb-1">
-      <CollapsibleTrigger className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
-        <BrainCircuit className="size-3.5 text-violet-500" />
-        <span>思考过程 ({steps.length} 步)</span>
-        <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} />
+      <CollapsibleTrigger className={cn("flex items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted", densityStyles.trigger)}>
+        <BrainCircuit className={cn("text-violet-500", densityStyles.icon)} />
+        <span className={densityStyles.count}>思考过程 ({steps.length} 步)</span>
+        <ChevronDown className={cn("transition-transform", densityStyles.icon, open ? "rotate-180" : "")} />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="ml-2 mt-1 border-l-2 border-violet-500/30 pl-3">
+        <div className={cn("border-l-2 border-violet-500/30", densityStyles.container)}>
           {steps.map((step, i) => (
-            <div key={i} className="flex items-start gap-1.5 py-0.5">
-              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-violet-500/10 text-[9px] font-medium text-violet-600">
+            <div key={i} className={cn("flex items-start", densityStyles.row)}>
+              <span className={cn("mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-violet-500/10 font-medium text-violet-600", densityStyles.marker)}>
                 {i + 1}
               </span>
-              <span className="text-xs text-muted-foreground">{step}</span>
+              <span className={cn("text-muted-foreground", densityStyles.text)}>{step}</span>
             </div>
           ))}
         </div>
@@ -226,6 +250,7 @@ function Bubble({
   streaming,
   variant = "filled",
   shape = "default",
+  density = "default",
   avatar,
   header,
   footer,
@@ -241,12 +266,47 @@ function Bubble({
   const [editing, setEditing] = React.useState(false)
   const [editText, setEditText] = React.useState(content)
   const hasActions = !!(onCopy || (isUser && onEdit) || (!isUser && onFeedback) || (!isUser && onRegenerate))
+  const densityStyles = density === "compact"
+    ? {
+        row: "gap-1.5",
+        avatar: "size-7",
+        avatarFallback: "text-[10px]",
+        avatarIcon: "size-3",
+        contentWrap: isUser ? "max-w-[72%] items-end" : "max-w-[82%] items-start",
+        bubble: "px-2.5 py-1 text-xs leading-5",
+        editor: "min-h-14 text-xs",
+        meta: "gap-0.5",
+        time: "text-[9px]",
+        status: "size-2.5",
+        actionRow: "gap-0.5",
+        actionButton: "size-5",
+        actionIcon: "size-2.5",
+        system: "gap-1.5 py-1.5",
+        systemText: "text-[11px]",
+      }
+    : {
+        row: "gap-2",
+        avatar: "size-8",
+        avatarFallback: "text-xs",
+        avatarIcon: "size-3.5",
+        contentWrap: isUser ? "max-w-[75%] items-end" : "max-w-[85%] items-start",
+        bubble: "px-3 py-1.5 text-sm leading-relaxed",
+        editor: "min-h-16 text-sm",
+        meta: "gap-1",
+        time: "text-[10px]",
+        status: "size-3",
+        actionRow: "gap-0.5",
+        actionButton: "size-6",
+        actionIcon: "size-3",
+        system: "gap-2 py-2",
+        systemText: "text-xs",
+      }
 
   if (isSystem) {
     return (
-      <div data-slot="chat-bubble" data-role="system" className={cn("flex items-center gap-2 py-2", className)}>
+      <div data-slot="chat-bubble" data-role="system" className={cn("flex items-center", densityStyles.system, className)}>
         <Separator className="flex-1" />
-        <span className="shrink-0 text-xs text-muted-foreground">{content}</span>
+        <span className={cn("shrink-0 text-muted-foreground", densityStyles.systemText)}>{content}</span>
         <Separator className="flex-1" />
       </div>
     )
@@ -267,15 +327,15 @@ function Bubble({
   }
 
   const defaultAvatar = isUser ? (
-    <Avatar className="mt-0.5 size-8 shrink-0">
-      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-        <User className="size-3.5" />
+    <Avatar className={cn("mt-0.5 shrink-0", densityStyles.avatar)}>
+      <AvatarFallback className={cn("bg-primary text-primary-foreground", densityStyles.avatarFallback)}>
+        <User className={densityStyles.avatarIcon} />
       </AvatarFallback>
     </Avatar>
   ) : (
-    <Avatar className="mt-0.5 size-8 shrink-0">
-      <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs">
-        <Bot className="size-3.5" />
+    <Avatar className={cn("mt-0.5 shrink-0", densityStyles.avatar)}>
+      <AvatarFallback className={cn("bg-gradient-to-br from-violet-500 to-blue-500 text-white", densityStyles.avatarFallback)}>
+        <Bot className={densityStyles.avatarIcon} />
       </AvatarFallback>
     </Avatar>
   )
@@ -287,18 +347,18 @@ function Bubble({
     <div
       data-slot="chat-bubble"
       data-role={role}
-      className={cn("group flex items-start gap-2", isUser ? "flex-row-reverse" : "flex-row", className)}
+      className={cn("group flex items-start", densityStyles.row, isUser ? "flex-row-reverse" : "flex-row", className)}
     >
       {avatar ?? defaultAvatar}
 
-      <div className={cn("flex flex-col gap-0.5", isUser ? "max-w-[75%] items-end" : "max-w-[85%] items-start")}>
+      <div className={cn("flex flex-col gap-0.5", densityStyles.contentWrap)}>
         {header}
 
-        {!isUser && thinking && thinking.length > 0 && <ThoughtChain steps={thinking} />}
+        {!isUser && thinking && thinking.length > 0 && <ThoughtChain steps={thinking} density={density} />}
 
         {editing ? (
           <div className="flex w-full flex-col gap-2">
-            <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="min-h-16 text-sm" autoFocus />
+            <Textarea value={editText} onChange={(e) => setEditText(e.target.value)} className={densityStyles.editor} autoFocus />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleEditSubmit}>保存并重发</Button>
               <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setEditText(content) }}>
@@ -307,7 +367,7 @@ function Bubble({
             </div>
           </div>
         ) : (
-          <div className={cn("px-3 py-1.5 text-sm leading-relaxed", variantCls, shapeCls)}>
+          <div className={cn(densityStyles.bubble, variantCls, shapeCls)}>
             {streaming ? (
               <>
                 <StreamingText content={content} />
@@ -320,19 +380,19 @@ function Bubble({
         )}
 
         {!editing && (timestamp || (status === "sent" && isUser) || hasActions) && (
-          <div className={cn("flex items-center gap-1", isUser ? "flex-row-reverse" : "flex-row")}>
-            {timestamp && <span className="text-[10px] text-muted-foreground/60">{timestamp}</span>}
-            {status === "sent" && isUser && <Check className="size-3 text-muted-foreground/60" />}
+          <div className={cn("flex items-center", densityStyles.meta, isUser ? "flex-row-reverse" : "flex-row")}>
+            {timestamp && <span className={cn("text-muted-foreground/60", densityStyles.time)}>{timestamp}</span>}
+            {status === "sent" && isUser && <Check className={cn("text-muted-foreground/60", densityStyles.status)} />}
 
-            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className={cn("flex items-center opacity-0 transition-opacity group-hover:opacity-100", densityStyles.actionRow)}>
               {onCopy && (
                 <Tooltip>
                   <TooltipTrigger
-                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
                     onClick={() => onCopy(content)}
                     aria-label="复制消息"
                   >
-                    <Copy className="size-3" />
+                    <Copy className={densityStyles.actionIcon} />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>复制</p></TooltipContent>
                 </Tooltip>
@@ -341,11 +401,11 @@ function Bubble({
               {isUser && onEdit && (
                 <Tooltip>
                   <TooltipTrigger
-                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
                     onClick={() => setEditing(true)}
                     aria-label="编辑消息"
                   >
-                    <Pencil className="size-3" />
+                    <Pencil className={densityStyles.actionIcon} />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>编辑</p></TooltipContent>
                 </Tooltip>
@@ -355,21 +415,21 @@ function Bubble({
                 <>
                   <Tooltip>
                     <TooltipTrigger
-                      className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "up" && "text-green-500")}
+                      className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton, liked === "up" && "text-green-500")}
                       onClick={() => handleFeedback("up")}
                       aria-label="点赞"
                     >
-                      <ThumbsUp className="size-3" />
+                      <ThumbsUp className={densityStyles.actionIcon} />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>有帮助</p></TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
-                      className={cn("inline-flex size-6 items-center justify-center rounded-md hover:bg-muted", liked === "down" && "text-red-500")}
+                      className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton, liked === "down" && "text-red-500")}
                       onClick={() => handleFeedback("down")}
                       aria-label="点踩"
                     >
-                      <ThumbsDown className="size-3" />
+                      <ThumbsDown className={densityStyles.actionIcon} />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>无帮助</p></TooltipContent>
                   </Tooltip>
@@ -379,11 +439,11 @@ function Bubble({
               {!isUser && onRegenerate && (
                 <Tooltip>
                   <TooltipTrigger
-                    className="inline-flex size-6 items-center justify-center rounded-md hover:bg-muted"
+                    className={cn("inline-flex items-center justify-center rounded-md hover:bg-muted", densityStyles.actionButton)}
                     onClick={onRegenerate}
                     aria-label="重新生成消息"
                   >
-                    <RefreshCcw className="size-3" />
+                    <RefreshCcw className={densityStyles.actionIcon} />
                   </TooltipTrigger>
                   <TooltipContent side="bottom"><p>重新生成</p></TooltipContent>
                 </Tooltip>
@@ -402,7 +462,7 @@ function Bubble({
 /*  BubbleList                                                         */
 /* ------------------------------------------------------------------ */
 
-function BubbleList({ items, autoScroll = true, className, ...props }: BubbleListProps) {
+function BubbleList({ items, autoScroll = true, density = "default", className, ...props }: BubbleListProps) {
   const ref = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -418,11 +478,11 @@ function BubbleList({ items, autoScroll = true, className, ...props }: BubbleLis
     <div
       data-slot="bubble-list"
       ref={ref}
-      className={cn("flex flex-col gap-3 overflow-y-auto", className)}
+      className={cn("flex flex-col overflow-y-auto", density === "compact" ? "gap-2" : "gap-3", className)}
       {...props}
     >
       {items.map((item, i) => (
-        <Bubble key={i} {...item} />
+        <Bubble key={i} {...item} density={item.density ?? density} />
       ))}
     </div>
   )
@@ -442,6 +502,7 @@ export {
   TypingIndicator,
 }
 export type {
+  BubbleDensity,
   BubbleListProps,
   BubblePlacement,
   BubbleProps,

@@ -259,6 +259,28 @@ export const List: Story = {
   },
 }
 
+export const CompactList: Story = {
+  render: () => (
+    <div className="h-80 w-[440px] overflow-hidden rounded-xl border">
+      <BubbleList
+        density="compact"
+        className="h-full px-3 py-2.5"
+        items={[
+          { role: "system", content: "今天" },
+          { role: "assistant", content: "先给你一个更紧凑的回复版本。", timestamp: "09:00" },
+          { role: "user", content: "把布局再压一压。", timestamp: "09:01", status: "sent" },
+          {
+            role: "assistant",
+            content: "可以先从消息间距、头像尺寸、时间行和动作按钮密度入手。",
+            timestamp: "09:02",
+            thinking: ["识别冗余留白", "保留操作可点击性"],
+          },
+        ]}
+      />
+    </div>
+  ),
+}
+
 /* ------------------------------------------------------------------ */
 /*  ThoughtChain standalone                                            */
 /* ------------------------------------------------------------------ */

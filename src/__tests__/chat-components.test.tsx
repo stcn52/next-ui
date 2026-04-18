@@ -183,6 +183,13 @@ describe("BubbleList", () => {
     expect(screen.getByText("Question")).toBeTruthy()
     expect(screen.getByText("Answer")).toBeTruthy()
   })
+
+  it("supports compact density lists", () => {
+    const items = [{ role: "assistant" as const, content: "Dense" }]
+    const { container } = render(<BubbleList density="compact" items={items} />)
+    expect(container.querySelector('[data-slot="bubble-list"]')).toBeTruthy()
+    expect(screen.getByText("Dense")).toBeTruthy()
+  })
 })
 
 /* ================================================================== */
@@ -312,6 +319,35 @@ describe("ChatSender", () => {
   it("renders status actions in the utility row", () => {
     render(<ChatSender statusActions={<span>模型: GPT-4o</span>} />)
     expect(screen.getByText("模型: GPT-4o")).toBeTruthy()
+  })
+
+  it("keeps utility row hidden by default when no extra meta exists", () => {
+    render(<ChatSender value="hello" />)
+    expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
+    expect(screen.queryByText("⇧↵ 换行")).toBeNull()
+  })
+
+  it("renders keyboard hint when requested", () => {
+    render(<ChatSender showKeyboardHint />)
+    expect(screen.getByText("⇧↵ 换行")).toBeTruthy()
+  })
+
+  it("can place attachment summary inline with the input row", () => {
+    render(
+      <ChatSender
+        attachments={[{ id: "1", name: "design.png", type: "image", status: "done" }]}
+        attachmentDisplay="summary"
+        attachmentSummaryPlacement="input"
+      />,
+    )
+    expect(screen.getByText("1 个附件")).toBeTruthy()
+    expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
+  })
+
+  it("can hide utility row even when footer content exists", () => {
+    render(<ChatSender footerText="hidden meta" utilityVisibility="hidden" />)
+    expect(screen.queryByText("hidden meta")).toBeNull()
+    expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
   })
 })
 
@@ -497,6 +533,26 @@ describe("ChatConversations", () => {
     render(<ChatConversations items={items} title="My Chats" />)
     await waitFor(() => {
       expect(screen.getByText("My Chats")).toBeTruthy()
+    })
+  })
+
+  it("can hide descriptions for tighter sidebars", async () => {
+    render(<ChatConversations items={items} showDescription={false} />)
+    await waitFor(() => {
+      expect(screen.queryByText("Last msg A")).toBeNull()
+      expect(screen.getByText("Chat A")).toBeTruthy()
+    })
+  })
+
+  it("supports collapsible groups", async () => {
+    render(<ChatConversations items={items} collapsibleGroups defaultCollapsedGroups={["Yesterday"]} />)
+    await waitFor(() => {
+      expect(screen.queryByText("Chat C")).toBeNull()
+      expect(screen.getByRole("button", { name: "Yesterday 分组" })).toHaveAttribute("aria-expanded", "false")
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Yesterday 分组" }))
+    await waitFor(() => {
+      expect(screen.getByText("Chat C")).toBeTruthy()
     })
   })
 })
