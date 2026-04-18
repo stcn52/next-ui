@@ -799,9 +799,7 @@ function ChatPage({
                   thinking: m.thinking,
                   streaming: m.streaming,
                   density: "compact",
-                  header: m.model && m.role === "assistant" ? (
-                    <span className="text-[10px] text-muted-foreground">模型: {m.model}</span>
-                  ) : undefined,
+                  metaLabel: m.model && m.role === "assistant" ? `模型: ${m.model}` : undefined,
                 }
                 return (
                   <Bubble
@@ -821,7 +819,7 @@ function ChatPage({
                     </AvatarFallback>
                   </Avatar>
                   <div className="rounded-2xl rounded-bl-md bg-muted">
-                    <TypingIndicator />
+                    <TypingIndicator density="compact" />
                   </div>
                 </div>
               )}
@@ -1006,7 +1004,7 @@ function ChatWelcomePage() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="rounded-2xl rounded-bl-md bg-muted">
-                  <TypingIndicator />
+                  <TypingIndicator density="compact" />
                 </div>
               </div>
             )}

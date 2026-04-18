@@ -211,6 +211,19 @@ export const CustomHeaderFooter: Story = {
   ),
 }
 
+export const InlineMeta: Story = {
+  render: () => (
+    <div className="w-[480px]">
+      <Bubble
+        role="assistant"
+        content="这条消息把模型信息收进了底部元信息带，而不是单独占一行。"
+        metaLabel="模型: GPT-4o"
+        timestamp="10:02"
+      />
+    </div>
+  ),
+}
+
 /* ------------------------------------------------------------------ */
 /*  Streaming                                                          */
 /* ------------------------------------------------------------------ */
@@ -345,7 +358,7 @@ export const TypingIndicatorStory: Story = {
         <TypingIndicator />
       </div>
       <div className="rounded-2xl bg-muted">
-        <TypingIndicator text="正在搜索相关文档…" />
+        <TypingIndicator text="正在搜索相关文档…" density="compact" />
       </div>
     </div>
   ),

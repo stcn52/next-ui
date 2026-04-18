@@ -56,6 +56,8 @@ interface BubbleProps {
   avatar?: React.ReactNode
   /** Custom header above the bubble */
   header?: React.ReactNode
+  /** Compact metadata rendered inside the meta row */
+  metaLabel?: React.ReactNode
   /** Custom footer below the bubble */
   footer?: React.ReactNode
   /** Callback when copy is clicked */
@@ -174,15 +176,38 @@ function ThoughtChain({ steps, density = "default" }: { steps: string[]; density
 /*  TypingIndicator                                                    */
 /* ------------------------------------------------------------------ */
 
-function TypingIndicator({ text = "AI 正在思考…" }: { text?: string }) {
+function TypingIndicator({
+  text = "AI 正在思考…",
+  density = "default",
+}: {
+  text?: string
+  density?: BubbleDensity
+}) {
+  const densityStyles = density === "compact"
+    ? {
+        wrap: "gap-1 px-2.5 py-1.5",
+        dots: "gap-0.5",
+        dot: "size-1",
+        text: "text-[11px]",
+      }
+    : {
+        wrap: "gap-1.5 px-3 py-2",
+        dots: "gap-1",
+        dot: "size-1.5",
+        text: "text-xs",
+      }
   return (
-    <div data-slot="typing-indicator" className="flex items-center gap-1.5 px-3 py-2">
-      <div className="flex gap-1">
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:0ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:150ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:300ms]" />
+    <div
+      data-slot="typing-indicator"
+      data-density={density}
+      className={cn("flex items-center", densityStyles.wrap)}
+    >
+      <div className={cn("flex", densityStyles.dots)}>
+        <span className={cn("animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:0ms]", densityStyles.dot)} />
+        <span className={cn("animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:150ms]", densityStyles.dot)} />
+        <span className={cn("animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:300ms]", densityStyles.dot)} />
       </div>
-      <span className="text-xs text-muted-foreground">{text}</span>
+      <span className={cn("text-muted-foreground", densityStyles.text)}>{text}</span>
     </div>
   )
 }
@@ -253,6 +278,7 @@ function Bubble({
   density = "default",
   avatar,
   header,
+  metaLabel,
   footer,
   onCopy,
   onFeedback,
@@ -278,6 +304,7 @@ function Bubble({
         meta: "gap-0.5",
         time: "text-[9px]",
         status: "size-2.5",
+        metaLabel: "max-w-[11rem] text-[9px]",
         actionRow: "gap-0.5",
         actionButton: "size-5",
         actionIcon: "size-2.5",
@@ -295,6 +322,7 @@ function Bubble({
         meta: "gap-1",
         time: "text-[10px]",
         status: "size-3",
+        metaLabel: "max-w-[12rem] text-[10px]",
         actionRow: "gap-0.5",
         actionButton: "size-6",
         actionIcon: "size-3",
@@ -379,8 +407,13 @@ function Bubble({
           </div>
         )}
 
-        {!editing && (timestamp || (status === "sent" && isUser) || hasActions) && (
+        {!editing && (metaLabel || timestamp || (status === "sent" && isUser) || hasActions) && (
           <div className={cn("flex items-center", densityStyles.meta, isUser ? "flex-row-reverse" : "flex-row")}>
+            {metaLabel && (
+              <span className={cn("truncate text-muted-foreground/70", densityStyles.metaLabel)}>
+                {metaLabel}
+              </span>
+            )}
             {timestamp && <span className={cn("text-muted-foreground/60", densityStyles.time)}>{timestamp}</span>}
             {status === "sent" && isUser && <Check className={cn("text-muted-foreground/60", densityStyles.status)} />}
 

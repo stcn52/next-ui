@@ -93,6 +93,19 @@ describe("Bubble", () => {
     expect(screen.getByText("Footer")).toBeTruthy()
   })
 
+  it("can keep compact metadata in the bubble meta row", () => {
+    render(
+      <Bubble
+        role="assistant"
+        content="Main"
+        metaLabel="模型: GPT-4o"
+        timestamp="10:08"
+      />,
+    )
+    expect(screen.getByText("模型: GPT-4o")).toBeTruthy()
+    expect(screen.getByText("10:08")).toBeTruthy()
+  })
+
   it("shows sent check icon for user with status=sent", () => {
     render(<Bubble role="user" content="Sent" status="sent" timestamp="11:00" />)
     expect(screen.getByText("11:00")).toBeTruthy()
@@ -165,6 +178,12 @@ describe("TypingIndicator", () => {
   it("renders custom text", () => {
     render(<TypingIndicator text="Loading..." />)
     expect(screen.getByText("Loading...")).toBeTruthy()
+  })
+
+  it("supports compact density", () => {
+    const { container } = render(<TypingIndicator density="compact" />)
+    expect(container.querySelector('[data-slot="typing-indicator"]')?.getAttribute("data-density")).toBe("compact")
+    expect(screen.getByText("AI 正在思考…")).toBeTruthy()
   })
 })
 
