@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.3 (2026-04-19)
+
+### Improvements
+
+- Added the new layout-system primitives, stories, hooks, store helpers, and Ant Design alignment docs/examples that landed on `main` after `v0.3.2`
+- Repaired the layout-system Storybook coverage by restoring the missing `Label` import in the affected story
+
+### Fixes
+
+- Stabilized Playwright visual baselines by freezing screenshot time and standardizing browser timezone handling for deterministic Storybook snapshots
+- Relaxed visual screenshot comparison noise just enough to absorb Linux font rasterization drift without masking layout regressions
+
+### Tests
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build:lib`
+- `pnpm test:e2e`
+
 ## 0.3.2 (2026-04-19)
 
 ### Fixes

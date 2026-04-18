@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test"
+import { expectPageScreenshot, freezeVisualTime } from "./visual-test-helpers"
+
+test.beforeEach(async ({ page }) => {
+  await freezeVisualTime(page)
+})
 
 test.describe("DataTable — default story", () => {
   test.beforeEach(async ({ page }) => {
@@ -84,11 +89,7 @@ test.describe("FileManager — default story", () => {
   })
 
   test("matches the visual baseline", async ({ page }) => {
-    await expect(page.locator("section").first()).toHaveScreenshot("file-manager-page.png", {
-      animations: "disabled",
-      caret: "hide",
-      scale: "css",
-    })
+    await expectPageScreenshot(page.locator("section").first(), "file-manager-page.png")
   })
 })
 
@@ -105,10 +106,6 @@ test.describe("FileManager — dark story", () => {
   })
 
   test("matches the dark visual baseline", async ({ page }) => {
-    await expect(page.locator("section").first()).toHaveScreenshot("file-manager-page-dark.png", {
-      animations: "disabled",
-      caret: "hide",
-      scale: "css",
-    })
+    await expectPageScreenshot(page.locator("section").first(), "file-manager-page-dark.png")
   })
 })
