@@ -119,6 +119,10 @@ interface ChatSenderProps
   utilityVisibility?: UtilityVisibility
   /** How many suggestion chips are shown before collapsing into a more toggle */
   suggestionLimit?: number
+  /** Controls whether the overlay suggestion trigger button is shown */
+  suggestionTriggerVisibility?: UtilityVisibility
+  /** Density used by mention/suggestion overlays */
+  overlayDensity?: Density
   /** Whether default attachment and suggestion actions share a compact group */
   defaultActionLayout?: DefaultActionLayout
   /** Form-engine field wiring */
@@ -179,6 +183,8 @@ function ChatSender({
   showKeyboardHint = false,
   utilityVisibility = "auto",
   suggestionLimit,
+  suggestionTriggerVisibility = "auto",
+  overlayDensity,
   defaultActionLayout,
   fieldProps,
   minRows,
@@ -264,6 +270,30 @@ function ChatSender({
       stopButtonSize: "xs" as const,
     },
   }[density]
+  const resolvedOverlayDensity = overlayDensity ?? density
+  const overlayStyles = {
+    default: {
+      offset: "mb-2",
+      panel: "p-1",
+      suggestionWrap: "gap-2",
+      mentionItem: "gap-2 px-2 py-1.5 text-sm",
+      mentionDescription: "text-xs",
+    },
+    compact: {
+      offset: "mb-1.5",
+      panel: "p-1",
+      suggestionWrap: "gap-1.5",
+      mentionItem: "gap-1.5 px-2 py-1 text-xs",
+      mentionDescription: "text-[10px]",
+    },
+    dense: {
+      offset: "mb-1",
+      panel: "p-0.5",
+      suggestionWrap: "gap-1",
+      mentionItem: "gap-1 px-1.5 py-1 text-[11px]",
+      mentionDescription: "text-[9px]",
+    },
+  }[resolvedOverlayDensity]
   const resolvedMinRows = minRows ?? (density === "dense" ? 1 : 2)
   const resolvedMaxRows = Math.max(maxRows, resolvedMinRows)
   const resolvedAttachmentSummaryPlacement =
@@ -622,6 +652,8 @@ function ChatSender({
   const defaultActionCount = Number(showAttachmentButton) + Number(hasOverlaySuggestions)
   const shouldGroupDefaultActions =
     resolvedDefaultActionLayout === "grouped" && defaultActionCount > 1
+  const showSuggestionTrigger =
+    hasOverlaySuggestions && suggestionTriggerVisibility !== "hidden"
 
   const attachmentTrigger = showAttachmentButton ? (
     <Button
@@ -637,7 +669,7 @@ function ChatSender({
     </Button>
   ) : null
 
-  const suggestionTrigger = hasOverlaySuggestions ? (
+  const suggestionTrigger = showSuggestionTrigger ? (
     <Button
       type="button"
       variant="ghost"
@@ -694,7 +726,11 @@ function ChatSender({
             data-slot="mention-list"
             role="listbox"
             aria-label="提及建议"
-            className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-64 overflow-y-auto rounded-md border bg-popover p-0.5 shadow-sm"
+            className={cn(
+              "absolute inset-x-0 bottom-full z-20 max-h-64 overflow-y-auto rounded-md border bg-popover shadow-sm",
+              overlayStyles.offset,
+              overlayStyles.panel,
+            )}
           >
             {filteredMentions.map((item, index) => (
               <button
@@ -704,13 +740,16 @@ function ChatSender({
                 aria-selected={activeMentionIndex === index}
                 onClick={() => handleMentionClick(item)}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent",
+                  "flex w-full items-center rounded-md text-left transition-colors hover:bg-accent",
+                  overlayStyles.mentionItem,
                   activeMentionIndex === index && "bg-accent",
                 )}
               >
                 <span className="font-medium">@{item.label}</span>
                 {item.description && (
-                  <span className="text-xs text-muted-foreground">{item.description}</span>
+                  <span className={cn("text-muted-foreground", overlayStyles.mentionDescription)}>
+                    {item.description}
+                  </span>
                 )}
               </button>
             ))}
@@ -721,9 +760,13 @@ function ChatSender({
           <div
             data-slot="suggestion-list"
             aria-label="快捷提示"
-            className="absolute inset-x-0 bottom-full z-20 mb-2 rounded-md border bg-popover p-1 shadow-sm"
+            className={cn(
+              "absolute inset-x-0 bottom-full z-20 rounded-md border bg-popover shadow-sm",
+              overlayStyles.offset,
+              overlayStyles.panel,
+            )}
           >
-            <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
+            <div className={cn("flex max-h-48 flex-wrap overflow-y-auto", overlayStyles.suggestionWrap)}>
               {visibleSuggestions.map(renderSuggestionChip)}
               {renderSuggestionOverflowChip()}
             </div>

@@ -260,6 +260,16 @@ describe("ChatSender", () => {
     expect(screen.getByText("Option C")).toBeTruthy()
   })
 
+  it("can hide the suggestion trigger in space-constrained layouts", () => {
+    render(
+      <ChatSender
+        suggestions={["Option A", "Option B"]}
+        suggestionTriggerVisibility="hidden"
+      />,
+    )
+    expect(screen.queryByRole("button", { name: "打开快捷提示" })).toBeNull()
+  })
+
   it("shows stop button when loading", () => {
     const spy = vi.fn()
     render(<ChatSender loading onCancel={spy} />)
@@ -671,6 +681,35 @@ describe("ChatConversations", () => {
     fireEvent.click(screen.getByRole("button", { name: "Yesterday 分组" }))
     await waitFor(() => {
       expect(screen.getByText("Chat C")).toBeTruthy()
+    })
+  })
+
+  it("can hide sidebar chrome details in dense layouts", async () => {
+    render(
+      <ChatConversations
+        items={[
+          {
+            key: "1",
+            label: "Chat A",
+            description: "Last msg A",
+            time: "10:00",
+            group: "Today",
+            icon: <span data-testid="conversation-icon">I</span>,
+          },
+        ]}
+        density="dense"
+        showAvatar={false}
+        showTime={false}
+        showGroupCount={false}
+        collapsibleGroups
+      />,
+    )
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("conversation-icon")).toBeNull()
+      expect(screen.queryByText("10:00")).toBeNull()
+      expect(screen.getByRole("button", { name: "Today 分组" })).not.toHaveTextContent("1")
+      expect(screen.getByText("Chat A")).toBeTruthy()
     })
   })
 })

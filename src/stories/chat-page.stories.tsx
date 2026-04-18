@@ -345,7 +345,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
   const pageStyles = ultraCompact
     ? {
         shell: "h-[37.5rem] max-w-[84rem] rounded-md",
-        sidebar: "w-56",
+        sidebar: "w-52",
         header: "px-2.5 py-1.5",
         titleRow: "gap-1.5",
         subtitle: "hidden",
@@ -364,7 +364,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
       }
     : {
         shell: "h-[40rem] max-w-[92rem] rounded-lg",
-        sidebar: "w-60",
+        sidebar: "w-56",
         header: "px-3 py-2",
         titleRow: "gap-2",
         subtitle: "text-[11px] text-muted-foreground",
@@ -621,10 +621,14 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         activeKey={activeConv}
         onChange={(key) => setActiveConv(key)}
         onNewChat={() => setActiveConv("new")}
-        density="compact"
+        title={ultraCompact ? "会话" : "会话列表"}
+        density={ultraCompact ? "dense" : "compact"}
         collapsibleGroups
         defaultCollapsedGroups={["更早"]}
         showDescription={false}
+        showAvatar={!ultraCompact}
+        showTime={!ultraCompact}
+        showGroupCount={!ultraCompact}
         className={`${pageStyles.sidebar} shrink-0 border-r`}
       />
 
@@ -770,6 +774,7 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               statusActionsPlacement="input"
               footerTextPlacement="input"
               suggestionLimit={2}
+              overlayDensity={ultraCompact ? "dense" : "compact"}
               loading={isStreaming}
               onSubmit={handleSend}
               onCancel={handleStopStreaming}
@@ -780,7 +785,11 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               mentions={MENTION_ITEMS}
               prefix={<AttachmentDialog />}
               onAttach={handleAddAttachment}
-              statusActions={<span className="text-[10px] text-muted-foreground">模型: {model}</span>}
+              statusActions={
+                ultraCompact ? undefined : (
+                  <span className="text-[10px] text-muted-foreground">模型: {model}</span>
+                )
+              }
               footerText={pageStyles.senderFooterText}
             />
           </div>

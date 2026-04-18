@@ -10,7 +10,7 @@ import { Bot, ChevronDown, MessageSquarePlus, Search } from "lucide-react"
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-type ChatConversationsDensity = "default" | "compact"
+type ChatConversationsDensity = "default" | "compact" | "dense"
 
 interface ConversationItem {
   /** Unique key */
@@ -54,6 +54,12 @@ interface ChatConversationsProps extends Omit<React.ComponentProps<"div">, "onCh
   density?: ChatConversationsDensity
   /** Whether to show the description preview line */
   showDescription?: boolean
+  /** Whether to show the avatar/icon for each conversation */
+  showAvatar?: boolean
+  /** Whether to show the time label for each conversation */
+  showTime?: boolean
+  /** Whether to show group counts in collapsible headers */
+  showGroupCount?: boolean
   /** Whether group sections can be collapsed */
   collapsibleGroups?: boolean
   /** Group names collapsed by default */
@@ -76,6 +82,9 @@ function ChatConversations({
   searchPlaceholder = "搜索会话…",
   density = "default",
   showDescription = true,
+  showAvatar = true,
+  showTime = true,
+  showGroupCount = true,
   collapsibleGroups = false,
   defaultCollapsedGroups = [],
   className,
@@ -124,6 +133,24 @@ function ChatConversations({
       time: "text-[9px]",
       description: "text-[11px]",
       badge: "size-4.5 text-[9px]",
+    },
+    dense: {
+      header: "px-2 py-1",
+      title: "text-[11px]",
+      newChatButton: "size-6.5",
+      searchWrap: "px-2 py-0.5",
+      searchField: "gap-1.5 px-2 py-1",
+      searchText: "text-[11px]",
+      listWrap: "gap-0.5 px-1 py-0.5",
+      groupLabel: "px-1.5 pt-1 pb-0 text-[9px]",
+      row: "gap-1 rounded-md px-1.5 py-1",
+      avatar: "size-6",
+      avatarFallback: "text-[9px]",
+      icon: "size-3",
+      label: "text-[11px]",
+      time: "text-[9px]",
+      description: "text-[10px]",
+      badge: "size-4 text-[9px]",
     },
   }[density]
 
@@ -225,7 +252,9 @@ function ChatConversations({
                   >
                     <span>{group}</span>
                     <span className="flex items-center gap-1">
-                      <span className={densityStyles.time}>{groupItems.length}</span>
+                      {showGroupCount && (
+                        <span className={densityStyles.time}>{groupItems.length}</span>
+                      )}
                       <ChevronDown className={cn("transition-transform", densityStyles.icon, collapsedGroups[group] && "-rotate-90")} />
                     </span>
                   </button>
@@ -248,15 +277,16 @@ function ChatConversations({
                   className={cn(
                     "flex w-full items-center text-left transition-colors",
                     densityStyles.row,
+                    !showAvatar && "justify-between",
                     activeId === c.key ? "bg-accent" : "hover:bg-accent/50",
                     c.disabled && "pointer-events-none opacity-50",
                   )}
                 >
-                  {c.icon ?? defaultIcon}
+                  {showAvatar && (c.icon ?? defaultIcon)}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <span className={cn("truncate font-medium", densityStyles.label)}>{c.label}</span>
-                      {c.time && (
+                      {showTime && c.time && (
                         <span className={cn("shrink-0 text-muted-foreground", densityStyles.time)}>
                           {c.time}
                         </span>
