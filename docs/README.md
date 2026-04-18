@@ -26,6 +26,8 @@
 
 👉 **[0.3.3 发布复盘](./release-0.3.3-retrospective.md)**
 
+👉 **[发布复盘模板](./release-retrospective-template.md)**
+
 👉 **[视觉回归指南](./visual-regression.md)**
 
 ---
