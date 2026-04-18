@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/overlays/command"
 
 type ChatCommandAttachTo = "chat-sender" | "composer" | "standalone"
+type ChatCommandPaletteDensity = "default" | "compact"
 
 interface ChatCommandItem {
   key: string
@@ -31,6 +32,8 @@ interface ChatCommandPaletteProps
   query?: string
   trigger?: string
   attachTo?: ChatCommandAttachTo
+  density?: ChatCommandPaletteDensity
+  showDescription?: boolean
   emptyText?: string
   searchPlaceholder?: string
   onOpenChange?: (open: boolean) => void
@@ -44,6 +47,8 @@ function ChatCommandPalette({
   query,
   trigger = "/",
   attachTo = "standalone",
+  density,
+  showDescription,
   emptyText = "没有匹配的命令",
   searchPlaceholder = "搜索命令…",
   onOpenChange,
@@ -60,6 +65,27 @@ function ChatCommandPalette({
     ? query.trimStart().slice(trigger.length)
     : ""
   const search = query !== undefined ? slashQuery : internalQuery
+  const resolvedDensity = density ?? (attachTo === "standalone" ? "default" : "compact")
+  const resolvedShowDescription = showDescription ?? (resolvedDensity === "default")
+  const densityStyles = resolvedDensity === "compact"
+    ? {
+        root: "rounded-md",
+        input: "h-8 text-xs",
+        list: "max-h-48",
+        item: "min-h-8 gap-2 rounded-md px-2 py-1",
+        label: "text-xs",
+        description: "text-[10px]",
+        shortcut: "text-[10px]",
+      }
+    : {
+        root: "rounded-lg",
+        input: "",
+        list: "max-h-64",
+        item: "",
+        label: "",
+        description: "text-xs",
+        shortcut: "",
+      }
 
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {
@@ -115,8 +141,10 @@ function ChatCommandPalette({
     <div
       data-slot="chat-command-palette"
       data-attach-to={attachTo}
+      data-density={resolvedDensity}
       className={cn(
-        "rounded-lg border bg-popover shadow-sm",
+        "border bg-popover shadow-sm",
+        densityStyles.root,
         attachTo === "standalone" ? "w-full max-w-lg" : "w-full",
         className,
       )}
@@ -152,9 +180,10 @@ function ChatCommandPalette({
             value={internalQuery}
             onValueChange={setInternalQuery}
             placeholder={searchPlaceholder}
+            className={densityStyles.input}
           />
         )}
-        <CommandList className="max-h-64">
+        <CommandList className={densityStyles.list}>
           {filteredItems.length === 0 ? (
             <CommandEmpty>{emptyText}</CommandEmpty>
           ) : (
@@ -169,18 +198,18 @@ function ChatCommandPalette({
                       disabled={item.disabled}
                       onSelect={() => handleSelect(item)}
                       onClick={() => handleSelect(item)}
-                      className={cn(activeIndex === itemIndex && "bg-muted")}
+                      className={cn(densityStyles.item, activeIndex === itemIndex && "bg-muted")}
                     >
                       {item.icon}
                       <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate">{item.label}</span>
-                        {item.description && (
-                          <span className="truncate text-xs text-muted-foreground">
+                        <span className={cn("truncate", densityStyles.label)}>{item.label}</span>
+                        {resolvedShowDescription && item.description && (
+                          <span className={cn("truncate text-muted-foreground", densityStyles.description)}>
                             {item.description}
                           </span>
                         )}
                       </div>
-                      {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
+                      {item.shortcut && <CommandShortcut className={densityStyles.shortcut}>{item.shortcut}</CommandShortcut>}
                     </CommandItem>
                   )
                 })}
@@ -194,4 +223,9 @@ function ChatCommandPalette({
 }
 
 export { ChatCommandPalette }
-export type { ChatCommandAttachTo, ChatCommandItem, ChatCommandPaletteProps }
+export type {
+  ChatCommandAttachTo,
+  ChatCommandItem,
+  ChatCommandPaletteDensity,
+  ChatCommandPaletteProps,
+}

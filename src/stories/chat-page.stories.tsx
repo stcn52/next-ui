@@ -590,6 +590,9 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               items={PROMPT_ITEMS}
               density="compact"
               groupable
+              showItemDescription={false}
+              showTemplateDescription={false}
+              showTemplateContent={false}
               selectedKey={selectedPromptKey}
               onSelect={(item) => setSelectedPromptKey(item.key)}
               onApply={handlePromptApply}
@@ -599,6 +602,8 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
           <ChatCommandPalette
             open
             attachTo="standalone"
+            density="compact"
+            showDescription={false}
             items={COMMAND_ITEMS}
             onSelect={handleCommandSelect}
             className="max-w-none"

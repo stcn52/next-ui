@@ -32,6 +32,8 @@ export const BadgeGroup: Story = {
   args: {
     variant: "badge",
     status: "away",
+    density: "compact",
+    participantLimit: 2,
     participants: [
       { key: "a", label: "Alice" },
       { key: "b", label: "Bob" },

@@ -49,6 +49,9 @@ interface PromptLibraryProps
   renderEmpty?: React.ReactNode
   searchPlaceholder?: string
   applyLabel?: string
+  showItemDescription?: boolean
+  showTemplateDescription?: boolean
+  showTemplateContent?: boolean
   onSelect?: (item: PromptLibraryItem) => void
   onApply?: (result: PromptLibraryApplyResult, item: PromptLibraryItem) => void
 }
@@ -67,6 +70,9 @@ function PromptLibrary({
   renderEmpty,
   searchPlaceholder = "搜索提示词…",
   applyLabel = "应用模板",
+  showItemDescription = true,
+  showTemplateDescription = true,
+  showTemplateContent = true,
   onSelect,
   onApply,
   className,
@@ -245,7 +251,7 @@ function PromptLibrary({
                         )}
                       >
                         <div className={cn("font-medium", densityStyles.itemTitle)}>{item.title}</div>
-                        {item.description && (
+                        {showItemDescription && item.description && (
                           <p className={cn("text-muted-foreground", densityStyles.itemDescription)}>
                             {item.description}
                           </p>
@@ -263,7 +269,7 @@ function PromptLibrary({
       <Card className={densityStyles.mainCard}>
         <CardHeader className={densityStyles.header}>
           <CardTitle className={densityStyles.title}>{selectedItem?.title ?? "请选择模板"}</CardTitle>
-          {selectedItem?.description && (
+          {showTemplateDescription && selectedItem?.description && (
             <CardDescription className={densityStyles.description}>
               {selectedItem.description}
             </CardDescription>
@@ -310,14 +316,16 @@ function PromptLibrary({
           </div>
 
           <div className={densityStyles.section}>
-            <div className={densityStyles.variableLabel}>
-              <div className={cn("font-medium", densityStyles.sectionTitle)}>模板内容</div>
-              <Textarea
-                value={selectedItem?.content ?? ""}
-                readOnly
-                className={densityStyles.previewArea}
-              />
-            </div>
+            {showTemplateContent && (
+              <div className={densityStyles.variableLabel}>
+                <div className={cn("font-medium", densityStyles.sectionTitle)}>模板内容</div>
+                <Textarea
+                  value={selectedItem?.content ?? ""}
+                  readOnly
+                  className={densityStyles.previewArea}
+                />
+              </div>
+            )}
             <div className={densityStyles.variableLabel}>
               <div className={cn("font-medium", densityStyles.sectionTitle)}>渲染预览</div>
               <Textarea value={rendered} readOnly className={densityStyles.previewArea} />

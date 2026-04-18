@@ -58,6 +58,7 @@ export const Standalone: Story = {
         <ChatCommandPalette
           defaultOpen
           items={COMMANDS}
+          density="compact"
           onSelect={(item) => setLastCommand(item.label)}
         />
       </div>
@@ -83,6 +84,7 @@ export const SlashAttachedToSender: Story = {
             attachTo="chat-sender"
             query={value}
             items={COMMANDS}
+            density="compact"
             onSelect={(item) => {
               setSelected(item.label)
               setValue(`/${item.key} `)

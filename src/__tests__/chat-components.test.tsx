@@ -436,6 +436,25 @@ describe("ChatPresence", () => {
     expect(screen.getByLabelText("Alice")).toBeTruthy()
     expect(screen.getByText("+1")).toBeTruthy()
   })
+
+  it("respects participant preview limit for tighter headers", () => {
+    render(
+      <ChatPresence
+        variant="badge"
+        participantLimit={2}
+        participants={[
+          { key: "a", label: "Alice" },
+          { key: "b", label: "Bob" },
+          { key: "c", label: "Chen" },
+          { key: "d", label: "Dana" },
+        ]}
+      />,
+    )
+    expect(screen.getByLabelText("Alice")).toBeTruthy()
+    expect(screen.getByLabelText("Bob")).toBeTruthy()
+    expect(screen.queryByLabelText("Chen")).toBeNull()
+    expect(screen.getByText("+2")).toBeTruthy()
+  })
 })
 
 describe("ChatCommandPalette", () => {
@@ -464,6 +483,20 @@ describe("ChatCommandPalette", () => {
     })
     expect(screen.getByText("注入上下文")).toBeTruthy()
     expect(screen.queryByText("切换模型")).toBeNull()
+  })
+
+  it("can hide command descriptions in compact embedded mode", () => {
+    render(
+      <ChatCommandPalette
+        open
+        attachTo="chat-sender"
+        density="compact"
+        showDescription={false}
+        items={items}
+      />,
+    )
+    expect(screen.getByText("切换模型")).toBeTruthy()
+    expect(screen.queryByText("选择新的模型")).toBeNull()
   })
 })
 
@@ -519,6 +552,22 @@ describe("PromptLibrary", () => {
     const { container } = render(<PromptLibrary items={items} density="compact" />)
     expect(container.querySelector('[data-slot="prompt-library"]')).toBeTruthy()
     expect(screen.getByText("提示词模板")).toBeTruthy()
+  })
+
+  it("can hide list and template descriptions for embedded prompt tools", () => {
+    render(
+      <PromptLibrary
+        items={items}
+        density="compact"
+        showItemDescription={false}
+        showTemplateDescription={false}
+        showTemplateContent={false}
+      />,
+    )
+    expect(screen.getAllByText("排查问题").length).toBeGreaterThan(0)
+    expect(screen.queryByText("定位问题根因")).toBeNull()
+    expect(screen.queryByText("模板内容")).toBeNull()
+    expect(screen.getByText("渲染预览")).toBeTruthy()
   })
 
   it("renders templates with helper function", () => {

@@ -26,6 +26,7 @@ interface ChatPresenceProps extends Omit<React.ComponentProps<"div">, "children"
   participants?: PresenceParticipant[]
   variant?: PresenceVariant
   density?: PresenceDensity
+  participantLimit?: number
   showStatusLabel?: boolean
   showReadLabel?: boolean
   labels?: Partial<Record<PresenceStatus | PresenceReadState | "typing" | "thinking", string>>
@@ -59,6 +60,7 @@ function ChatPresence({
   participants,
   variant = "inline",
   density = "default",
+  participantLimit,
   showStatusLabel = true,
   showReadLabel = true,
   labels,
@@ -122,6 +124,7 @@ function ChatPresence({
   }[density]
   const shouldShowStatusLabel = showStatusLabel || typing || thinking || (status === "offline" && Boolean(lastSeen))
   const shouldShowReadLabel = showReadLabel
+  const resolvedParticipantLimit = Math.max(1, participantLimit ?? (density === "dense" ? 2 : 3))
 
   const readIcon =
     readState === "sent" ? (
@@ -134,7 +137,7 @@ function ChatPresence({
 
   const participantsPreview = participants?.length ? (
     <div className={cn("flex items-center", densityStyles.participantWrap)}>
-      {participants.slice(0, 3).map((participant) => (
+      {participants.slice(0, resolvedParticipantLimit).map((participant) => (
         <Avatar
           key={participant.key}
           className={cn("border-background", densityStyles.participant)}
@@ -146,8 +149,10 @@ function ChatPresence({
           </AvatarFallback>
         </Avatar>
       ))}
-      {participants.length > 3 && (
-        <div className={cn("text-muted-foreground", densityStyles.participantMore)}>+{participants.length - 3}</div>
+      {participants.length > resolvedParticipantLimit && (
+        <div className={cn("text-muted-foreground", densityStyles.participantMore)}>
+          +{participants.length - resolvedParticipantLimit}
+        </div>
       )}
     </div>
   ) : null

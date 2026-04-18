@@ -70,3 +70,13 @@ export const Filtered: Story = {
     await expect(canvas.getByText("文案润色")).toBeInTheDocument()
   },
 }
+
+export const EmbeddedCompact: Story = {
+  args: {
+    items: ITEMS,
+    density: "compact",
+    showItemDescription: false,
+    showTemplateDescription: false,
+    showTemplateContent: false,
+  },
+}
