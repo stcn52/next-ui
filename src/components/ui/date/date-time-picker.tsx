@@ -192,6 +192,7 @@ export function DateTimePicker({
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-label={fieldProps ? undefined : (formatted ?? placeholder)}
             aria-labelledby={fieldProps?.["aria-labelledby"]}
             aria-describedby={fieldProps?.["aria-describedby"]}
             aria-invalid={fieldProps?.["aria-invalid"]}

@@ -175,6 +175,7 @@ function ColorPicker({
             disabled && "opacity-50 cursor-not-allowed",
           )}
           disabled={disabled}
+          aria-label={fieldProps ? undefined : "打开颜色选择器"}
           aria-labelledby={fieldProps?.["aria-labelledby"]}
           aria-describedby={fieldProps?.["aria-describedby"]}
           aria-invalid={fieldProps?.["aria-invalid"]}

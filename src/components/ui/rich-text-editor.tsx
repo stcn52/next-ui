@@ -269,6 +269,7 @@ export function RichTextEditor({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
+          aria-label={fieldProps ? undefined : "Markdown 编辑器"}
           aria-labelledby={fieldProps?.["aria-labelledby"]}
           aria-describedby={fieldProps?.["aria-describedby"]}
           aria-invalid={fieldProps?.["aria-invalid"]}
