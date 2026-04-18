@@ -14,11 +14,14 @@ test.describe("DataTable — default story", () => {
 
   test("filter input narrows results", async ({ page }) => {
     const input = page.getByPlaceholder("Filter emails...")
-    await input.fill("ken")
+    await input.click()
+    await input.pressSequentially("ken")
+    await expect(input).toHaveValue("ken")
 
     const rows = page.locator('[data-slot="table-body"] tr')
     await expect(page.getByText("ken99@yahoo.com")).toBeVisible()
     await expect(rows).toHaveCount(1)
+    await expect(page.getByRole("status")).toContainText("Page 1 of 1")
   })
 
   test("pagination next button advances page", async ({ page }) => {
