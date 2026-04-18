@@ -36,6 +36,7 @@ type AttachmentLayout = "scroll" | "wrap"
 type AttachmentDisplay = "preview" | "summary"
 type AttachmentSummaryPlacement = "utility" | "input"
 type UtilityVisibility = "auto" | "always" | "hidden"
+type MetaPlacement = "utility" | "input"
 
 interface ChatSenderProps
   extends Omit<
@@ -94,6 +95,8 @@ interface ChatSenderProps
   trailingActions?: React.ReactNode
   /** Status/meta actions rendered in the bottom utility row */
   statusActions?: React.ReactNode
+  /** Where status/meta actions are rendered */
+  statusActionsPlacement?: MetaPlacement
   /** Custom attachment summary node */
   attachmentSummary?: React.ReactNode
   /** Where summary-mode attachments are rendered */
@@ -104,6 +107,8 @@ interface ChatSenderProps
   suffix?: React.ReactNode
   /** Footer text below the sender */
   footerText?: string
+  /** Where footer text is rendered */
+  footerTextPlacement?: MetaPlacement
   /** Whether to show the keyboard hint in the utility row */
   showKeyboardHint?: boolean
   /** Controls when the utility row is rendered */
@@ -155,11 +160,13 @@ function ChatSender({
   leadingActions,
   trailingActions,
   statusActions,
+  statusActionsPlacement,
   attachmentSummary,
   attachmentSummaryPlacement,
   prefix,
   suffix,
   footerText,
+  footerTextPlacement,
   showKeyboardHint = false,
   utilityVisibility = "auto",
   fieldProps,
@@ -189,6 +196,9 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      inlineMeta: "gap-1.5",
+      inlineMetaText: "max-w-28 text-[10px]",
+      inlineMetaChip: "px-2 py-0.5 text-[10px]",
       attachment: "gap-2 pb-1",
       attachmentItemPadding: "px-2.5 py-1.5",
       meta: "gap-2 pt-1.5",
@@ -202,6 +212,9 @@ function ChatSender({
       cardContent: "gap-1.5 p-1.5",
       inputRow: "gap-1.5",
       textarea: "text-sm leading-6",
+      inlineMeta: "gap-1",
+      inlineMetaText: "max-w-24 text-[10px]",
+      inlineMetaChip: "px-1.5 py-0.5 text-[10px]",
       attachment: "gap-1.5 pb-0.5",
       attachmentItemPadding: "px-2 py-1",
       meta: "gap-1.5 pt-1",
@@ -215,6 +228,9 @@ function ChatSender({
       cardContent: "gap-1 p-1.5",
       inputRow: "gap-1",
       textarea: "text-xs leading-5",
+      inlineMeta: "gap-1",
+      inlineMetaText: "max-w-20 text-[9px]",
+      inlineMetaChip: "px-1.5 py-0.5 text-[9px]",
       attachment: "gap-1 pb-0.5",
       attachmentItemPadding: "px-1.5 py-0.5",
       meta: "gap-1 pt-1",
@@ -228,6 +244,10 @@ function ChatSender({
   const resolvedMaxRows = Math.max(maxRows, resolvedMinRows)
   const resolvedAttachmentSummaryPlacement =
     attachmentSummaryPlacement ?? (density === "dense" ? "input" : "utility")
+  const resolvedStatusActionsPlacement =
+    statusActionsPlacement ?? (density === "dense" ? "input" : "utility")
+  const resolvedFooterTextPlacement =
+    footerTextPlacement ?? (density === "dense" ? "input" : "utility")
   const attachmentCount = attachments?.length ?? 0
   const uploadingCount = attachments?.filter((attachment) => attachment.status === "uploading").length ?? 0
   const errorCount = attachments?.filter((attachment) => attachment.status === "error").length ?? 0
@@ -457,8 +477,27 @@ function ChatSender({
     resolvedAttachmentSummaryPlacement === "utility" &&
     attachmentSummaryNode
 
+  const showStatusActionsInInput =
+    resolvedStatusActionsPlacement === "input" && statusActions
+
+  const showStatusActionsInUtility =
+    resolvedStatusActionsPlacement === "utility" && statusActions
+
+  const showFooterTextInInput =
+    resolvedFooterTextPlacement === "input" && footerText
+
+  const showFooterTextInUtility =
+    resolvedFooterTextPlacement === "utility" && footerText
+
+  const hasInputMeta = Boolean(
+    showAttachmentSummaryInInput || showStatusActionsInInput || showFooterTextInInput,
+  )
+
   const hasUtilityContent = Boolean(
-    showAttachmentSummaryInUtility || footerText || statusActions || showKeyboardHint,
+    showAttachmentSummaryInUtility ||
+      showFooterTextInUtility ||
+      showStatusActionsInUtility ||
+      showKeyboardHint,
   )
 
   const hasMetaRow =
@@ -683,7 +722,6 @@ function ChatSender({
               )}
               {prefix}
               {leadingActions}
-              {showAttachmentSummaryInInput}
               <Textarea
                 ref={textareaRef}
                 id={fieldProps?.id}
@@ -710,6 +748,26 @@ function ChatSender({
                   densityStyles.textarea,
                 )}
               />
+              {hasInputMeta && (
+                <div
+                  data-slot="chat-sender-inline-meta"
+                  className={cn("flex min-w-0 shrink-0 items-center", densityStyles.inlineMeta)}
+                >
+                  {showAttachmentSummaryInInput}
+                  {showFooterTextInInput && (
+                    <span
+                      className={cn(
+                        "truncate rounded-full border bg-muted/60 text-muted-foreground",
+                        densityStyles.inlineMetaChip,
+                        densityStyles.inlineMetaText,
+                      )}
+                    >
+                      {footerText}
+                    </span>
+                  )}
+                  {showStatusActionsInInput}
+                </div>
+              )}
               {trailingActions}
               {suffix ?? (
                 loading && onCancel ? (
@@ -746,15 +804,15 @@ function ChatSender({
               >
                 <div className="flex min-w-0 flex-1 items-center gap-1.5">
                   {showAttachmentSummaryInUtility}
-                  {footerText && (
+                  {showFooterTextInUtility && (
                     <p className={cn("truncate text-muted-foreground", densityStyles.metaText)}>
                       {footerText}
                     </p>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                  {statusActions}
-                  {!statusActions && showKeyboardHint && (
+                  {showStatusActionsInUtility}
+                  {!showStatusActionsInUtility && showKeyboardHint && (
                     <p className={cn("text-muted-foreground/60 select-none", densityStyles.metaText)}>
                       ⇧↵ 换行
                     </p>
@@ -776,6 +834,7 @@ export type {
   AttachmentSummaryPlacement,
   ChatSenderProps,
   Density,
+  MetaPlacement,
   MentionItem,
   SuggestionsVariant,
   UtilityVisibility,

@@ -349,6 +349,21 @@ describe("ChatSender", () => {
     expect(screen.queryByText("hidden meta")).toBeNull()
     expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
   })
+
+  it("can place footer text and status actions inline with the input row", () => {
+    render(
+      <ChatSender
+        footerText="仅供参考"
+        footerTextPlacement="input"
+        statusActionsPlacement="input"
+        statusActions={<span>模型: GPT-4o</span>}
+      />,
+    )
+    expect(screen.getByText("仅供参考")).toBeTruthy()
+    expect(screen.getByText("模型: GPT-4o")).toBeTruthy()
+    expect(document.querySelector('[data-slot="chat-sender-inline-meta"]')).toBeTruthy()
+    expect(document.querySelector('[data-slot="chat-sender-meta"]')).toBeNull()
+  })
 })
 
 describe("ChatPresence", () => {

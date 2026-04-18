@@ -375,8 +375,8 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
         messages: "gap-2 px-3 py-2.5",
         sender: "px-3 pb-2.5 pt-1.5",
         senderDensity: "compact" as const,
-        senderFooterText: "AI 回复仅供参考，请以实际为准",
-        showKeyboardHint: true,
+        senderFooterText: "仅供参考",
+        showKeyboardHint: false,
         toolRail: "w-11 gap-1.5 py-2.5",
         toolPanelDocked: "w-[22rem]",
         toolPanelOverlay: "right-12 top-14 bottom-[5.25rem] w-[19rem]",
@@ -769,6 +769,8 @@ function ChatPage({ ultraCompact = false }: { ultraCompact?: boolean }) {
               showKeyboardHint={pageStyles.showKeyboardHint}
               attachmentDisplay="summary"
               attachmentSummaryPlacement="input"
+              statusActionsPlacement="input"
+              footerTextPlacement="input"
               loading={isStreaming}
               onSubmit={handleSend}
               onCancel={handleStopStreaming}
